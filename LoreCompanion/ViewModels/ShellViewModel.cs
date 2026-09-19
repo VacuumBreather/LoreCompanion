@@ -1,6 +1,7 @@
 ﻿using System.Windows.Data;
 using Caliburn.Micro;
 using LoreCompanion.Extensions;
+using LoreCompanion.Models;
 
 namespace LoreCompanion.ViewModels
 {
@@ -30,7 +31,10 @@ namespace LoreCompanion.ViewModels
 
         protected override Task OnInitializedAsync(CancellationToken cancellationToken)
         {
-            return ActivateItemAsync(Items.First(), cancellationToken);
+            var firstGroup = (CollectionViewGroup)ItemsView.Groups!.First();
+            var firstScreen = (SectionScreen)firstGroup.Items.First();
+
+            return ActivateItemAsync(firstScreen, cancellationToken);
         }
     }
 }

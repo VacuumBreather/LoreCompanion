@@ -3,7 +3,7 @@
     public class EpisodesViewMode : SectionScreen
     {
         public EpisodesViewMode()
-            : base(NavigationSection.Overview)
+            : base(NavigationSection.Progress)
         {
             DisplayName = "Episodes";
         }
