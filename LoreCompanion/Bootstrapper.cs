@@ -96,5 +96,11 @@ namespace LoreCompanion
 
             await DisplayRootViewForAsync<ShellViewModel>();
         }
+
+        protected override void OnExit(object sender, EventArgs e)
+        {
+            var shellViewModel = _serviceProvider.GetRequiredService<ShellViewModel>();
+            shellViewModel.DeactivateAsync(true).GetAwaiter().GetResult();
+        }
     }
 }

@@ -34,4 +34,8 @@
         </Page>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Views\Converters\" />
+    </ItemGroup>
+
 </Project>
