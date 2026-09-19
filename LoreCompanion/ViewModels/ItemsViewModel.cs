@@ -9,7 +9,7 @@ namespace LoreCompanion.ViewModels
     {
         private readonly IDbContextFactory<LoreDbContext> _dbContextFactory;
 
-        public ItemsViewModel(IDbContextFactory<LoreDbContext> dbContextFactory)
+        public ItemsViewModel(IDbContextFactory<LoreDbContext> dbContextFactory) : base(NavigationSection.Lore)
         {
             _dbContextFactory = dbContextFactory;
             DisplayName = "Items";

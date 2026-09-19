@@ -2,7 +2,7 @@
 {
     public class CharactersViewModel : SectionScreen
     {
-        public CharactersViewModel()
+        public CharactersViewModel() : base(NavigationSection.Lore)
         {
             DisplayName = "Characters";
         }

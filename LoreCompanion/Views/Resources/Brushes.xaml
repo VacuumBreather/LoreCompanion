@@ -3,7 +3,26 @@
         <ResourceDictionary Source="Colors.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <SolidColorBrush Color="{StaticResource Color.Background.5}" x:Key="Brush.Background.Main" />
+    <SolidColorBrush Color="{StaticResource Color.Background.3}" x:Key="Brush.Background.Main" />
+    <SolidColorBrush Color="{StaticResource Color.Background.4}" x:Key="Brush.Background.HeaderFooter" />
+    <SolidColorBrush Color="{StaticResource Color.Background.5}" x:Key="Brush.Background.Panel" />
+    <LinearGradientBrush x:Key="Brush.Background.Selected">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Color="{StaticResource Color.Primary.20}" Offset="0.25" />
+            <GradientStop Color="{StaticResource Color.Background.20.Transparent}" Offset="1" />
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Brush.Background.MouseOver">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Color="{StaticResource Color.Primary.30}" Offset="0.25" />
+            <GradientStop Color="{StaticResource Color.Background.30.Transparent}" Offset="1" />
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
 
-    <SolidColorBrush Color="{StaticResource Color.Primary.80}" x:Key="Brush.Foreground" />
+    <SolidColorBrush Color="{StaticResource Color.Background.80}" x:Key="Brush.Foreground" />
+    <SolidColorBrush Color="{StaticResource Color.Primary.80}" x:Key="Brush.Foreground.Primary" />
+    <SolidColorBrush Color="{StaticResource Color.Primary.40}" x:Key="Brush.Foreground.Primary.Weak" />
+    <SolidColorBrush Color="{StaticResource Color.Primary.60}" x:Key="Brush.Foreground.Primary.Strong" />
+
+    <SolidColorBrush Color="{StaticResource Color.Primary.20}" x:Key="Brush.Border" />
 </ResourceDictionary>

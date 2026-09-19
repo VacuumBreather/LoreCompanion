@@ -8,6 +8,33 @@
         <UseWPF>true</UseWPF>
     </PropertyGroup>
 
+    <!-- Shader compilation -->
+    <PropertyGroup>
+        <FxCPath>C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\fxc.exe</FxCPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ShaderSource Include="Views\Resources\Shaders\TintShader.hlsl" />
+    </ItemGroup>
+
+    <Target Name="CompileShaders"
+            BeforeTargets="BeforeBuild"
+            Inputs="@(ShaderSource)"
+            Outputs="$(MSBuildProjectDirectory)\Views\Resources\Shaders\TintShader.ps">
+
+        <Message Importance="High"
+                 Text="Compiling shader: @(ShaderSource)" />
+
+        <Exec
+            Command="&quot;$(FxCPath)&quot; /T ps_3_0 /E main /Fo &quot;$(MSBuildProjectDirectory)\Views\Resources\Shaders\TintShader.ps&quot; &quot;@(ShaderSource)&quot;" />
+
+        <ItemGroup>
+            <Resource Include="$(MSBuildProjectDirectory)\Views\Resources\Shaders\TintShader.ps" />
+        </ItemGroup>
+
+    </Target>
+
+    <!-- Application resources -->
     <ItemGroup>
         <None Remove="Views\Resources\Fonts\CormorantGaramond-VariableFont.ttf"/>
         <Resource Include="Views\Resources\Fonts\CormorantGaramond-VariableFont.ttf"/>
@@ -15,8 +42,10 @@
         <Resource Include="Views\Resources\Images\EldenRing.png"/>
         <None Remove="Views\Resources\Images\FooterLandscape.png" />
         <Resource Include="Views\Resources\Images\FooterLandscape.png" />
+        <None Remove="Views\Resources\Shaders\TintShader.ps" />
     </ItemGroup>
 
+    <!-- NuGet packages -->
     <ItemGroup>
         <PackageReference Include="Caliburn.Micro" Version="5.0.258"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
@@ -28,16 +57,13 @@
         <PackageReference Include="Scrutor" Version="7.0.0"/>
     </ItemGroup>
 
+    <!-- XAML -->
     <ItemGroup>
         <Page Update="Views\ShellView.xaml">
             <Generator>MSBuild:Compile</Generator>
             <XamlRuntime>Wpf</XamlRuntime>
             <SubType>Designer</SubType>
         </Page>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Views\Converters\" />
     </ItemGroup>
 
 </Project>
