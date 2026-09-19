@@ -2,15 +2,11 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
 
   <ItemGroup>
     <None Remove="Views\Resources\Fonts\CormorantGaramond-VariableFont.ttf" />
@@ -22,6 +18,11 @@
   <ItemGroup>
     <PackageReference Include="Caliburn.Micro" Version="5.0.258" />
     <PackageReference Include="Grace" Version="7.2.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
   </ItemGroup>
 
   <ItemGroup>

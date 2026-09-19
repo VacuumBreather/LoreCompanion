@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Caliburn.Micro;
 using Grace.DependencyInjection;
+using LoreCompanion.Models;
 using LoreCompanion.ViewModels;
 using LoreCompanion.Views;
 
@@ -41,6 +42,8 @@ namespace LoreCompanion
 
             _container.Configure(c => c.Export<WindowManager>().ByInterfaces().Lifestyle.Singleton());
             _container.Configure(c => c.Export<EventAggregator>().ByInterfaces().Lifestyle.Singleton());
+
+            _container.Configure(c => c.Export<LoreDbContext>().Lifestyle.Singleton());
         }
 
         protected override object GetInstance(Type service, string key)
@@ -60,6 +63,9 @@ namespace LoreCompanion
 
         protected override async void OnStartup(object sender, StartupEventArgs e)
         {
+            await using var context = (LoreDbContext)GetInstance(typeof(LoreDbContext), null!);
+            await context.Database.EnsureCreatedAsync();
+
             await DisplayRootViewForAsync<ShellViewModel>();
         }
     }
