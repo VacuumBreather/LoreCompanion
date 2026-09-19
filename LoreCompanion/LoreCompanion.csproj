@@ -13,6 +13,8 @@
         <Resource Include="Views\Resources\Fonts\CormorantGaramond-VariableFont.ttf"/>
         <None Remove="Views\Resources\Images\EldenRing.png"/>
         <Resource Include="Views\Resources\Images\EldenRing.png"/>
+        <None Remove="Views\Resources\Images\FooterLandscape.png" />
+        <Resource Include="Views\Resources\Images\FooterLandscape.png" />
     </ItemGroup>
 
     <ItemGroup>

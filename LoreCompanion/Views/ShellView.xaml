@@ -9,7 +9,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <DockPanel Margin="10">
+    <DockPanel>
         <DockPanel DockPanel.Dock="Top">
             <Image
                 DockPanel.Dock="Left"
@@ -23,6 +23,29 @@
                 Text="T&#8202;H&#8202;E&#8202; &#8202;T&#8202;A&#8202;R&#8202;N&#8202;I&#8202;S&#8202;H&#8202;E&#8202;D&#8202; &#8202;A&#8202;R&#8202;C&#8202;H&#8202;I&#8202;V&#8202;E"
                 VerticalAlignment="Center" />
         </DockPanel>
+        <Border
+            BorderBrush="{StaticResource Brush.Foreground}"
+            BorderThickness="0,2,0,0"
+            DockPanel.Dock="Bottom"
+            Height="75">
+            <DockPanel>
+                <Image
+                    DockPanel.Dock="Right"
+                    HorizontalAlignment="Right"
+                    Source="/LoreCompanion;component/Views/Resources/Images/FooterLandscape.png" />
+                <Image
+                    DockPanel.Dock="Left"
+                    Margin="10"
+                    Source="/LoreCompanion;component/Views/Resources/Images/EldenRing.png"
+                    VerticalAlignment="Center" />
+                <TextBlock
+                    DockPanel.Dock="Left"
+                    FontSize="18"
+                    Margin="10"
+                    Text="The more you learn, the more the world reveals itself."
+                    VerticalAlignment="Center" />
+            </DockPanel>
+        </Border>
 
         <TabControl TabStripPlacement="Left" x:Name="Items" />
     </DockPanel>
