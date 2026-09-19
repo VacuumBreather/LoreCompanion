@@ -11,7 +11,7 @@ namespace LoreCompanion.ViewModels
 
         protected override Task OnInitializedAsync(CancellationToken cancellationToken)
         {
-            return ActivateItemAsync(Items.First(),cancellationToken);
+            return ActivateItemAsync(Items.First(), cancellationToken);
         }
     }
 }

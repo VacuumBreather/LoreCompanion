@@ -1,17 +1,19 @@
-﻿using System.Reflection;
+﻿using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using Caliburn.Micro;
-using Grace.DependencyInjection;
 using LoreCompanion.Models;
 using LoreCompanion.ViewModels;
 using LoreCompanion.Views;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LoreCompanion
 {
     public class Bootstrapper : BootstrapperBase
     {
-        private readonly DependencyInjectionContainer _container = new();
+        private IServiceProvider _serviceProvider = null!;
 
         public Bootstrapper()
         {
@@ -20,51 +22,77 @@ namespace LoreCompanion
 
         protected override void Configure()
         {
-            _container.Configure(c =>
-            {
-                foreach (var type in typeof(Bootstrapper).Assembly.GetTypes()
-                                                         .Where(t => !t.IsAbstract)
-                                                         .Where(t => !t.IsGenericTypeDefinition)
-                                                         .Where(t => t.IsAssignableTo(typeof(SectionScreen))))
-                {
-                    c.Export(type).As(typeof(SectionScreen)).Lifestyle.SingletonPerRequest();
-                }
-            });
+            ServiceCollection services = new();
 
-            _container.Configure(c => c.ExportAssembly(typeof(Bootstrapper).Assembly)
-                                       .Where(t => t.IsAssignableTo(typeof(UserControl)))
-                                       .ByType()
-                                       .Lifestyle.SingletonPerRequest()
-                                 );
+            services.Scan(scan => scan.FromAssemblyOf<Bootstrapper>()
+                                      .AddClasses(classes => classes.AssignableTo<SectionScreen>()
+                                                                    .Where(t => !t.IsAbstract)
+                                                                    .Where(t => !t.IsGenericTypeDefinition))
+                                      .As<SectionScreen>()
+                                      .WithTransientLifetime()
+                                      .AddClasses(classes => classes.AssignableTo<UserControl>())
+                                      .AsSelf()
+                                      .WithTransientLifetime());
 
-            _container.Configure(c => c.Export<ShellViewModel>().Lifestyle.Singleton());
-            _container.Configure(c => c.Export<ShellView>().Lifestyle.Singleton());
+            services.AddSingleton<ShellViewModel>();
+            services.AddSingleton<ShellView>();
 
-            _container.Configure(c => c.Export<WindowManager>().ByInterfaces().Lifestyle.Singleton());
-            _container.Configure(c => c.Export<EventAggregator>().ByInterfaces().Lifestyle.Singleton());
+            services.AddSingleton<IWindowManager, WindowManager>();
+            services.AddSingleton<IEventAggregator, EventAggregator>();
 
-            _container.Configure(c => c.Export<LoreDbContext>().Lifestyle.Singleton());
+            // Sets up SQLite with the file path of your choice
+            var dbFolder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "LoreCompanion");
+
+            Directory.CreateDirectory(dbFolder);
+
+            var dbPath = Path.Combine(dbFolder, "lorecompanion.db");
+
+            services.AddDbContextFactory<LoreDbContext>(options => options.UseSqlite($"Data Source={dbPath}"));
+
+            _serviceProvider = services.BuildServiceProvider();
         }
 
-        protected override object GetInstance(Type service, string key)
+        protected override object? GetInstance(Type service, string key)
         {
-            return _container.Locate(service, key);
+            return _serviceProvider.GetKeyedService(service, key);
         }
 
         protected override IEnumerable<object> GetAllInstances(Type service)
         {
-            return _container.LocateAll(service);
+            return _serviceProvider.GetServices(service)!;
         }
 
         protected override void BuildUp(object instance)
         {
-            _container.Inject(instance);
+            var type = instance.GetType();
+
+            foreach (var property in type.GetProperties(
+                         BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (!property.CanWrite)
+                {
+                    continue;
+                }
+
+                var value = _serviceProvider.GetService(property.PropertyType);
+
+                if (value is null)
+                {
+                    continue;
+                }
+
+                property.SetValue(instance, value);
+            }
         }
 
         protected override async void OnStartup(object sender, StartupEventArgs e)
         {
-            await using var context = (LoreDbContext)GetInstance(typeof(LoreDbContext), null!);
-            await context.Database.EnsureCreatedAsync();
+            await using var context = await _serviceProvider.GetRequiredService<IDbContextFactory<LoreDbContext>>()
+                                                            .CreateDbContextAsync();
+
+            await context.Database.MigrateAsync();
 
             await DisplayRootViewForAsync<ShellViewModel>();
         }

@@ -1,14 +1,13 @@
 ﻿using System.Windows;
 
-namespace LoreCompanion.Views;
-
-/// <summary>
-/// Interaction logic for MainWindow.xaml
-/// </summary>
-public partial class ShellView : Window
+namespace LoreCompanion.Views
 {
-    public ShellView()
+    /// <summary>Interaction logic for MainWindow.xaml</summary>
+    public partial class ShellView : Window
     {
-        InitializeComponent();
+        public ShellView()
+        {
+            InitializeComponent();
+        }
     }
 }

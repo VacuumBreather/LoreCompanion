@@ -4,6 +4,5 @@ namespace LoreCompanion.ViewModels
 {
     public abstract class SectionScreen : Screen
     {
-
     }
 }

@@ -1,6 +1,4 @@
-﻿using Caliburn.Micro;
-
-namespace LoreCompanion.ViewModels
+﻿namespace LoreCompanion.ViewModels
 {
     public class DashboardViewModel : SectionScreen
     {
