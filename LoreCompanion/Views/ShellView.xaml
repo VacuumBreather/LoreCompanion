@@ -4,7 +4,7 @@
     Title="MainWindow"
     Width="800"
     mc:Ignorable="d"
-    x:Class="LoreCompanion.MainWindow"
+    x:Class="LoreCompanion.Views.ShellView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:LoreCompanion"
@@ -24,12 +24,7 @@
                 Text="T&#8202;H&#8202;E&#8202; &#8202;T&#8202;A&#8202;R&#8202;N&#8202;I&#8202;S&#8202;H&#8202;E&#8202;D&#8202; &#8202;A&#8202;R&#8202;C&#8202;H&#8202;I&#8202;V&#8202;E"
                 VerticalAlignment="Center" />
         </DockPanel>
-        <StackPanel>
-            <TextBlock FontSize="18" Margin="5">Dashboard</TextBlock>
-            <TextBlock FontSize="18" Margin="5">Items</TextBlock>
-            <TextBlock FontSize="18" Margin="5">Characters</TextBlock>
-            <TextBlock FontSize="18" Margin="5">Locations</TextBlock>
-            <TextBlock FontSize="18" Margin="5">Cutscenes</TextBlock>
-        </StackPanel>
+
+        <TabControl TabStripPlacement="Left" x:Name="Items" />
     </DockPanel>
 </Window>
