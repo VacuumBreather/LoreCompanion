@@ -3,5 +3,7 @@
         <ResourceDictionary Source="Colors.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <SolidColorBrush Color="{StaticResource Color.Background.10}" x:Key="Brush.Background.Main" />
+    <SolidColorBrush Color="{StaticResource Color.Background.5}" x:Key="Brush.Background.Main" />
+
+    <SolidColorBrush Color="{StaticResource Color.Primary.80}" x:Key="Brush.Foreground" />
 </ResourceDictionary>

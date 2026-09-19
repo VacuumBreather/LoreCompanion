@@ -10,5 +10,26 @@
     xmlns:local="clr-namespace:LoreCompanion"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid />
+    <DockPanel Margin="10">
+        <DockPanel DockPanel.Dock="Top">
+            <Image
+                DockPanel.Dock="Left"
+                Height="64"
+                Source="/LoreCompanion;component/Views/Resources/Images/EldenRing.png"
+                VerticalAlignment="Center" />
+            <TextBlock
+                DockPanel.Dock="Left"
+                FontSize="26"
+                Margin="5"
+                Text="T&#8202;H&#8202;E&#8202; &#8202;T&#8202;A&#8202;R&#8202;N&#8202;I&#8202;S&#8202;H&#8202;E&#8202;D&#8202; &#8202;A&#8202;R&#8202;C&#8202;H&#8202;I&#8202;V&#8202;E"
+                VerticalAlignment="Center" />
+        </DockPanel>
+        <StackPanel>
+            <TextBlock FontSize="18" Margin="5">Dashboard</TextBlock>
+            <TextBlock FontSize="18" Margin="5">Items</TextBlock>
+            <TextBlock FontSize="18" Margin="5">Characters</TextBlock>
+            <TextBlock FontSize="18" Margin="5">Locations</TextBlock>
+            <TextBlock FontSize="18" Margin="5">Cutscenes</TextBlock>
+        </StackPanel>
+    </DockPanel>
 </Window>
