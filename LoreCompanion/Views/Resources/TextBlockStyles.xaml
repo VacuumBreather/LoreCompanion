@@ -34,6 +34,14 @@
         <Setter Property="FontSize" Value="18" />
     </Style>
 
+    <!--  Style.TextBlock.Body.Quote  -->
+    <Style
+        x:Key="Style.TextBlock.Body.Quote"
+        BasedOn="{StaticResource Style.TextBlock.Body}"
+        TargetType="{x:Type TextBlock}">
+        <Setter Property="FontSize" Value="22" />
+    </Style>
+
     <!--  Style.TextBlock.Subtitle  -->
     <Style
         x:Key="Style.TextBlock.Subtitle"

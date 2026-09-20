@@ -8,29 +8,29 @@ namespace LoreCompanion.Views.Helpers
     public static class HighlightHelper
     {
         public static readonly DependencyProperty HighlightTextProperty = DependencyProperty.RegisterAttached(
-            "HighlightText",
+            DependencyPropertyNameHelper.GetName(nameof(HighlightTextProperty)),
             typeof(string),
             typeof(HighlightHelper),
             new PropertyMetadata(string.Empty, OnHighlightChanged));
 
         public static readonly DependencyProperty TextProperty = DependencyProperty.RegisterAttached(
-            "Text",
+            DependencyPropertyNameHelper.GetName(nameof(TextProperty)),
             typeof(string),
             typeof(HighlightHelper),
             new PropertyMetadata(string.Empty, OnHighlightChanged));
 
         public static readonly DependencyProperty HighlightBrushProperty = DependencyProperty.RegisterAttached(
-            "HighlightBrush",
+            DependencyPropertyNameHelper.GetName(nameof(HighlightBrushProperty)),
             typeof(Brush),
             typeof(HighlightHelper),
             new PropertyMetadata(new SolidColorBrush(Color.FromArgb(120, 255, 215, 0)))); // Gold highlight
 
         public static readonly DependencyProperty HighlightForegroundBrushProperty =
             DependencyProperty.RegisterAttached(
-                "HighlightForegroundBrush",
+                DependencyPropertyNameHelper.GetName(nameof(HighlightForegroundBrushProperty)),
                 typeof(Brush),
                 typeof(HighlightHelper),
-                new PropertyMetadata(new SolidColorBrush(Color.FromArgb(255, 120, 0, 0)))); // Gold highlight
+                new PropertyMetadata(new SolidColorBrush(Color.FromArgb(255, 120, 0, 0)))); // Dark red highlight
 
         public static string GetHighlightText(DependencyObject obj)
         {
@@ -74,11 +74,14 @@ namespace LoreCompanion.Views.Helpers
 
         private static void OnHighlightChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is not TextBlock textBlock)
+            if (d is TextBlock textBlock)
             {
-                return;
+                UpdateHighlight(textBlock);
             }
+        }
 
+        public static void UpdateHighlight(TextBlock textBlock)
+        {
             var text = GetText(textBlock);
             var query = GetHighlightText(textBlock);
             var highlightBrush = GetHighlightBrush(textBlock);
@@ -91,10 +94,13 @@ namespace LoreCompanion.Views.Helpers
                 return;
             }
 
+            var allCaps = TypographyHelper.GetAllCaps(textBlock);
+            var letterSpacing = TypographyHelper.GetIncreaseLetterSpacing(textBlock);
+
             if (string.IsNullOrEmpty(query))
             {
-                textBlock.Inlines.Add(new Run(text));
-
+                var formattedText = TypographyHelper.TransformText(text, allCaps, letterSpacing);
+                textBlock.Inlines.Add(new Run(formattedText));
                 return;
             }
 
@@ -107,29 +113,48 @@ namespace LoreCompanion.Views.Helpers
                 if (matchIndex < 0)
                 {
                     // Add remaining unmatched text
-                    textBlock.Inlines.Add(new Run(text.Substring(currentIndex)));
-
+                    var remaining = text.Substring(currentIndex);
+                    var transformed = TransformChunk(remaining, allCaps, letterSpacing, isEndOfString: true);
+                    textBlock.Inlines.Add(new Run(transformed));
                     break;
                 }
 
                 // Add unhighlighted chunk before the match
                 if (matchIndex > currentIndex)
                 {
-                    textBlock.Inlines.Add(new Run(text.Substring(currentIndex, matchIndex - currentIndex)));
+                    var chunk = text.Substring(currentIndex, matchIndex - currentIndex);
+                    var transformed = TransformChunk(chunk, allCaps, letterSpacing, isEndOfString: false);
+                    textBlock.Inlines.Add(new Run(transformed));
                 }
 
                 // Add highlighted chunk
+                var matchEnd = matchIndex + query.Length;
                 var matchText = text.Substring(matchIndex, query.Length);
+                var transformedMatch = TransformChunk(matchText, allCaps, letterSpacing, isEndOfString: matchEnd >= text.Length);
 
-                var matchRun = new Run(matchText)
+                var matchRun = new Run(transformedMatch)
                 {
-                    Background = highlightBrush, Foreground = highlightForegroundBrush,
+                    Background = highlightBrush,
+                    Foreground = highlightForegroundBrush,
                 };
 
                 textBlock.Inlines.Add(matchRun);
 
-                currentIndex = matchIndex + query.Length;
+                currentIndex = matchEnd;
             }
+        }
+
+        private static string TransformChunk(string chunk, bool allCaps, bool letterSpacing, bool isEndOfString)
+        {
+            var transformed = TypographyHelper.TransformText(chunk, allCaps, letterSpacing);
+
+            // Append hair space if more characters follow in subsequent runs
+            if (letterSpacing && !isEndOfString && !string.IsNullOrEmpty(transformed))
+            {
+                transformed += "\u200A";
+            }
+
+            return transformed;
         }
     }
 }

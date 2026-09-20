@@ -36,12 +36,25 @@
                                 helpers:HighlightHelper.Text="{Binding Name}"
                                 Style="{StaticResource Style.TextBlock.Heading.Large}" />
                         </DockPanel>
-                        <TextBlock
-                            helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
-                            helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
-                            helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                            helpers:HighlightHelper.Text="{Binding Description}"
-                            TextWrapping="Wrap" />
+                        <DockPanel Margin="0,20,0,0">
+                            <Border
+                                Width="250"
+                                Height="250"
+                                VerticalAlignment="Top"
+                                BorderBrush="{StaticResource Brush.Border.Primary}"
+                                BorderThickness="2"
+                                DockPanel.Dock="Left">
+                                <Image Stretch="Uniform" />
+                            </Border>
+                            <TextBlock
+                                Margin="40,0,80,0"
+                                helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
+                                helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
+                                helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                helpers:HighlightHelper.Text="{Binding Description, Converter={converters:QuoteConverter}}"
+                                Style="{StaticResource Style.TextBlock.Body.Quote}"
+                                TextWrapping="Wrap" />
+                        </DockPanel>
                     </StackPanel>
                 </DataTemplate>
             </converters:EditModeToDataTemplateConverter.ReadOnlyTemplate>

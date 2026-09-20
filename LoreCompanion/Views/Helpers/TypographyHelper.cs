@@ -49,6 +49,12 @@ namespace LoreCompanion.Views.Helpers
         {
             if (sender is TextBlock textBlock)
             {
+                if (!string.IsNullOrEmpty(HighlightHelper.GetText(textBlock)))
+                {
+                    HighlightHelper.UpdateHighlight(textBlock);
+                    return;
+                }
+
                 ApplyTypography(textBlock);
             }
         }
@@ -57,6 +63,12 @@ namespace LoreCompanion.Views.Helpers
         {
             if (sender is TextBlock textBlock)
             {
+                // When HighlightHelper is driving the TextBlock, do not overwrite its Inlines
+                if (!string.IsNullOrEmpty(HighlightHelper.GetText(textBlock)))
+                {
+                    return;
+                }
+
                 ApplyTypography(textBlock);
             }
         }
@@ -65,6 +77,13 @@ namespace LoreCompanion.Views.Helpers
         {
             if (d is not TextBlock textBlock)
             {
+                return;
+            }
+
+            // If HighlightHelper is active on this TextBlock, re-render highlights with updated typography
+            if (!string.IsNullOrEmpty(HighlightHelper.GetText(textBlock)))
+            {
+                HighlightHelper.UpdateHighlight(textBlock);
                 return;
             }
 
@@ -94,7 +113,7 @@ namespace LoreCompanion.Views.Helpers
             }
         }
 
-        private static string TransformText(string? text, bool allCaps, bool increaseLetterSpacing)
+        public static string TransformText(string? text, bool allCaps, bool increaseLetterSpacing)
         {
             if (string.IsNullOrEmpty(text))
             {
@@ -134,7 +153,6 @@ namespace LoreCompanion.Views.Helpers
                 if (binding.Converter is TypographyValueConverter)
                 {
                     BindingOperations.GetBindingExpression(textBlock, TextBlock.TextProperty)?.UpdateTarget();
-
                     return;
                 }
 
@@ -146,7 +164,6 @@ namespace LoreCompanion.Views.Helpers
 
                 var newBinding = CloneBinding(binding, wrappedConverter);
                 BindingOperations.SetBinding(textBlock, TextBlock.TextProperty, newBinding);
-
                 return;
             }
 
@@ -155,7 +172,6 @@ namespace LoreCompanion.Views.Helpers
                 if (multiBinding.Converter is TypographyMultiValueConverter)
                 {
                     BindingOperations.GetMultiBindingExpression(textBlock, TextBlock.TextProperty)?.UpdateTarget();
-
                     return;
                 }
 
@@ -167,7 +183,6 @@ namespace LoreCompanion.Views.Helpers
 
                 var newBinding = CloneMultiBinding(multiBinding, wrappedConverter);
                 BindingOperations.SetBinding(textBlock, TextBlock.TextProperty, newBinding);
-
                 return;
             }
 
