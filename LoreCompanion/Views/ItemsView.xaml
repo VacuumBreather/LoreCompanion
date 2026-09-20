@@ -79,34 +79,32 @@
                 DockPanel.Dock="Top"
                 Style="{StaticResource Style.TextBox.Search}"
                 Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            <StackPanel>
-                <DockPanel Margin="0,15,0,5">
-                    <TextBlock
-                        VerticalAlignment="Bottom"
-                        DockPanel.Dock="Left"
-                        Style="{StaticResource Style.TextBlock.Heading}"
-                        Text="Search Results" />
-                    <Button
-                        x:Name="CreateNew"
-                        Margin="5"
-                        HorizontalAlignment="Right"
-                        DockPanel.Dock="Right"
-                        Style="{StaticResource Style.Button.New}" />
-                </DockPanel>
-                <ListBox
-                    Background="Transparent"
-                    BorderThickness="0"
-                    ItemsSource="{Binding ItemsView}"
-                    SelectedItem="{Binding SelectedItem}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate DataType="{x:Type models:Item}">
-                            <StackPanel>
-                                <TextBlock Text="{Binding Name}" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </StackPanel>
+            <DockPanel Margin="0,15,0,5" DockPanel.Dock="Top">
+                <TextBlock
+                    VerticalAlignment="Bottom"
+                    DockPanel.Dock="Left"
+                    Style="{StaticResource Style.TextBlock.Heading}"
+                    Text="Search Results" />
+                <Button
+                    x:Name="CreateNew"
+                    Margin="5"
+                    HorizontalAlignment="Right"
+                    DockPanel.Dock="Right"
+                    Style="{StaticResource Style.Button.New}" />
+            </DockPanel>
+            <ListBox
+                Background="Transparent"
+                BorderThickness="0"
+                ItemsSource="{Binding ItemsView}"
+                SelectedItem="{Binding SelectedItem}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type models:Item}">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Name}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </DockPanel>
 
         <DockPanel Margin="20">

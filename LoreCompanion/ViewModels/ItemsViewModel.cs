@@ -1,41 +1,46 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows.Data;
 using Caliburn.Micro;
 using LoreCompanion.Models;
-using LoreCompanion.Views;
 using Microsoft.EntityFrameworkCore;
+using R3;
 
 namespace LoreCompanion.ViewModels
 {
-    public class ItemsViewModel : SectionScreen
+    public sealed class ItemsViewModel : SectionScreen
     {
         private readonly IDbContextFactory<LoreDbContext> _dbContextFactory;
+        private IDisposable? _subscription;
 
         public ItemsViewModel(IDbContextFactory<LoreDbContext> dbContextFactory) : base(NavigationSection.Lore)
         {
             _dbContextFactory = dbContextFactory;
             DisplayName = "Items";
+
+            ItemsView = CollectionViewSource.GetDefaultView(Items);
+            ItemsView.Filter = OnFilter;
         }
 
         protected override async Task OnInitializedAsync(CancellationToken cancellationToken)
         {
             await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-            ItemsView = CollectionViewSource.GetDefaultView(Items);
-            ItemsView.Filter = OnFilter;
+            var items = await context.Items.AsNoTracking().ToListAsync(cancellationToken);
 
             Items.Clear();
-            Items.AddRange(context.Items);
+            Items.AddRange(items);
 
             SelectedItem = Items.FirstOrDefault();
+
+            _subscription = this.ObservePropertyChanged(x => x.SearchText)
+                                .Debounce(TimeSpan.FromMilliseconds(250))
+                                .ObserveOnCurrentDispatcher()
+                                .Subscribe(_ => ItemsView.Refresh());
         }
 
         private bool OnFilter(object obj)
         {
-            var item = (Item)obj;
-
-            if (string.IsNullOrWhiteSpace(SearchText))
+            if (obj is not Item item || string.IsNullOrWhiteSpace(SearchText))
             {
                 return true;
             }
@@ -63,14 +68,8 @@ namespace LoreCompanion.ViewModels
         public string SearchText
         {
             get;
-            set
-            {
-                if (Set(ref field, value))
-                {
-                    ItemsView.Refresh();
-                }
-            }
-        }
+            set => Set(ref field, value);
+        } = "";
 
         public async Task DeleteCurrentAsync()
         {
@@ -153,6 +152,11 @@ namespace LoreCompanion.ViewModels
 
         protected override Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
         {
+            if (close)
+            {
+                _subscription?.Dispose();
+            }
+
             if (EditMode == EditMode.Editable)
             {
                 return SaveSelectedItemAsync();
