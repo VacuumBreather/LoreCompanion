@@ -33,6 +33,7 @@
                 </ListBox>
             </StackPanel>
         </DockPanel>
+
         <DockPanel Margin="20">
             <UniformGrid
                 DockPanel.Dock="Top"
@@ -97,7 +98,7 @@
                             <Setter.Value>
                                 <DataTemplate DataType="{x:Type models:Item}">
                                     <StackPanel>
-                                        <TextBlock Text="{Binding Name}" />
+                                        <TextBlock Style="{StaticResource Style.TextBlock.Heading.Large}" Text="{Binding Name}" />
                                         <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
                                     </StackPanel>
                                 </DataTemplate>

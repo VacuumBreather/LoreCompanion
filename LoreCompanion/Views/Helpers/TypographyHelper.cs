@@ -15,27 +15,51 @@ namespace LoreCompanion.Views.Helpers
             DependencyPropertyNameHelper.GetName(nameof(AllCapsProperty)),
             typeof(bool),
             typeof(TypographyHelper),
-            new PropertyMetadata(false, OnCapitalsChanged));
+            new PropertyMetadata(false, OnTypographyChanged));
+
+        public static readonly DependencyProperty IncreaseLetterSpacingProperty = DependencyProperty.RegisterAttached(
+            DependencyPropertyNameHelper.GetName(nameof(IncreaseLetterSpacingProperty)),
+            typeof(bool),
+            typeof(TypographyHelper),
+            new PropertyMetadata(false, OnTypographyChanged));
 
         [AttachedPropertyBrowsableForType(typeof(TextBlock))]
         public static bool GetAllCaps(TextBlock textBlock) => (bool)textBlock.GetValue(AllCapsProperty);
 
         public static void SetAllCaps(TextBlock textBlock, bool value) => textBlock.SetValue(AllCapsProperty, value);
 
-        private static void OnCapitalsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        [AttachedPropertyBrowsableForType(typeof(TextBlock))]
+        public static bool GetIncreaseLetterSpacing(TextBlock textBlock) => (bool)textBlock.GetValue(IncreaseLetterSpacingProperty);
+
+        public static void SetIncreaseLetterSpacing(TextBlock textBlock, bool value) => textBlock.SetValue(IncreaseLetterSpacingProperty, value);
+
+        private static void OnTypographyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is not TextBlock textBlock) return;
 
-            if (e.NewValue is true)
+            var isEnabled = GetAllCaps(textBlock) || GetIncreaseLetterSpacing(textBlock);
+
+            TextDescriptor.RemoveValueChanged(textBlock, OnTextChanged);
+            textBlock.Loaded -= OnTextBlockLoaded;
+
+            if (isEnabled)
             {
                 TextDescriptor.AddValueChanged(textBlock, OnTextChanged);
                 textBlock.Loaded += OnTextBlockLoaded;
-                ApplyCapitals(textBlock);
+                ApplyTypography(textBlock);
             }
             else
             {
-                TextDescriptor.RemoveValueChanged(textBlock, OnTextChanged);
-                textBlock.Loaded -= OnTextBlockLoaded;
+                var bindingBase = BindingOperations.GetBindingBase(textBlock, TextBlock.TextProperty);
+
+                if (bindingBase is Binding)
+                {
+                    BindingOperations.GetBindingExpression(textBlock, TextBlock.TextProperty)?.UpdateTarget();
+                }
+                else if (bindingBase is MultiBinding)
+                {
+                    BindingOperations.GetMultiBindingExpression(textBlock, TextBlock.TextProperty)?.UpdateTarget();
+                }
             }
         }
 
@@ -43,7 +67,7 @@ namespace LoreCompanion.Views.Helpers
         {
             if (sender is TextBlock textBlock)
             {
-                ApplyCapitals(textBlock);
+                ApplyTypography(textBlock);
             }
         }
 
@@ -51,24 +75,52 @@ namespace LoreCompanion.Views.Helpers
         {
             if (sender is TextBlock textBlock)
             {
-                ApplyCapitals(textBlock);
+                ApplyTypography(textBlock);
             }
         }
 
-        private static void ApplyCapitals(TextBlock textBlock)
+        private static string TransformText(string? text, bool allCaps, bool increaseLetterSpacing)
         {
-            if (!GetAllCaps(textBlock)) return;
+            if (string.IsNullOrEmpty(text)) return text ?? string.Empty;
+
+            var result = text;
+
+            if (allCaps)
+            {
+                result = result.ToUpperInvariant();
+            }
+
+            if (increaseLetterSpacing)
+            {
+                var clean = result.Replace("\u200A", "");
+                result = string.Join("\u200A", clean.ToCharArray());
+            }
+
+            return result;
+        }
+
+        private static void ApplyTypography(TextBlock textBlock)
+        {
+            var allCaps = GetAllCaps(textBlock);
+            var letterSpacing = GetIncreaseLetterSpacing(textBlock);
+
+            if (!allCaps && !letterSpacing) return;
 
             var bindingBase = BindingOperations.GetBindingBase(textBlock, TextBlock.TextProperty);
 
             if (bindingBase is Binding binding)
             {
-                if (binding.Converter is UpperCaseValueConverter) return;
+                if (binding.Converter is TypographyValueConverter)
+                {
+                    BindingOperations.GetBindingExpression(textBlock, TextBlock.TextProperty)?.UpdateTarget();
+                    return;
+                }
 
-                var wrappedConverter = new UpperCaseValueConverter(
+                var wrappedConverter = new TypographyValueConverter(
                     binding.Converter,
                     binding.ConverterParameter,
-                    binding.ConverterCulture);
+                    binding.ConverterCulture,
+                    new WeakReference<TextBlock>(textBlock));
 
                 var newBinding = CloneBinding(binding, wrappedConverter);
                 BindingOperations.SetBinding(textBlock, TextBlock.TextProperty, newBinding);
@@ -78,12 +130,17 @@ namespace LoreCompanion.Views.Helpers
 
             if (bindingBase is MultiBinding multiBinding)
             {
-                if (multiBinding.Converter is UpperCaseMultiValueConverter) return;
+                if (multiBinding.Converter is TypographyMultiValueConverter)
+                {
+                    BindingOperations.GetMultiBindingExpression(textBlock, TextBlock.TextProperty)?.UpdateTarget();
+                    return;
+                }
 
-                var wrappedConverter = new UpperCaseMultiValueConverter(
+                var wrappedConverter = new TypographyMultiValueConverter(
                     multiBinding.Converter,
                     multiBinding.ConverterParameter,
-                    multiBinding.ConverterCulture);
+                    multiBinding.ConverterCulture,
+                    new WeakReference<TextBlock>(textBlock));
 
                 var newBinding = CloneMultiBinding(multiBinding, wrappedConverter);
                 BindingOperations.SetBinding(textBlock, TextBlock.TextProperty, newBinding);
@@ -95,16 +152,16 @@ namespace LoreCompanion.Views.Helpers
 
             if (string.IsNullOrEmpty(currentText)) return;
 
-            var upperText = currentText.ToUpperInvariant();
+            var transformedText = TransformText(currentText, allCaps, letterSpacing);
 
-            if (string.Equals(currentText, upperText, StringComparison.Ordinal)) return;
+            if (string.Equals(currentText, transformedText, StringComparison.Ordinal)) return;
 
             // Unhook temporarily to prevent re-entrant event loops
             TextDescriptor.RemoveValueChanged(textBlock, OnTextChanged);
 
             try
             {
-                textBlock.Text = upperText;
+                textBlock.Text = transformedText;
             }
             finally
             {
@@ -194,10 +251,11 @@ namespace LoreCompanion.Views.Helpers
             return newBinding;
         }
 
-        private sealed class UpperCaseValueConverter(
+        private sealed class TypographyValueConverter(
             IValueConverter? innerConverter,
             object? innerParameter,
-            CultureInfo? innerCulture) : IValueConverter
+            CultureInfo? innerCulture,
+            WeakReference<TextBlock> textBlockRef) : IValueConverter
         {
             public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
             {
@@ -210,12 +268,15 @@ namespace LoreCompanion.Views.Helpers
                         innerCulture ?? culture);
                 }
 
-                if (value is string str)
-                {
-                    return str.ToUpperInvariant();
-                }
+                if (value == null) return null;
 
-                return value?.ToString()?.ToUpperInvariant();
+                var str = value as string ?? value.ToString();
+                if (str == null) return null;
+
+                var allCaps = textBlockRef.TryGetTarget(out var tb) && GetAllCaps(tb);
+                var letterSpacing = textBlockRef.TryGetTarget(out var tb2) && GetIncreaseLetterSpacing(tb2);
+
+                return TransformText(str, allCaps, letterSpacing);
             }
 
             public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -233,10 +294,11 @@ namespace LoreCompanion.Views.Helpers
             }
         }
 
-        private sealed class UpperCaseMultiValueConverter(
+        private sealed class TypographyMultiValueConverter(
             IMultiValueConverter? innerConverter,
             object? innerParameter,
-            CultureInfo? innerCulture) : IMultiValueConverter
+            CultureInfo? innerCulture,
+            WeakReference<TextBlock> textBlockRef) : IMultiValueConverter
         {
             public object? Convert(object[] values, Type targetType, object? parameter, CultureInfo culture)
             {
@@ -255,12 +317,15 @@ namespace LoreCompanion.Views.Helpers
                     result = values.Length > 0 ? values[0] : null;
                 }
 
-                if (result is string str)
-                {
-                    return str.ToUpperInvariant();
-                }
+                if (result == null) return null;
 
-                return result?.ToString()?.ToUpperInvariant();
+                var str = result as string ?? result.ToString();
+                if (str == null) return null;
+
+                var allCaps = textBlockRef.TryGetTarget(out var tb) && GetAllCaps(tb);
+                var letterSpacing = textBlockRef.TryGetTarget(out var tb2) && GetIncreaseLetterSpacing(tb2);
+
+                return TransformText(str, allCaps, letterSpacing);
             }
 
             public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

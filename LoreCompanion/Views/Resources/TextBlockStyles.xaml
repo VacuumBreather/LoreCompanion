@@ -34,8 +34,26 @@
         BasedOn="{StaticResource Style.TextBlock.Body}"
         TargetType="{x:Type TextBlock}"
         x:Key="Style.TextBlock.Heading">
-        <Setter Property="FontSize" Value="18" />
         <Setter Property="helpers:TypographyHelper.AllCaps" Value="True" />
+    </Style>
+
+    <!--  Style.TextBlock.Subtitle  -->
+    <Style
+        BasedOn="{StaticResource Style.TextBlock.Heading}"
+        TargetType="{x:Type TextBlock}"
+        x:Key="Style.TextBlock.Subtitle">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="helpers:TypographyHelper.IncreaseLetterSpacing" Value="True" />
+    </Style>
+
+    <!--  Style.TextBlock.Heading.Large  -->
+    <Style
+        BasedOn="{StaticResource Style.TextBlock.Heading}"
+        TargetType="{x:Type TextBlock}"
+        x:Key="Style.TextBlock.Heading.Large">
+        <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Primary}" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="helpers:TypographyHelper.IncreaseLetterSpacing" Value="True" />
     </Style>
 
     <!--  Style.TextBlock.Heading.Navigation  -->
@@ -47,23 +65,6 @@
         <Setter Property="helpers:TypographyHelper.AllCaps" Value="False" />
         <Setter Property="Typography.Capitals" Value="SmallCaps" />
         <Setter Property="FontSize" Value="14" />
-    </Style>
-
-    <!--  Style.TextBlock.Heading.Large  -->
-    <Style
-        BasedOn="{StaticResource Style.TextBlock.Heading}"
-        TargetType="{x:Type TextBlock}"
-        x:Key="Style.TextBlock.Heading.Large">
-        <Setter Property="FontSize" Value="22" />
-    </Style>
-
-    <!--  Style.TextBlock.Title  -->
-    <Style
-        BasedOn="{StaticResource Style.TextBlock.Body}"
-        TargetType="{x:Type TextBlock}"
-        x:Key="Style.TextBlock.Title">
-        <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Primary}" />
-        <Setter Property="FontSize" Value="26" />
     </Style>
 
     <!--  Style.TextBlock.Implicit  -->

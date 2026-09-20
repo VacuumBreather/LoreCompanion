@@ -1,6 +1,6 @@
 ﻿<Window
     Background="{StaticResource Brush.Background}"
-    Height="450"
+    Height="600"
     Title="MainWindow"
     Width="800"
     d:DataContext="{d:DesignInstance viewModels:ShellViewModel,
@@ -11,7 +11,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:effects="clr-namespace:LoreCompanion.Views.Effects"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:me="clr-namespace:LoreCompanion.Views.MarkupExtensions"
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Window.Resources>
@@ -23,26 +22,30 @@
     </Window.Resources>
 
     <DockPanel>
+        <!--  Header  -->
         <Border
             Background="{StaticResource Brush.Background.Secondary}"
             BorderBrush="{StaticResource Brush.Border.Primary}"
             BorderThickness="0,0,0,1"
-            DockPanel.Dock="Top"
-            Height="75">
+            DockPanel.Dock="Top">
             <DockPanel>
                 <Image
                     DockPanel.Dock="Left"
-                    Height="64"
+                    Height="50"
+                    Margin="10"
                     Source="/LoreCompanion;component/Views/Resources/Images/EldenRing.png"
                     VerticalAlignment="Center" />
-                <TextBlock
+                <StackPanel
                     DockPanel.Dock="Left"
                     Margin="5"
-                    Style="{StaticResource Style.TextBlock.Title}"
-                    Text="{me:LetterSpacing THE TARNISHED ARCHIVE}"
-                    VerticalAlignment="Center" />
+                    VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource Style.TextBlock.Heading.Large}" Text="The Tarnished Archive" />
+                    <TextBlock Style="{StaticResource Style.TextBlock.Subtitle}" Text="Lore • Items • Characters • Locations • More" />
+                </StackPanel>
             </DockPanel>
         </Border>
+
+        <!--  Footer  -->
         <Border
             Background="{StaticResource Brush.Background.Secondary}"
             BorderBrush="{StaticResource Brush.Border.Primary}"
@@ -73,6 +76,7 @@
             </DockPanel>
         </Border>
 
+        <!--  Content  -->
         <DockPanel>
             <ListBox
                 DockPanel.Dock="Left"
