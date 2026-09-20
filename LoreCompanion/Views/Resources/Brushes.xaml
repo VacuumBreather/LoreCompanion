@@ -12,6 +12,11 @@
         po:Freeze="True"
         Color="{StaticResource Color.Background.3}" />
     <SolidColorBrush
+        x:Key="Brush.Background.DialogHost"
+        po:Freeze="True"
+        Opacity="0.75"
+        Color="{StaticResource Color.Background.0}" />
+    <SolidColorBrush
         x:Key="Brush.Background.Secondary"
         po:Freeze="True"
         Color="{StaticResource Color.Background.4}" />
@@ -34,6 +39,10 @@
         Color="Transparent" />
     <SolidColorBrush
         x:Key="Brush.Background.Button"
+        po:Freeze="True"
+        Color="{StaticResource Color.Background.30}" />
+    <SolidColorBrush
+        x:Key="Brush.Background.Button.Primary"
         po:Freeze="True"
         Color="{StaticResource Color.Primary.50}" />
     <SolidColorBrush
@@ -91,7 +100,7 @@
     <SolidColorBrush
         x:Key="Brush.Border"
         po:Freeze="True"
-        Color="{StaticResource Color.Background.30}" />
+        Color="{StaticResource Color.Background.20}" />
     <SolidColorBrush
         x:Key="Brush.Border.Primary"
         po:Freeze="True"

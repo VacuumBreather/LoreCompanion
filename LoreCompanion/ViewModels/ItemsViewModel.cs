@@ -2,6 +2,7 @@
 using System.Windows.Data;
 using Caliburn.Micro;
 using LoreCompanion.Models;
+using LoreCompanion.ViewModels.Dialogs;
 using Microsoft.EntityFrameworkCore;
 using R3;
 
@@ -10,12 +11,14 @@ namespace LoreCompanion.ViewModels
     public sealed class ItemsViewModel : SectionScreen
     {
         private readonly IDbContextFactory<LoreDbContext> _dbContextFactory;
+        private readonly IDialogService _dialogService;
         private IDisposable? _subscription;
 
-        public ItemsViewModel(IDbContextFactory<LoreDbContext> dbContextFactory)
+        public ItemsViewModel(IDbContextFactory<LoreDbContext> dbContextFactory, IDialogService dialogService)
             : base(NavigationSection.Lore)
         {
             _dbContextFactory = dbContextFactory;
+            _dialogService = dialogService;
             DisplayName = "Items";
 
             ItemsView = CollectionViewSource.GetDefaultView(Items);
@@ -87,6 +90,17 @@ namespace LoreCompanion.ViewModels
         public async Task DeleteCurrentAsync()
         {
             if (SelectedItem is null)
+            {
+                return;
+            }
+
+            var dialogResult = await _dialogService.ShowQueryDialogAsync(
+                                   "Delete Item",
+                                   "Are you sure you want to delete this item?",
+                                   DialogResults.YesNo,
+                                   DialogResult.Yes);
+
+            if (dialogResult != DialogResult.Yes)
             {
                 return;
             }

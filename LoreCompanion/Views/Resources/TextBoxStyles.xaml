@@ -4,7 +4,7 @@
     xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
     xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="ButtonStyles.xaml" />
+        <ResourceDictionary Source="ScrollViewerStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
     <!--  Style.TextBox  -->

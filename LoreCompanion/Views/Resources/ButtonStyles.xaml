@@ -9,7 +9,7 @@
     <!--  Style.Button  -->
     <Style x:Key="Style.Button" TargetType="{x:Type Button}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-        <Setter Property="Background" Value="{StaticResource Brush.Background.Button}" />
+        <Setter Property="Background" Value="{StaticResource Brush.Background.Button.Primary}" />
         <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Button}" />
         <Setter Property="BorderBrush" Value="{StaticResource Brush.Border.Primary}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -115,6 +115,34 @@
             <Setter.Value>
                 <DataTemplate>
                     <iconPacks:PackIconMaterialDesign Kind="Save" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.Yes  -->
+    <Style
+        x:Key="Style.Button.Yes"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="Check" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.No  -->
+    <Style
+        x:Key="Style.Button.No"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="Close" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>

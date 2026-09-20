@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using Caliburn.Micro;
 using LoreCompanion.Models;
 using LoreCompanion.ViewModels;
+using LoreCompanion.ViewModels.Dialogs;
 using LoreCompanion.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,6 +40,7 @@ namespace LoreCompanion
 
             services.AddSingleton<IWindowManager, WindowManager>();
             services.AddSingleton<IEventAggregator, EventAggregator>();
+            services.AddSingleton<IDialogService, DialogConductor>();
 
             // Sets up SQLite with the file path of your choice
             var dbFolder = Path.Combine(
