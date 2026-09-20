@@ -75,7 +75,10 @@
 
     <UniformGrid Columns="2">
         <DockPanel Margin="20">
-            <TextBox DockPanel.Dock="Top" Style="{StaticResource Style.TextBox.Search}" />
+            <TextBox
+                DockPanel.Dock="Top"
+                Style="{StaticResource Style.TextBox.Search}"
+                Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <StackPanel>
                 <DockPanel Margin="0,15,0,5">
                     <TextBlock
@@ -91,9 +94,10 @@
                         Style="{StaticResource Style.Button.New}" />
                 </DockPanel>
                 <ListBox
-                    x:Name="Items"
                     Background="Transparent"
-                    BorderThickness="0">
+                    BorderThickness="0"
+                    ItemsSource="{Binding ItemsView}"
+                    SelectedItem="{Binding SelectedItem}">
                     <ListBox.ItemTemplate>
                         <DataTemplate DataType="{x:Type models:Item}">
                             <StackPanel>

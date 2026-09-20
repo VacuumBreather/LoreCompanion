@@ -1,6 +1,9 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
 using Caliburn.Micro;
 using LoreCompanion.Models;
+using LoreCompanion.Views;
 using Microsoft.EntityFrameworkCore;
 
 namespace LoreCompanion.ViewModels
@@ -19,11 +22,29 @@ namespace LoreCompanion.ViewModels
         {
             await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
+            ItemsView = CollectionViewSource.GetDefaultView(Items);
+            ItemsView.Filter = OnFilter;
+
             Items.Clear();
             Items.AddRange(context.Items);
 
             SelectedItem = Items.FirstOrDefault();
         }
+
+        private bool OnFilter(object obj)
+        {
+            var item = (Item)obj;
+
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                return true;
+            }
+
+            return item.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                   item.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public ICollectionView ItemsView { get; private set; }
 
         public Task CreateNewAsync()
         {
@@ -37,6 +58,18 @@ namespace LoreCompanion.ViewModels
             EditMode = EditMode.Editable;
 
             return Task.CompletedTask;
+        }
+
+        public string SearchText
+        {
+            get;
+            set
+            {
+                if (Set(ref field, value))
+                {
+                    ItemsView.Refresh();
+                }
+            }
         }
 
         public async Task DeleteCurrentAsync()
