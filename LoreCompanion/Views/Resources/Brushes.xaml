@@ -24,6 +24,10 @@
         po:Freeze="True"
         Opacity="0.33"
         Color="{StaticResource Color.Primary.20}" />
+    <SolidColorBrush
+        x:Key="Brush.Background.Selected.TextBox"
+        po:Freeze="True"
+        Color="{StaticResource Color.Primary.50}" />
     <LinearGradientBrush x:Key="Brush.Background.Selected.Navigation" po:Freeze="True">
         <LinearGradientBrush.GradientStops>
             <GradientStop Offset="0.25" Color="{StaticResource Color.Primary.20}" />

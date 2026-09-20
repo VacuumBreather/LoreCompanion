@@ -15,7 +15,7 @@
             <TextBox DockPanel.Dock="Top" />
             <StackPanel>
                 <TextBlock
-                    Margin="0,5"
+                    Margin="0,25,0,5"
                     Style="{StaticResource Style.TextBlock.Heading}"
                     Text="Search Results" />
                 <ListBox

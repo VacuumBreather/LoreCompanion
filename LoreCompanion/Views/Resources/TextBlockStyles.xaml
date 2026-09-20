@@ -6,9 +6,14 @@
         <ResourceDictionary Source="Brushes.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
+    <!--  FontFamily.Default  -->
+    <FontFamily x:Key="FontFamily.Default">
+        /LoreCompanion;component/Views/Resources/Fonts/CormorantGaramond-VariableFont.ttf#Cormorant Garamond Light
+    </FontFamily>
+
     <!--  Style.TextBlock.Body  -->
     <Style x:Key="Style.TextBlock.Body" TargetType="{x:Type TextBlock}">
-        <Setter Property="FontFamily" Value="/LoreCompanion;component/Views/Resources/Fonts/CormorantGaramond-VariableFont.ttf#Cormorant Garamond Light" />
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Default}" />
         <Setter Property="Foreground" Value="{StaticResource Brush.Foreground}" />
         <Setter Property="FontSize" Value="16" />
     </Style>
@@ -29,21 +34,23 @@
         <Setter Property="FontSize" Value="18" />
     </Style>
 
+    <!--  Style.TextBlock.Subtitle  -->
+    <Style
+        x:Key="Style.TextBlock.Subtitle"
+        BasedOn="{StaticResource Style.TextBlock.Body}"
+        TargetType="{x:Type TextBlock}">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="helpers:TypographyHelper.AllCaps" Value="True" />
+        <Setter Property="helpers:TypographyHelper.IncreaseLetterSpacing" Value="True" />
+    </Style>
+
     <!--  Style.TextBlock.Heading  -->
     <Style
         x:Key="Style.TextBlock.Heading"
         BasedOn="{StaticResource Style.TextBlock.Body}"
         TargetType="{x:Type TextBlock}">
+        <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Primary}" />
         <Setter Property="helpers:TypographyHelper.AllCaps" Value="True" />
-    </Style>
-
-    <!--  Style.TextBlock.Subtitle  -->
-    <Style
-        x:Key="Style.TextBlock.Subtitle"
-        BasedOn="{StaticResource Style.TextBlock.Heading}"
-        TargetType="{x:Type TextBlock}">
-        <Setter Property="FontSize" Value="12" />
-        <Setter Property="helpers:TypographyHelper.IncreaseLetterSpacing" Value="True" />
     </Style>
 
     <!--  Style.TextBlock.Heading.Large  -->
@@ -51,7 +58,6 @@
         x:Key="Style.TextBlock.Heading.Large"
         BasedOn="{StaticResource Style.TextBlock.Heading}"
         TargetType="{x:Type TextBlock}">
-        <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Primary}" />
         <Setter Property="FontSize" Value="24" />
         <Setter Property="helpers:TypographyHelper.IncreaseLetterSpacing" Value="True" />
     </Style>
@@ -61,7 +67,6 @@
         x:Key="Style.TextBlock.Heading.Navigation"
         BasedOn="{StaticResource Style.TextBlock.Heading}"
         TargetType="{x:Type TextBlock}">
-        <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Primary}" />
         <Setter Property="helpers:TypographyHelper.AllCaps" Value="False" />
         <Setter Property="Typography.Capitals" Value="SmallCaps" />
         <Setter Property="FontSize" Value="14" />

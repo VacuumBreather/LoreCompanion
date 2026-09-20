@@ -1,4 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="BasicValues.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
     <Color x:Key="Color.Background.0">#FF000000</Color>
     <Color x:Key="Color.Background.1">#FF010203</Color>
     <Color x:Key="Color.Background.2">#FF030506</Color>
