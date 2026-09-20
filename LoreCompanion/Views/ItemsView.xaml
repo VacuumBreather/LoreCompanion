@@ -5,6 +5,7 @@
     xmlns:cm="http://caliburnmicro.com"
     xmlns:converters="clr-namespace:LoreCompanion.Views.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:LoreCompanion.Models"
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
@@ -36,9 +37,17 @@
                                     cm:Message.Attach="[Event Click] = [Action EditCurrentAsync]"
                                     Style="{StaticResource Style.Button.Edit}" />
                             </UniformGrid>
-                            <TextBlock Style="{StaticResource Style.TextBlock.Heading.Large}" Text="{Binding Name}" />
+                            <TextBlock
+                                helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.TextBox.Selection}"
+                                helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                helpers:HighlightHelper.Text="{Binding Name}"
+                                Style="{StaticResource Style.TextBlock.Heading.Large}" />
                         </DockPanel>
-                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
+                        <TextBlock
+                            helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.TextBox.Selection}"
+                            helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                            helpers:HighlightHelper.Text="{Binding Description}"
+                            TextWrapping="Wrap" />
                     </StackPanel>
                 </DataTemplate>
             </converters:EditModeToDataTemplateConverter.ReadOnlyTemplate>
