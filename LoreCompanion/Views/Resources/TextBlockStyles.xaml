@@ -14,7 +14,7 @@
     <!--  Style.TextBlock.Body  -->
     <Style x:Key="Style.TextBlock.Body" TargetType="{x:Type TextBlock}">
         <Setter Property="FontFamily" Value="{StaticResource FontFamily.Default}" />
-        <Setter Property="Foreground" Value="{StaticResource Brush.Foreground}" />
+        <!-- <Setter Property="Foreground" Value="{StaticResource Brush.Foreground}" /> -->
         <Setter Property="FontSize" Value="16" />
     </Style>
 
@@ -42,6 +42,14 @@
         <Setter Property="FontSize" Value="12" />
         <Setter Property="helpers:TypographyHelper.AllCaps" Value="True" />
         <Setter Property="helpers:TypographyHelper.IncreaseLetterSpacing" Value="True" />
+    </Style>
+
+    <!--  Style.TextBlock.Label  -->
+    <Style
+        x:Key="Style.TextBlock.Label"
+        BasedOn="{StaticResource Style.TextBlock.Body}"
+        TargetType="{x:Type TextBlock}">
+        <Setter Property="helpers:TypographyHelper.AllCaps" Value="True" />
     </Style>
 
     <!--  Style.TextBlock.Heading  -->

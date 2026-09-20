@@ -12,6 +12,7 @@
     d:DataContext="{d:DesignInstance viewModels:ShellViewModel,
                                      IsDesignTimeCreatable=False}"
     Background="{StaticResource Brush.Background}"
+    Foreground="{StaticResource Brush.Foreground}"
     mc:Ignorable="d">
     <Window.Resources>
         <CollectionViewSource x:Key="CollectionViewSource.Items.Navigation" Source="{Binding Items}">

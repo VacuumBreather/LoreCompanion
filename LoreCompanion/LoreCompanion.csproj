@@ -48,6 +48,8 @@
     <!-- NuGet packages -->
     <ItemGroup>
         <PackageReference Include="Caliburn.Micro" Version="5.0.258"/>
+        <PackageReference Include="MahApps.Metro.IconPacks.Core" Version="6.2.1" />
+        <PackageReference Include="MahApps.Metro.IconPacks.MaterialDesign" Version="6.2.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

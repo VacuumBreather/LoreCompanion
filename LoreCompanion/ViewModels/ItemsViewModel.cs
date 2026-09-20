@@ -83,22 +83,39 @@ namespace LoreCompanion.ViewModels
         public EditMode EditMode
         {
             get;
-            set => Set(ref field, value);
+            set
+            {
+                if (Set(ref field, value))
+                {
+                    NotifyOfPropertyChange(nameof(CanEditCurrent));
+                    NotifyOfPropertyChange(nameof(CanSaveCurrent));
+                }
+            }
         } = EditMode.ReadOnly;
 
-        public bool CanToggleEdit => SelectedItem is not null;
+        public bool CanEditCurrent => SelectedItem is not null && EditMode == EditMode.ReadOnly;
 
-        public async Task ToggleEditAsync()
+        public void EditCurrentAsync()
         {
-            if (EditMode == EditMode.Editable)
+            if (SelectedItem is null)
             {
-                await SaveSelectedItemAsync();
-                EditMode = EditMode.ReadOnly;
+                return;
             }
-            else
+
+            EditMode = EditMode.Editable;
+        }
+
+        public bool CanSaveCurrent => SelectedItem is not null && EditMode == EditMode.Editable;
+
+        public async Task SaveCurrentAsync()
+        {
+            if (SelectedItem is null)
             {
-                EditMode = EditMode.Editable;
+                return;
             }
+
+            await SaveSelectedItemAsync();
+            EditMode = EditMode.ReadOnly;
         }
 
         protected override Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
@@ -144,10 +161,12 @@ namespace LoreCompanion.ViewModels
                 if (Set(ref field, value))
                 {
                     NotifyOfPropertyChange(nameof(CanDeleteCurrent));
-                    NotifyOfPropertyChange(nameof(CanToggleEdit));
+                    NotifyOfPropertyChange(nameof(CanEditCurrent));
+                    NotifyOfPropertyChange(nameof(CanSaveCurrent));
+
                     if (EditMode == EditMode.Editable)
                     {
-                        ToggleEditAsync().GetAwaiter().GetResult();
+                        SaveCurrentAsync().GetAwaiter().GetResult();
                     }
                 }
             }
