@@ -1,5 +1,5 @@
 ﻿<UserControl
-    Background="{StaticResource Brush.Background.Main}"
+    Background="{StaticResource Brush.Background}"
     d:DesignHeight="300"
     d:DesignWidth="300"
     mc:Ignorable="d"
@@ -11,14 +11,29 @@
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UniformGrid Columns="2">
-        <DockPanel>
+        <DockPanel Margin="20">
             <TextBox DockPanel.Dock="Top" />
             <StackPanel>
-                <TextBlock Text="SEARCH RESULTS" />
-                <ListBox x:Name="Items" />
+                <TextBlock
+                    Margin="0,5"
+                    Style="{StaticResource Style.TextBlock.Heading}"
+                    Text="Search Results" />
+                <ListBox
+                    Background="Transparent"
+                    BorderThickness="0"
+                    x:Name="Items">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type models:Item}">
+                            <TextBlock
+                                FontSize="16"
+                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                                Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </StackPanel>
         </DockPanel>
-        <DockPanel>
+        <DockPanel Margin="20">
             <UniformGrid
                 DockPanel.Dock="Top"
                 HorizontalAlignment="Right"

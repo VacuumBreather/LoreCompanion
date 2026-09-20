@@ -1,11 +1,72 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="Brushes.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <Style TargetType="{x:Type TextBlock}">
+    <!--  Style.TextBlock.Body  -->
+    <Style TargetType="{x:Type TextBlock}" x:Key="Style.TextBlock.Body">
         <Setter Property="FontFamily" Value="/LoreCompanion;component/Views/Resources/Fonts/CormorantGaramond-VariableFont.ttf#Cormorant Garamond Light" />
         <Setter Property="Foreground" Value="{StaticResource Brush.Foreground}" />
+        <Setter Property="FontSize" Value="16" />
     </Style>
+
+    <!--  Style.TextBlock.Body.Small  -->
+    <Style
+        BasedOn="{StaticResource Style.TextBlock.Body}"
+        TargetType="{x:Type TextBlock}"
+        x:Key="Style.TextBlock.Body.Small">
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <!--  Style.TextBlock.Body.Large  -->
+    <Style
+        BasedOn="{StaticResource Style.TextBlock.Body}"
+        TargetType="{x:Type TextBlock}"
+        x:Key="Style.TextBlock.Body.Large">
+        <Setter Property="FontSize" Value="18" />
+    </Style>
+
+    <!--  Style.TextBlock.Heading  -->
+    <Style
+        BasedOn="{StaticResource Style.TextBlock.Body}"
+        TargetType="{x:Type TextBlock}"
+        x:Key="Style.TextBlock.Heading">
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="helpers:TypographyHelper.AllCaps" Value="True" />
+    </Style>
+
+    <!--  Style.TextBlock.Heading.Navigation  -->
+    <Style
+        BasedOn="{StaticResource Style.TextBlock.Heading}"
+        TargetType="{x:Type TextBlock}"
+        x:Key="Style.TextBlock.Heading.Navigation">
+        <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Primary}" />
+        <Setter Property="helpers:TypographyHelper.AllCaps" Value="False" />
+        <Setter Property="Typography.Capitals" Value="SmallCaps" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <!--  Style.TextBlock.Heading.Large  -->
+    <Style
+        BasedOn="{StaticResource Style.TextBlock.Heading}"
+        TargetType="{x:Type TextBlock}"
+        x:Key="Style.TextBlock.Heading.Large">
+        <Setter Property="FontSize" Value="22" />
+    </Style>
+
+    <!--  Style.TextBlock.Title  -->
+    <Style
+        BasedOn="{StaticResource Style.TextBlock.Body}"
+        TargetType="{x:Type TextBlock}"
+        x:Key="Style.TextBlock.Title">
+        <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Primary}" />
+        <Setter Property="FontSize" Value="26" />
+    </Style>
+
+    <!--  Style.TextBlock.Implicit  -->
+    <Style BasedOn="{StaticResource Style.TextBlock.Body}" TargetType="{x:Type TextBlock}" />
 
 </ResourceDictionary>

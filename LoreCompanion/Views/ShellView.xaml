@@ -1,5 +1,5 @@
 ﻿<Window
-    Background="{StaticResource Brush.Background.Main}"
+    Background="{StaticResource Brush.Background}"
     Height="450"
     Title="MainWindow"
     Width="800"
@@ -11,6 +11,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:effects="clr-namespace:LoreCompanion.Views.Effects"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:me="clr-namespace:LoreCompanion.Views.MarkupExtensions"
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Window.Resources>
@@ -23,8 +24,8 @@
 
     <DockPanel>
         <Border
-            Background="{StaticResource Brush.Background.HeaderFooter}"
-            BorderBrush="{StaticResource Brush.Border}"
+            Background="{StaticResource Brush.Background.Secondary}"
+            BorderBrush="{StaticResource Brush.Border.Primary}"
             BorderThickness="0,0,0,1"
             DockPanel.Dock="Top"
             Height="75">
@@ -36,16 +37,15 @@
                     VerticalAlignment="Center" />
                 <TextBlock
                     DockPanel.Dock="Left"
-                    FontSize="26"
-                    Foreground="{StaticResource Brush.Foreground.Primary}"
                     Margin="5"
-                    Text="T&#8202;H&#8202;E&#8202; &#8202;T&#8202;A&#8202;R&#8202;N&#8202;I&#8202;S&#8202;H&#8202;E&#8202;D&#8202; &#8202;A&#8202;R&#8202;C&#8202;H&#8202;I&#8202;V&#8202;E"
+                    Style="{StaticResource Style.TextBlock.Title}"
+                    Text="{me:LetterSpacing THE TARNISHED ARCHIVE}"
                     VerticalAlignment="Center" />
             </DockPanel>
         </Border>
         <Border
-            Background="{StaticResource Brush.Background.HeaderFooter}"
-            BorderBrush="{StaticResource Brush.Border}"
+            Background="{StaticResource Brush.Background.Secondary}"
+            BorderBrush="{StaticResource Brush.Border.Primary}"
             BorderThickness="0,1,0,0"
             DockPanel.Dock="Bottom"
             Height="75">
@@ -66,8 +66,8 @@
                     VerticalAlignment="Center" />
                 <TextBlock
                     DockPanel.Dock="Left"
-                    FontSize="18"
                     Margin="10"
+                    Style="{StaticResource Style.TextBlock.Body.Large}"
                     Text="The more you learn, the more the world reveals itself."
                     VerticalAlignment="Center" />
             </DockPanel>
@@ -75,96 +75,10 @@
 
         <DockPanel>
             <ListBox
-                Background="{StaticResource Brush.Background.Panel}"
-                BorderBrush="{StaticResource Brush.Border}"
-                BorderThickness="0,0,0.75,0"
                 DockPanel.Dock="Left"
                 ItemsSource="{Binding ItemsView}"
-                MinWidth="200"
-                SelectedItem="{Binding ActiveItem}">
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <VirtualizingStackPanel IsItemsHost="True" VirtualizationMode="Recycling" />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-
-                <ListBox.GroupStyle>
-                    <GroupStyle>
-                        <GroupStyle.HeaderTemplate>
-                            <DataTemplate DataType="{x:Type CollectionViewGroup}">
-                                <TextBlock
-                                    FontSize="14"
-                                    Foreground="{StaticResource Brush.Foreground.Primary}"
-                                    Margin="8,12,8,4"
-                                    Text="{Binding Name}"
-                                    Typography.Capitals="SmallCaps" />
-                            </DataTemplate>
-                        </GroupStyle.HeaderTemplate>
-                    </GroupStyle>
-                </ListBox.GroupStyle>
-
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="{x:Type ListBoxItem}">
-                        <Setter Property="BorderThickness" Value="0" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListBoxItem">
-                                    <Border
-                                        Background="Transparent"
-                                        Padding="12,8"
-                                        x:Name="BackgroundBorder">
-                                        <ContentPresenter />
-                                    </Border>
-
-                                    <ControlTemplate.Triggers>
-
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" TargetName="BackgroundBorder" Value="{StaticResource Brush.Background.MouseOver}" />
-                                        </Trigger>
-
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="Background" TargetName="BackgroundBorder" Value="{StaticResource Brush.Background.Selected}" />
-                                        </Trigger>
-
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="IsSelected" Value="True" />
-                                                <Condition Property="IsMouseOver" Value="True" />
-                                            </MultiTrigger.Conditions>
-
-                                            <Setter Property="Background" TargetName="BackgroundBorder" Value="{StaticResource Brush.Background.MouseOver}" />
-                                        </MultiTrigger>
-
-                                        <Trigger Property="IsEnabled" Value="False">
-                                            <Setter Property="Background" TargetName="BackgroundBorder" Value="Transparent" />
-                                        </Trigger>
-
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-
-                <ListBox.ItemTemplate>
-                    <DataTemplate DataType="{x:Type viewModels:SectionScreen}">
-                        <StackPanel Orientation="Horizontal">
-
-                            <!--  <Image  -->
-                            <!--  Height="16"  -->
-                            <!--  Margin="0,0,8,0"  -->
-                            <!--  Source="{Binding Icon}"  -->
-                            <!--  Width="16" />  -->
-
-                            <TextBlock
-                                FontSize="16"
-                                Foreground="{StaticResource Brush.Foreground}"
-                                Text="{Binding DisplayName}"
-                                VerticalAlignment="Center" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                SelectedItem="{Binding ActiveItem}"
+                Style="{StaticResource Style.ListBox.Navigation}" />
             <ContentControl x:Name="ActiveItem" />
         </DockPanel>
     </DockPanel>
