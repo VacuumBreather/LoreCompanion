@@ -1,15 +1,15 @@
 ﻿<UserControl
-    Background="{StaticResource Brush.Background}"
-    d:DesignHeight="300"
-    d:DesignWidth="300"
-    mc:Ignorable="d"
     x:Class="LoreCompanion.Views.ItemsView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:LoreCompanion.Models"
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    Background="{StaticResource Brush.Background}"
+    mc:Ignorable="d">
     <UniformGrid Columns="2">
         <DockPanel Margin="20">
             <TextBox DockPanel.Dock="Top" />
@@ -19,9 +19,9 @@
                     Style="{StaticResource Style.TextBlock.Heading}"
                     Text="Search Results" />
                 <ListBox
+                    x:Name="Items"
                     Background="Transparent"
-                    BorderThickness="0"
-                    x:Name="Items">
+                    BorderThickness="0">
                     <ListBox.ItemTemplate>
                         <DataTemplate DataType="{x:Type models:Item}">
                             <TextBlock
@@ -36,13 +36,13 @@
 
         <DockPanel Margin="20">
             <UniformGrid
-                DockPanel.Dock="Top"
                 HorizontalAlignment="Right"
+                DockPanel.Dock="Top"
                 Rows="1">
                 <Button
+                    x:Name="CreateNew"
                     Margin="5"
-                    TextElement.Foreground="Black"
-                    x:Name="CreateNew">
+                    TextElement.Foreground="Black">
                     <Button.Content>
                         <TextBlock
                             FontSize="16"
@@ -51,9 +51,9 @@
                     </Button.Content>
                 </Button>
                 <Button
+                    x:Name="DeleteCurrent"
                     Margin="5"
-                    TextElement.Foreground="Black"
-                    x:Name="DeleteCurrent">
+                    TextElement.Foreground="Black">
                     <Button.Content>
                         <TextBlock
                             FontSize="16"
@@ -62,9 +62,9 @@
                     </Button.Content>
                 </Button>
                 <Button
+                    x:Name="ToggleEdit"
                     Margin="5"
-                    TextElement.Foreground="Black"
-                    x:Name="ToggleEdit">
+                    TextElement.Foreground="Black">
                     <Button.Style>
                         <Style TargetType="{x:Type Button}">
                             <Setter Property="Content">
