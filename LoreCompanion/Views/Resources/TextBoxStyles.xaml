@@ -59,6 +59,7 @@
                                 Margin="10,5"
                                 VerticalAlignment="Center"
                                 DockPanel.Dock="Left"
+                                Foreground="{StaticResource Brush.Foreground.Dark}"
                                 Kind="Search" />
                             <Button
                                 Margin="10,5"

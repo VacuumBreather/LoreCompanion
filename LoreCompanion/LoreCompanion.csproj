@@ -43,6 +43,8 @@
         <None Remove="Views\Resources\Images\FooterLandscape.png" />
         <Resource Include="Views\Resources\Images\FooterLandscape.png" />
         <None Remove="Views\Resources\Shaders\TintShader.ps" />
+        <None Remove="Views\Resources\Images\NavigationLandscape.png" />
+        <Resource Include="Views\Resources\Images\NavigationLandscape.png" />
     </ItemGroup>
 
     <!-- NuGet packages -->

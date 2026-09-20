@@ -9,9 +9,11 @@
     <!--  Style.Button  -->
     <Style x:Key="Style.Button" TargetType="{x:Type Button}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-        <Setter Property="Background" Value="{StaticResource Brush.Background.Button.Primary}" />
+        <Setter Property="Width" Value="30" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Background" Value="{StaticResource Brush.Background.Button}" />
         <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Button}" />
-        <Setter Property="BorderBrush" Value="{StaticResource Brush.Border.Primary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush.Border}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Border.CornerRadius" Value="{StaticResource CornerRadius.Controls}" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -37,29 +39,37 @@
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding Border.CornerRadius}"
                         SnapsToDevicePixels="true">
-                        <ContentPresenter
-                            Margin="{TemplateBinding Padding}"
-                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                            RecognizesAccessKey="True"
-                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        <Viewbox>
+                            <ContentPresenter
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                RecognizesAccessKey="True"
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </Viewbox>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsPressed" Value="true">
-                <Setter Property="Background" Value="{StaticResource Brush.Background.Button.Pressed}" />
+                <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Button.Primary}" />
+                <Setter Property="Background" Value="{StaticResource Brush.Background.Button.Primary.Pressed}" />
+                <Setter Property="BorderBrush" Value="{StaticResource Brush.Border.Primary}" />
             </Trigger>
             <Trigger Property="IsMouseOver" Value="true">
-                <Setter Property="Background" Value="{StaticResource Brush.Background.Button.MouseOver}" />
+                <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Button.Primary}" />
+                <Setter Property="Background" Value="{StaticResource Brush.Background.Button.Primary.MouseOver}" />
+                <Setter Property="BorderBrush" Value="{StaticResource Brush.Border.Primary}" />
             </Trigger>
             <MultiTrigger>
                 <MultiTrigger.Conditions>
                     <Condition Property="IsPressed" Value="true" />
                     <Condition Property="IsMouseOver" Value="true" />
                 </MultiTrigger.Conditions>
-                <Setter Property="Background" Value="{StaticResource Brush.Background.Button.Pressed}" />
+                <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Button.Primary}" />
+                <Setter Property="Background" Value="{StaticResource Brush.Background.Button.Primary.Pressed}" />
+                <Setter Property="BorderBrush" Value="{StaticResource Brush.Border.Primary}" />
             </MultiTrigger>
         </Style.Triggers>
     </Style>
@@ -83,6 +93,8 @@
         x:Key="Style.Button.Delete"
         BasedOn="{StaticResource Style.Button}"
         TargetType="{x:Type Button}">
+        <Setter Property="Width" Value="20" />
+        <Setter Property="Height" Value="20" />
         <Setter Property="ContentTemplate">
             <Setter.Value>
                 <DataTemplate>
@@ -153,13 +165,17 @@
         x:Key="Style.Button.TextBox.Clear"
         BasedOn="{StaticResource Style.Button}"
         TargetType="{x:Type Button}">
-        <Setter Property="Foreground" Value="{StaticResource Brush.Foreground}" />
+        <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Dark}" />
         <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Width" Value="20" />
+        <Setter Property="Height" Value="20" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="ContentTemplate">
             <Setter.Value>
                 <DataTemplate>
-                    <iconPacks:PackIconMaterialDesign Kind="Close" />
+                    <Viewbox>
+                        <iconPacks:PackIconMaterialDesign Kind="Close" />
+                    </Viewbox>
                 </DataTemplate>
             </Setter.Value>
         </Setter>

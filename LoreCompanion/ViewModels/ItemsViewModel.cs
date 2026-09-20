@@ -33,18 +33,18 @@ namespace LoreCompanion.ViewModels
             set => Set(ref field, value);
         } = "";
 
-        public bool CanDeleteCurrent => SelectedItem is not null;
-
         public EditMode EditMode
         {
             get;
-            set
+            private set
             {
-                if (Set(ref field, value))
+                if (!Set(ref field, value))
                 {
-                    NotifyOfPropertyChange(nameof(CanEditCurrent));
-                    NotifyOfPropertyChange(nameof(CanSaveCurrent));
+                    return;
                 }
+
+                NotifyOfPropertyChange(nameof(CanEditCurrent));
+                NotifyOfPropertyChange(nameof(CanSaveCurrent));
             }
         } = EditMode.ReadOnly;
 
@@ -52,32 +52,31 @@ namespace LoreCompanion.ViewModels
 
         public bool CanSaveCurrent => SelectedItem is not null && (EditMode == EditMode.Editable);
 
-        public BindableCollection<Item> Items { get; set; } = new();
+        public BindableCollection<Item> Items { get; } = [];
 
         public Item? SelectedItem
         {
             get;
             set
             {
-                if (Set(ref field, value))
+                if (!Set(ref field, value))
                 {
-                    NotifyOfPropertyChange(nameof(CanDeleteCurrent));
-                    NotifyOfPropertyChange(nameof(CanEditCurrent));
-                    NotifyOfPropertyChange(nameof(CanSaveCurrent));
+                    return;
+                }
 
-                    if (EditMode == EditMode.Editable)
-                    {
-                        SaveCurrentAsync().GetAwaiter().GetResult();
-                    }
+                NotifyOfPropertyChange(nameof(CanEditCurrent));
+                NotifyOfPropertyChange(nameof(CanSaveCurrent));
+
+                if (EditMode == EditMode.Editable)
+                {
+                    SaveCurrentAsync().GetAwaiter().GetResult();
                 }
             }
         }
 
         public Task CreateNewAsync()
         {
-            var newItem = new Item();
-            newItem.Name = "Demo";
-            newItem.Description = "Demo Description";
+            var newItem = new Item { Name = "Demo", Description = "Demo Description" };
             Items.Add(newItem);
             SelectedItem = newItem;
 
@@ -87,16 +86,11 @@ namespace LoreCompanion.ViewModels
             return Task.CompletedTask;
         }
 
-        public async Task DeleteCurrentAsync()
+        public async Task DeleteAsync(Item item)
         {
-            if (SelectedItem is null)
-            {
-                return;
-            }
-
             var dialogResult = await _dialogService.ShowQueryDialogAsync(
                                    "Delete Item",
-                                   "Are you sure you want to delete this item?",
+                                   $"Are you sure you want to delete this item?\n\n'{item.Name}'",
                                    DialogResults.YesNo,
                                    DialogResult.Yes);
 
@@ -107,31 +101,36 @@ namespace LoreCompanion.ViewModels
 
             await using var context = await _dbContextFactory.CreateDbContextAsync();
 
-            if (SelectedItem.Id == 0)
+            if (item.Id == 0)
             {
                 // New item: no action required
             }
             else
             {
                 // Existing item: update database record
-                context.Items.Remove(SelectedItem);
+                context.Items.Remove(item);
             }
 
-            var oldIndex = Items.IndexOf(SelectedItem);
-            Items.Remove(SelectedItem);
+            var oldIndex = Items.IndexOf(item);
+            var wasSelectedItem = SelectedItem?.Id == item.Id;
 
-            Item? newSelectedItem = null;
+            Items.Remove(item);
 
-            if (Items.Count > oldIndex)
+            if (wasSelectedItem)
             {
-                newSelectedItem = Items[oldIndex];
-            }
-            else if ((oldIndex > 0) && (Items.Count > oldIndex - 1))
-            {
-                newSelectedItem = Items[oldIndex - 1];
-            }
+                Item? newSelectedItem = null;
 
-            SelectedItem = newSelectedItem;
+                if (Items.Count > oldIndex)
+                {
+                    newSelectedItem = Items[oldIndex];
+                }
+                else if ((oldIndex > 0) && (Items.Count > oldIndex - 1))
+                {
+                    newSelectedItem = Items[oldIndex - 1];
+                }
+
+                SelectedItem = newSelectedItem;
+            }
 
             await context.SaveChangesAsync();
         }

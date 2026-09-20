@@ -54,39 +54,55 @@
             BorderBrush="{StaticResource Brush.Border.Primary}"
             BorderThickness="0,1,0,0"
             DockPanel.Dock="Bottom">
-            <DockPanel>
+            <Grid>
                 <Image
                     HorizontalAlignment="Right"
-                    DockPanel.Dock="Right"
                     Source="/LoreCompanion;component/Views/Resources/Images/FooterLandscape.png"
                     Stretch="Uniform">
                     <Image.Effect>
                         <effects:TintShaderEffect TintColor="{StaticResource Color.Primary.60}" />
                     </Image.Effect>
                 </Image>
-                <Image
-                    Margin="10"
-                    VerticalAlignment="Center"
-                    DockPanel.Dock="Left"
-                    Source="/LoreCompanion;component/Views/Resources/Images/EldenRing.png" />
-                <TextBlock
-                    Margin="10"
-                    VerticalAlignment="Center"
-                    DockPanel.Dock="Left"
-                    Style="{StaticResource Style.TextBlock.Body.Large}"
-                    Text="The more you learn, the more the world reveals itself." />
-            </DockPanel>
+                <DockPanel>
+                    <Image
+                        Margin="10"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Left"
+                        Source="/LoreCompanion;component/Views/Resources/Images/EldenRing.png" />
+                    <TextBlock
+                        Margin="10"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Left"
+                        Style="{StaticResource Style.TextBlock.Body.Large}"
+                        Text="The more you learn, the more the world reveals itself." />
+                </DockPanel>
+            </Grid>
         </Border>
 
         <!--  Content  -->
         <controls:DialogHostDecorator>
             <DockPanel>
-                <ListBox
-                    DockPanel.Dock="Left"
-                    ItemsSource="{Binding ItemsView}"
-                    SelectedItem="{Binding ActiveItem}"
-                    Style="{StaticResource Style.ListBox.Navigation}" />
+                <Border
+                    Background="{StaticResource Brush.Background.Panel}"
+                    BorderBrush="{StaticResource Brush.Border.Primary}"
+                    BorderThickness="0,0,0.5,0">
+                    <Grid Width="250" DockPanel.Dock="Left">
+                        <Image
+                            VerticalAlignment="Bottom"
+                            Source="/LoreCompanion;component/Views/Resources/Images/NavigationLandscape.png"
+                            Stretch="Uniform">
+                            <Image.Effect>
+                                <effects:TintShaderEffect TintColor="{StaticResource Color.Primary.60}" />
+                            </Image.Effect>
+                        </Image>
+                        <ListBox
+                            ItemsSource="{Binding ItemsView}"
+                            SelectedItem="{Binding ActiveItem}"
+                            Style="{StaticResource Style.ListBox.Navigation}" />
+                    </Grid>
+                </Border>
                 <ContentControl x:Name="ActiveItem" />
+
             </DockPanel>
         </controls:DialogHostDecorator>
     </DockPanel>

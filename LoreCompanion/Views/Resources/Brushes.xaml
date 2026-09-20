@@ -42,15 +42,23 @@
         po:Freeze="True"
         Color="{StaticResource Color.Background.30}" />
     <SolidColorBrush
+        x:Key="Brush.Background.Button.MouseOver"
+        po:Freeze="True"
+        Color="{StaticResource Color.Background.50}" />
+    <SolidColorBrush
+        x:Key="Brush.Background.Button.Pressed"
+        po:Freeze="True"
+        Color="{StaticResource Color.Background.20}" />
+    <SolidColorBrush
         x:Key="Brush.Background.Button.Primary"
         po:Freeze="True"
         Color="{StaticResource Color.Primary.50}" />
     <SolidColorBrush
-        x:Key="Brush.Background.Button.MouseOver"
+        x:Key="Brush.Background.Button.Primary.MouseOver"
         po:Freeze="True"
         Color="{StaticResource Color.Primary.70}" />
     <SolidColorBrush
-        x:Key="Brush.Background.Button.Pressed"
+        x:Key="Brush.Background.Button.Primary.Pressed"
         po:Freeze="True"
         Color="{StaticResource Color.Primary.40}" />
     <LinearGradientBrush x:Key="Brush.Background.Selected.Navigation" po:Freeze="True">
@@ -72,6 +80,10 @@
         po:Freeze="True"
         Color="{StaticResource Color.Background.80}" />
     <SolidColorBrush
+        x:Key="Brush.Foreground.Dark"
+        po:Freeze="True"
+        Color="{StaticResource Color.Background.50}" />
+    <SolidColorBrush
         x:Key="Brush.Foreground.MouseOver"
         po:Freeze="True"
         Color="{StaticResource Color.Background.90}" />
@@ -85,6 +97,10 @@
         Color="{StaticResource Color.Primary.80}" />
     <SolidColorBrush
         x:Key="Brush.Foreground.Button"
+        po:Freeze="True"
+        Color="{StaticResource Color.Background.10}" />
+    <SolidColorBrush
+        x:Key="Brush.Foreground.Button.Primary"
         po:Freeze="True"
         Color="{StaticResource Color.Primary.5}" />
     <SolidColorBrush
