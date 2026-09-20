@@ -24,18 +24,49 @@ namespace LoreCompanion.Views.Helpers
             new PropertyMetadata(false, OnTypographyChanged));
 
         [AttachedPropertyBrowsableForType(typeof(TextBlock))]
-        public static bool GetAllCaps(TextBlock textBlock) => (bool)textBlock.GetValue(AllCapsProperty);
+        public static bool GetAllCaps(TextBlock textBlock)
+        {
+            return (bool)textBlock.GetValue(AllCapsProperty);
+        }
 
-        public static void SetAllCaps(TextBlock textBlock, bool value) => textBlock.SetValue(AllCapsProperty, value);
+        public static void SetAllCaps(TextBlock textBlock, bool value)
+        {
+            textBlock.SetValue(AllCapsProperty, value);
+        }
 
         [AttachedPropertyBrowsableForType(typeof(TextBlock))]
-        public static bool GetIncreaseLetterSpacing(TextBlock textBlock) => (bool)textBlock.GetValue(IncreaseLetterSpacingProperty);
+        public static bool GetIncreaseLetterSpacing(TextBlock textBlock)
+        {
+            return (bool)textBlock.GetValue(IncreaseLetterSpacingProperty);
+        }
 
-        public static void SetIncreaseLetterSpacing(TextBlock textBlock, bool value) => textBlock.SetValue(IncreaseLetterSpacingProperty, value);
+        public static void SetIncreaseLetterSpacing(TextBlock textBlock, bool value)
+        {
+            textBlock.SetValue(IncreaseLetterSpacingProperty, value);
+        }
+
+        private static void OnTextBlockLoaded(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBlock textBlock)
+            {
+                ApplyTypography(textBlock);
+            }
+        }
+
+        private static void OnTextChanged(object? sender, EventArgs e)
+        {
+            if (sender is TextBlock textBlock)
+            {
+                ApplyTypography(textBlock);
+            }
+        }
 
         private static void OnTypographyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is not TextBlock textBlock) return;
+            if (d is not TextBlock textBlock)
+            {
+                return;
+            }
 
             var isEnabled = GetAllCaps(textBlock) || GetIncreaseLetterSpacing(textBlock);
 
@@ -63,25 +94,12 @@ namespace LoreCompanion.Views.Helpers
             }
         }
 
-        private static void OnTextBlockLoaded(object sender, RoutedEventArgs e)
-        {
-            if (sender is TextBlock textBlock)
-            {
-                ApplyTypography(textBlock);
-            }
-        }
-
-        private static void OnTextChanged(object? sender, EventArgs e)
-        {
-            if (sender is TextBlock textBlock)
-            {
-                ApplyTypography(textBlock);
-            }
-        }
-
         private static string TransformText(string? text, bool allCaps, bool increaseLetterSpacing)
         {
-            if (string.IsNullOrEmpty(text)) return text ?? string.Empty;
+            if (string.IsNullOrEmpty(text))
+            {
+                return text ?? string.Empty;
+            }
 
             var result = text;
 
@@ -104,7 +122,10 @@ namespace LoreCompanion.Views.Helpers
             var allCaps = GetAllCaps(textBlock);
             var letterSpacing = GetIncreaseLetterSpacing(textBlock);
 
-            if (!allCaps && !letterSpacing) return;
+            if (!allCaps && !letterSpacing)
+            {
+                return;
+            }
 
             var bindingBase = BindingOperations.GetBindingBase(textBlock, TextBlock.TextProperty);
 
@@ -113,6 +134,7 @@ namespace LoreCompanion.Views.Helpers
                 if (binding.Converter is TypographyValueConverter)
                 {
                     BindingOperations.GetBindingExpression(textBlock, TextBlock.TextProperty)?.UpdateTarget();
+
                     return;
                 }
 
@@ -133,6 +155,7 @@ namespace LoreCompanion.Views.Helpers
                 if (multiBinding.Converter is TypographyMultiValueConverter)
                 {
                     BindingOperations.GetMultiBindingExpression(textBlock, TextBlock.TextProperty)?.UpdateTarget();
+
                     return;
                 }
 
@@ -150,11 +173,17 @@ namespace LoreCompanion.Views.Helpers
 
             var currentText = textBlock.Text;
 
-            if (string.IsNullOrEmpty(currentText)) return;
+            if (string.IsNullOrEmpty(currentText))
+            {
+                return;
+            }
 
             var transformedText = TransformText(currentText, allCaps, letterSpacing);
 
-            if (string.Equals(currentText, transformedText, StringComparison.Ordinal)) return;
+            if (string.Equals(currentText, transformedText, StringComparison.Ordinal))
+            {
+                return;
+            }
 
             // Unhook temporarily to prevent re-entrant event loops
             TextDescriptor.RemoveValueChanged(textBlock, OnTextChanged);
@@ -192,7 +221,7 @@ namespace LoreCompanion.Views.Helpers
                 BindingGroupName = source.BindingGroupName,
                 Delay = source.Delay,
                 IsAsync = source.IsAsync,
-                UpdateSourceExceptionFilter = source.UpdateSourceExceptionFilter
+                UpdateSourceExceptionFilter = source.UpdateSourceExceptionFilter,
             };
 
             if (source.Source != null)
@@ -235,7 +264,7 @@ namespace LoreCompanion.Views.Helpers
                 NotifyOnTargetUpdated = source.NotifyOnTargetUpdated,
                 BindingGroupName = source.BindingGroupName,
                 Delay = source.Delay,
-                UpdateSourceExceptionFilter = source.UpdateSourceExceptionFilter
+                UpdateSourceExceptionFilter = source.UpdateSourceExceptionFilter,
             };
 
             foreach (var b in source.Bindings)
@@ -268,10 +297,17 @@ namespace LoreCompanion.Views.Helpers
                         innerCulture ?? culture);
                 }
 
-                if (value == null) return null;
+                if (value == null)
+                {
+                    return null;
+                }
 
                 var str = value as string ?? value.ToString();
-                if (str == null) return null;
+
+                if (str == null)
+                {
+                    return null;
+                }
 
                 var allCaps = textBlockRef.TryGetTarget(out var tb) && GetAllCaps(tb);
                 var letterSpacing = textBlockRef.TryGetTarget(out var tb2) && GetIncreaseLetterSpacing(tb2);
@@ -317,10 +353,17 @@ namespace LoreCompanion.Views.Helpers
                     result = values.Length > 0 ? values[0] : null;
                 }
 
-                if (result == null) return null;
+                if (result == null)
+                {
+                    return null;
+                }
 
                 var str = result as string ?? result.ToString();
-                if (str == null) return null;
+
+                if (str == null)
+                {
+                    return null;
+                }
 
                 var allCaps = textBlockRef.TryGetTarget(out var tb) && GetAllCaps(tb);
                 var letterSpacing = textBlockRef.TryGetTarget(out var tb2) && GetIncreaseLetterSpacing(tb2);

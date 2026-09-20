@@ -15,18 +15,6 @@ namespace LoreCompanion.Views.Effects
             typeof(TintShaderEffect),
             new UIPropertyMetadata(Colors.White, PixelShaderConstantCallback(0)));
 
-        public Brush Input
-        {
-            get => (Brush)GetValue(InputProperty);
-            set => SetValue(InputProperty, value);
-        }
-
-        public Color TintColor
-        {
-            get => (Color)GetValue(TintColorProperty);
-            set => SetValue(TintColorProperty, value);
-        }
-
         public TintShaderEffect()
         {
             PixelShader = new PixelShader
@@ -38,6 +26,18 @@ namespace LoreCompanion.Views.Effects
 
             UpdateShaderValue(InputProperty);
             UpdateShaderValue(TintColorProperty);
+        }
+
+        public Brush Input
+        {
+            get => (Brush)GetValue(InputProperty);
+            set => SetValue(InputProperty, value);
+        }
+
+        public Color TintColor
+        {
+            get => (Color)GetValue(TintColorProperty);
+            set => SetValue(TintColorProperty, value);
         }
     }
 }

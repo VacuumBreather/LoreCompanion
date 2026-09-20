@@ -2,7 +2,8 @@
 {
     public class DashboardViewModel : SectionScreen
     {
-        public DashboardViewModel() : base(NavigationSection.Overview)
+        public DashboardViewModel()
+            : base(NavigationSection.Overview)
         {
             DisplayName = "Dashboard";
         }

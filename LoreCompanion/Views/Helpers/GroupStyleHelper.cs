@@ -11,10 +11,15 @@ namespace LoreCompanion.Views.Helpers
             typeof(GroupStyleHelper),
             new PropertyMetadata(null, OnGroupStyleChanged));
 
-        public static GroupStyle? GetGroupStyle(DependencyObject obj) => (GroupStyle?)obj.GetValue(GroupStyleProperty);
+        public static GroupStyle? GetGroupStyle(DependencyObject obj)
+        {
+            return (GroupStyle?)obj.GetValue(GroupStyleProperty);
+        }
 
-        public static void SetGroupStyle(DependencyObject obj, GroupStyle? value) =>
+        public static void SetGroupStyle(DependencyObject obj, GroupStyle? value)
+        {
             obj.SetValue(GroupStyleProperty, value);
+        }
 
         private static void OnGroupStyleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

@@ -38,13 +38,15 @@
                                     Style="{StaticResource Style.Button.Edit}" />
                             </UniformGrid>
                             <TextBlock
-                                helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.TextBox.Selection}"
+                                helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
+                                helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
                                 helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                 helpers:HighlightHelper.Text="{Binding Name}"
                                 Style="{StaticResource Style.TextBlock.Heading.Large}" />
                         </DockPanel>
                         <TextBlock
-                            helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.TextBox.Selection}"
+                            helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
+                            helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
                             helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                             helpers:HighlightHelper.Text="{Binding Description}"
                             TextWrapping="Wrap" />

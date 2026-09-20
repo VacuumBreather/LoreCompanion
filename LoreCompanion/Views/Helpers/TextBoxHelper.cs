@@ -11,6 +11,27 @@ namespace LoreCompanion.Views.Helpers
             typeof(TextBoxHelper),
             new PropertyMetadata(false, OnIsClearButtonChanged));
 
+        public static void SetIsClearButton(Button button, bool value)
+        {
+            button.SetValue(IsClearButtonProperty, value);
+        }
+
+        [AttachedPropertyBrowsableForType(typeof(Button))]
+        public static bool GetIsClearButton(Button button)
+        {
+            return (bool)button.GetValue(IsClearButtonProperty);
+        }
+
+        private static void OnClearButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button { TemplatedParent: TextBox textBox })
+            {
+                return;
+            }
+
+            textBox.SetCurrentValue(TextBox.TextProperty, "");
+        }
+
         private static void OnIsClearButtonChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is not Button button)
@@ -24,27 +45,6 @@ namespace LoreCompanion.Views.Helpers
             {
                 button.Click += OnClearButtonClick;
             }
-        }
-
-        private static void OnClearButtonClick(object sender, RoutedEventArgs e)
-        {
-            if (sender is not Button { TemplatedParent: TextBox textBox })
-            {
-                return;
-            }
-
-            textBox.SetCurrentValue(TextBox.TextProperty, "");
-        }
-
-        public static void SetIsClearButton(Button button, bool value)
-        {
-            button.SetValue(IsClearButtonProperty, value);
-        }
-
-        [AttachedPropertyBrowsableForType(typeof(Button))]
-        public static bool GetIsClearButton(Button button)
-        {
-            return (bool)button.GetValue(IsClearButtonProperty);
         }
     }
 }

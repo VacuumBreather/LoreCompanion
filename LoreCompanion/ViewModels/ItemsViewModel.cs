@@ -12,7 +12,8 @@ namespace LoreCompanion.ViewModels
         private readonly IDbContextFactory<LoreDbContext> _dbContextFactory;
         private IDisposable? _subscription;
 
-        public ItemsViewModel(IDbContextFactory<LoreDbContext> dbContextFactory) : base(NavigationSection.Lore)
+        public ItemsViewModel(IDbContextFactory<LoreDbContext> dbContextFactory)
+            : base(NavigationSection.Lore)
         {
             _dbContextFactory = dbContextFactory;
             DisplayName = "Items";
@@ -21,35 +22,53 @@ namespace LoreCompanion.ViewModels
             ItemsView.Filter = OnFilter;
         }
 
-        protected override async Task OnInitializedAsync(CancellationToken cancellationToken)
+        public ICollectionView ItemsView { get; }
+
+        public string SearchText
         {
-            await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+            get;
+            set => Set(ref field, value);
+        } = "";
 
-            var items = await context.Items.AsNoTracking().ToListAsync(cancellationToken);
+        public bool CanDeleteCurrent => SelectedItem is not null;
 
-            Items.Clear();
-            Items.AddRange(items);
-
-            SelectedItem = Items.FirstOrDefault();
-
-            _subscription = this.ObservePropertyChanged(x => x.SearchText)
-                                .Debounce(TimeSpan.FromMilliseconds(250))
-                                .ObserveOnCurrentDispatcher()
-                                .Subscribe(_ => ItemsView.Refresh());
-        }
-
-        private bool OnFilter(object obj)
+        public EditMode EditMode
         {
-            if (obj is not Item item || string.IsNullOrWhiteSpace(SearchText))
+            get;
+            set
             {
-                return true;
+                if (Set(ref field, value))
+                {
+                    NotifyOfPropertyChange(nameof(CanEditCurrent));
+                    NotifyOfPropertyChange(nameof(CanSaveCurrent));
+                }
             }
+        } = EditMode.ReadOnly;
 
-            return item.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                   item.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase);
+        public bool CanEditCurrent => SelectedItem is not null && (EditMode == EditMode.ReadOnly);
+
+        public bool CanSaveCurrent => SelectedItem is not null && (EditMode == EditMode.Editable);
+
+        public BindableCollection<Item> Items { get; set; } = new();
+
+        public Item? SelectedItem
+        {
+            get;
+            set
+            {
+                if (Set(ref field, value))
+                {
+                    NotifyOfPropertyChange(nameof(CanDeleteCurrent));
+                    NotifyOfPropertyChange(nameof(CanEditCurrent));
+                    NotifyOfPropertyChange(nameof(CanSaveCurrent));
+
+                    if (EditMode == EditMode.Editable)
+                    {
+                        SaveCurrentAsync().GetAwaiter().GetResult();
+                    }
+                }
+            }
         }
-
-        public ICollectionView ItemsView { get; private set; }
 
         public Task CreateNewAsync()
         {
@@ -64,12 +83,6 @@ namespace LoreCompanion.ViewModels
 
             return Task.CompletedTask;
         }
-
-        public string SearchText
-        {
-            get;
-            set => Set(ref field, value);
-        } = "";
 
         public async Task DeleteCurrentAsync()
         {
@@ -99,9 +112,8 @@ namespace LoreCompanion.ViewModels
             {
                 newSelectedItem = Items[oldIndex];
             }
-            else if (oldIndex > 0 && Items.Count > oldIndex - 1)
+            else if ((oldIndex > 0) && (Items.Count > oldIndex - 1))
             {
-
                 newSelectedItem = Items[oldIndex - 1];
             }
 
@@ -109,23 +121,6 @@ namespace LoreCompanion.ViewModels
 
             await context.SaveChangesAsync();
         }
-
-        public bool CanDeleteCurrent => SelectedItem is not null;
-
-        public EditMode EditMode
-        {
-            get;
-            set
-            {
-                if (Set(ref field, value))
-                {
-                    NotifyOfPropertyChange(nameof(CanEditCurrent));
-                    NotifyOfPropertyChange(nameof(CanSaveCurrent));
-                }
-            }
-        } = EditMode.ReadOnly;
-
-        public bool CanEditCurrent => SelectedItem is not null && EditMode == EditMode.ReadOnly;
 
         public void EditCurrentAsync()
         {
@@ -137,8 +132,6 @@ namespace LoreCompanion.ViewModels
             EditMode = EditMode.Editable;
         }
 
-        public bool CanSaveCurrent => SelectedItem is not null && EditMode == EditMode.Editable;
-
         public async Task SaveCurrentAsync()
         {
             if (SelectedItem is null)
@@ -148,6 +141,23 @@ namespace LoreCompanion.ViewModels
 
             await SaveSelectedItemAsync();
             EditMode = EditMode.ReadOnly;
+        }
+
+        protected override async Task OnInitializedAsync(CancellationToken cancellationToken)
+        {
+            await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            var items = await context.Items.AsNoTracking().ToListAsync(cancellationToken);
+
+            Items.Clear();
+            Items.AddRange(items);
+
+            SelectedItem = Items.FirstOrDefault();
+
+            _subscription = this.ObservePropertyChanged(x => x.SearchText)
+                                .Debounce(TimeSpan.FromMilliseconds(250))
+                                .ObserveOnCurrentDispatcher()
+                                .Subscribe(_ => ItemsView.Refresh());
         }
 
         protected override Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
@@ -163,6 +173,17 @@ namespace LoreCompanion.ViewModels
             }
 
             return base.OnDeactivateAsync(close, cancellationToken);
+        }
+
+        private bool OnFilter(object obj)
+        {
+            if (obj is not Item item || string.IsNullOrWhiteSpace(SearchText))
+            {
+                return true;
+            }
+
+            return item.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                   item.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase);
         }
 
         private async Task SaveSelectedItemAsync()
@@ -186,27 +207,6 @@ namespace LoreCompanion.ViewModels
             }
 
             await context.SaveChangesAsync();
-        }
-
-        public BindableCollection<Item> Items { get; set; } = new();
-
-        public Item? SelectedItem
-        {
-            get;
-            set
-            {
-                if (Set(ref field, value))
-                {
-                    NotifyOfPropertyChange(nameof(CanDeleteCurrent));
-                    NotifyOfPropertyChange(nameof(CanEditCurrent));
-                    NotifyOfPropertyChange(nameof(CanSaveCurrent));
-
-                    if (EditMode == EditMode.Editable)
-                    {
-                        SaveCurrentAsync().GetAwaiter().GetResult();
-                    }
-                }
-            }
         }
     }
 }

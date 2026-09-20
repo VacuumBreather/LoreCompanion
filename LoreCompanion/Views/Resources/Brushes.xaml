@@ -29,6 +29,10 @@
         po:Freeze="True"
         Color="{StaticResource Color.Primary.50}" />
     <SolidColorBrush
+        x:Key="Brush.Background.Highlight"
+        po:Freeze="True"
+        Color="Transparent" />
+    <SolidColorBrush
         x:Key="Brush.Background.Button"
         po:Freeze="True"
         Color="{StaticResource Color.Primary.50}" />
@@ -75,6 +79,10 @@
         po:Freeze="True"
         Color="{StaticResource Color.Primary.5}" />
     <SolidColorBrush
+        x:Key="Brush.Foreground.Highlight"
+        po:Freeze="True"
+        Color="{StaticResource Color.Primary.60}" />
+    <SolidColorBrush
         x:Key="Brush.Foreground.Primary.Selected"
         po:Freeze="True"
         Color="{StaticResource Color.Primary.90}" />
@@ -91,6 +99,11 @@
     <SolidColorBrush
         x:Key="Brush.Border.Selected"
         po:Freeze="True"
+        Color="{StaticResource Color.Primary.60}" />
+    <SolidColorBrush
+        x:Key="Brush.Border.Highlight"
+        po:Freeze="True"
+        Opacity="0.75"
         Color="{StaticResource Color.Primary.60}" />
     <SolidColorBrush
         x:Key="Brush.Border.MouseOver"

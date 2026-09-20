@@ -13,7 +13,10 @@ namespace LoreCompanion.Views.Converters
 
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is not EditMode editMode) return DependencyProperty.UnsetValue;
+            if (value is not EditMode editMode)
+            {
+                return DependencyProperty.UnsetValue;
+            }
 
             return editMode == EditMode.ReadOnly ? ReadOnlyTemplate : EditTemplate;
         }

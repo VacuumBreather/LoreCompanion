@@ -1,14 +1,11 @@
 ﻿using System.Windows.Data;
 using Caliburn.Micro;
 using LoreCompanion.Extensions;
-using LoreCompanion.Models;
 
 namespace LoreCompanion.ViewModels
 {
     public class ShellViewModel : Conductor<SectionScreen>.Collection.OneActive
     {
-        public  ListCollectionView ItemsView { get; }
-
         public ShellViewModel(IEnumerable<SectionScreen> sections)
         {
             ItemsView = (ListCollectionView)CollectionViewSource.GetDefaultView(Items);
@@ -17,17 +14,20 @@ namespace LoreCompanion.ViewModels
             ItemsView.CustomSort = Comparer<SectionScreen>.Create((a, b) =>
             {
                 var result = NavigationSection.Order.IndexOf(a.Section)
-                                              .CompareTo(
-                                                  NavigationSection.Order
-                                                                   .IndexOf(b.Section));
+                                              .CompareTo(NavigationSection.Order.IndexOf(b.Section));
 
-                if (result != 0) return result;
+                if (result != 0)
+                {
+                    return result;
+                }
 
                 return string.Compare(a.DisplayName, b.DisplayName, StringComparison.Ordinal);
             });
 
             Items.AddRange(sections);
         }
+
+        public ListCollectionView ItemsView { get; }
 
         protected override Task OnInitializedAsync(CancellationToken cancellationToken)
         {
