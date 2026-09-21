@@ -184,52 +184,9 @@ namespace LoreCompanion.ViewModels
                                 .ObserveOnCurrentDispatcher()
                                 .Subscribe(_ => ItemsView.Refresh());
 
-            // Kick off progressive background loading without blocking view display
-            _ = LoadItemsProgressivelyAsync(cancellationToken);
+            _ = Task.Run(() => LoadItemsProgressivelyAsync(cancellationToken), cancellationToken);
 
             return Task.CompletedTask;
-
-            // await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
-            //
-            // var items = await context.Items.AsNoTracking().ToListAsync(cancellationToken);
-            //
-            // Items.Clear();
-            // Items.AddRange(items);
-            //
-            // SelectedItem = Items.FirstOrDefault();
-        }
-
-        private async Task LoadItemsProgressivelyAsync(CancellationToken cancellationToken)
-        {
-            using var busy = SetBusy();
-
-            try
-            {
-                await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
-
-                Items.Clear();
-
-                await Task.Delay(5000);
-
-                // Stream items asynchronously from the database
-                await foreach (var item in context.Items.AsNoTracking().AsAsyncEnumerable().WithCancellation(cancellationToken))
-                {
-                    Execute.OnUIThread(() =>
-                    {
-                        Items.Add(item);
-
-                        // Automatically select the first item once it arrives
-                        if (SelectedItem is null)
-                        {
-                            SelectedItem = item;
-                        }
-                    });
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                // Expected when navigating away; terminate stream cleanly
-            }
         }
 
         protected override Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
@@ -245,6 +202,60 @@ namespace LoreCompanion.ViewModels
             }
 
             return base.OnDeactivateAsync(close, cancellationToken);
+        }
+
+        private async Task LoadItemsProgressivelyAsync(CancellationToken cancellationToken)
+        {
+            using var busy = SetBusy();
+
+            await Task.Yield();
+
+            try
+            {
+                await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+                Items.Clear();
+
+                const int BatchSize = 25;
+                var buffer = new List<Item>(BatchSize);
+
+                // Stream items asynchronously from the database
+                await foreach (var item in context.Items.AsNoTracking()
+                                                  .AsAsyncEnumerable()
+                                                  .WithCancellation(cancellationToken))
+                {
+                    buffer.Add(item);
+
+                    if (buffer.Count >= BatchSize)
+                    {
+                        UpdateItemsAndSelectFirst(buffer);
+
+                        // Yield to let the WPF Dispatcher render the newly added items
+                        await Task.Yield();
+                    }
+                }
+
+                if (buffer.Count > 0)
+                {
+                    UpdateItemsAndSelectFirst(buffer);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected when navigating away; terminate stream cleanly
+            }
+        }
+
+        private void UpdateItemsAndSelectFirst(List<Item> buffer)
+        {
+            var chunk = buffer.ToArray();
+            buffer.Clear();
+
+            Execute.OnUIThread(() =>
+            {
+                Items.AddRange(chunk);
+                SelectedItem ??= chunk.FirstOrDefault();
+            });
         }
 
         private bool OnFilter(object obj)
