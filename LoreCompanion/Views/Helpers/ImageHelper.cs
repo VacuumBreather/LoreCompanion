@@ -24,6 +24,11 @@ namespace LoreCompanion.Views.Helpers
                 typeof(ImageHelper),
                 new PropertyMetadata(null));
 
+        private static CachedDataLoader? _cachedDataLoader;
+
+        private static CachedDataLoader CachedDataLoader =>
+            _cachedDataLoader ??= (CachedDataLoader)IoC.GetInstance(typeof(CachedDataLoader), null!);
+
         [AttachedPropertyBrowsableForType(typeof(Image)), AttachedPropertyBrowsableForType(typeof(ImageBrush))]
         public static string? GetImageUrl(DependencyObject element)
         {
@@ -74,8 +79,7 @@ namespace LoreCompanion.Views.Helpers
 
                 cts = new CancellationTokenSource();
                 SetCancellationTokenSource(d, cts);
-                var cachedDataLoader = (CachedDataLoader)IoC.GetInstance(typeof(CachedDataLoader), null!);
-                var bytes = await cachedDataLoader.GetDataAsync(targetUrl, cts.Token);
+                var bytes = await CachedDataLoader.GetDataAsync(targetUrl, cts.Token);
 
                 if (bytes == null)
                 {
