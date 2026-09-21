@@ -1,24 +1,30 @@
 ﻿using System.IO;
-using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Caliburn.Micro;
+using LoreCompanion.Utilities;
 
 namespace LoreCompanion.Views.Helpers
 {
     public static class ImageHelper
     {
-        private static readonly HttpClient HttpClient = new();
-
         public static readonly DependencyProperty ImageUrlProperty = DependencyProperty.RegisterAttached(
             DependencyPropertyNameHelper.GetName(nameof(ImageUrlProperty)),
             typeof(string),
             typeof(ImageHelper),
             new PropertyMetadata(null, OnImageUrlChanged));
 
-        [AttachedPropertyBrowsableForType(typeof(Image))]
-        [AttachedPropertyBrowsableForType(typeof(ImageBrush))]
+        // Private attached property to track the in-flight CancellationTokenSource per DependencyObject
+        private static readonly DependencyProperty CancellationTokenSourceProperty =
+            DependencyProperty.RegisterAttached(
+                DependencyPropertyNameHelper.GetName(nameof(CancellationTokenSourceProperty)),
+                typeof(CancellationTokenSource),
+                typeof(ImageHelper),
+                new PropertyMetadata(null));
+
+        [AttachedPropertyBrowsableForType(typeof(Image)), AttachedPropertyBrowsableForType(typeof(ImageBrush))]
         public static string? GetImageUrl(DependencyObject element)
         {
             return (string?)element.GetValue(ImageUrlProperty);
@@ -29,56 +35,87 @@ namespace LoreCompanion.Views.Helpers
             element.SetValue(ImageUrlProperty, value);
         }
 
+        private static CancellationTokenSource? GetCancellationTokenSource(DependencyObject element)
+        {
+            return (CancellationTokenSource?)element.GetValue(CancellationTokenSourceProperty);
+        }
+
+        private static void SetCancellationTokenSource(DependencyObject element, CancellationTokenSource? value)
+        {
+            element.SetValue(CancellationTokenSourceProperty, value);
+        }
+
         private static async void OnImageUrlChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var targetUrl = e.NewValue as string;
-
-            if (string.IsNullOrWhiteSpace(targetUrl) || !Uri.TryCreate(targetUrl, UriKind.Absolute, out var uri))
-            {
-                SetImageSource(d, null);
-                return;
-            }
+            CancellationTokenSource? cts = null;
+            string? targetUrl = null;
 
             try
             {
-                var bitmap = await LoadImageAsync(uri);
+                var existingCts = GetCancellationTokenSource(d);
 
-                // Prevent race conditions: ensure the target URL has not changed during download
-                if (GetImageUrl(d) == targetUrl)
+                if (existingCts is not null)
+                {
+                    // ReSharper disable once MethodHasAsyncOverload
+                    // We want to wait synchronously here
+                    existingCts.Cancel();
+                    existingCts.Dispose();
+                    SetCancellationTokenSource(d, null);
+                }
+
+                targetUrl = e.NewValue as string;
+
+                if (string.IsNullOrWhiteSpace(targetUrl))
+                {
+                    SetImageSource(d, null);
+
+                    return;
+                }
+
+                cts = new CancellationTokenSource();
+                SetCancellationTokenSource(d, cts);
+                var cachedDataLoader = (CachedDataLoader)IoC.GetInstance(typeof(CachedDataLoader), null!);
+                var bytes = await cachedDataLoader.GetDataAsync(targetUrl, cts.Token);
+
+                if (bytes == null)
+                {
+                    SetImageSource(d, null);
+
+                    return;
+                }
+
+                var bitmap = bytes.CreateBitmapFromBytes();
+
+                // Ensure the element has not been repurposed or changed during decoding
+                if (!cts.IsCancellationRequested && (GetImageUrl(d) == targetUrl))
                 {
                     SetImageSource(d, bitmap);
                 }
             }
+            catch (OperationCanceledException)
+            {
+                // Expected when a new URL is assigned before the current load finishes; ignore
+            }
             catch
             {
-                // Clear source or retain placeholder on network/decoding failure
-                if (GetImageUrl(d) == targetUrl)
+                // Set source to null on genuine network or decoding failure if not canceled
+                if (!(cts?.IsCancellationRequested ?? false) && (GetImageUrl(d) == targetUrl))
                 {
                     SetImageSource(d, null);
                 }
             }
-        }
-
-        private static async Task<BitmapSource?> LoadImageAsync(Uri uri)
-        {
-            if (uri.Scheme is "http" or "https")
+            finally
             {
-                var bytes = await HttpClient.GetByteArrayAsync(uri);
-                return CreateBitmapFromBytes(bytes);
+                // Clean up CTS reference if this task is still the active one
+                if (GetCancellationTokenSource(d) == cts)
+                {
+                    SetCancellationTokenSource(d, null);
+                    cts?.Dispose();
+                }
             }
-
-            // Fallback for local files and pack:// application resources
-            var bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.UriSource = uri;
-            bitmap.EndInit();
-            bitmap.Freeze();
-
-            return bitmap;
         }
 
-        private static BitmapSource CreateBitmapFromBytes(byte[] data)
+        private static BitmapImage CreateBitmapFromBytes(this byte[] data)
         {
             var bitmap = new BitmapImage();
 
@@ -91,6 +128,7 @@ namespace LoreCompanion.Views.Helpers
             }
 
             bitmap.Freeze(); // Crucial for cross-thread rendering & memory efficiency
+
             return bitmap;
         }
 

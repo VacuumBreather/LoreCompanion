@@ -1,13 +1,17 @@
 ﻿using System.Windows.Data;
 using Caliburn.Micro;
 using LoreCompanion.Extensions;
+using LoreCompanion.Utilities;
 
 namespace LoreCompanion.ViewModels
 {
-    public class ShellViewModel : Conductor<SectionScreen>.Collection.OneActive
+    public sealed class ShellViewModel : Conductor<SectionScreen>.Collection.OneActive
     {
-        public ShellViewModel(IEnumerable<SectionScreen> sections)
+        private readonly CachedDataLoader _cachedDataLoader;
+
+        public ShellViewModel(IEnumerable<SectionScreen> sections, CachedDataLoader cachedDataLoader)
         {
+            _cachedDataLoader = cachedDataLoader;
             ItemsView = (ListCollectionView)CollectionViewSource.GetDefaultView(Items);
             ItemsView.GroupDescriptions!.Add(new PropertyGroupDescription(nameof(SectionScreen.Section)));
 
@@ -35,6 +39,13 @@ namespace LoreCompanion.ViewModels
             var firstScreen = (SectionScreen)firstGroup.Items.First();
 
             return ActivateItemAsync(firstScreen, cancellationToken);
+        }
+
+        public override async Task<bool> CanCloseAsync(CancellationToken cancellationToken = new())
+        {
+            await _cachedDataLoader.DisposeAsync();
+
+            return await base.CanCloseAsync(cancellationToken);
         }
     }
 }

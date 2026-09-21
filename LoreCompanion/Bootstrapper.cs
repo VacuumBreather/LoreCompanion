@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Caliburn.Micro;
 using LoreCompanion.Models;
+using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels;
 using LoreCompanion.ViewModels.Dialogs;
 using LoreCompanion.Views;
@@ -14,7 +15,7 @@ namespace LoreCompanion
 {
     public class Bootstrapper : BootstrapperBase
     {
-        private IServiceProvider _serviceProvider = null!;
+        private ServiceProvider _serviceProvider = null!;
 
         public Bootstrapper()
         {
@@ -38,6 +39,7 @@ namespace LoreCompanion
             services.AddSingleton<ShellViewModel>();
             services.AddSingleton<ShellView>();
 
+            services.AddSingleton<CachedDataLoader>();
             services.AddSingleton<IWindowManager, WindowManager>();
             services.AddSingleton<IEventAggregator, EventAggregator>();
             services.AddSingleton<IDialogService, DialogConductor>();
@@ -101,8 +103,21 @@ namespace LoreCompanion
 
         protected override void OnExit(object sender, EventArgs e)
         {
-            var shellViewModel = _serviceProvider.GetRequiredService<ShellViewModel>();
-            shellViewModel.DeactivateAsync(true).GetAwaiter().GetResult();
+            // Offload to ThreadPool to avoid SynchronizationContext deadlock
+            // while holding the main thread so the OS does not terminate the process prematurely.
+            Task.Run(async () =>
+            {
+                if (_serviceProvider is IAsyncDisposable asyncDisposable)
+                {
+                    await asyncDisposable.DisposeAsync();
+                }
+                else if (_serviceProvider is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+            }).GetAwaiter().GetResult();
+
+            base.OnExit(sender, e);
         }
     }
 }
