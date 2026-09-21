@@ -15,14 +15,6 @@
     Background="{StaticResource Brush.Background}"
     Foreground="{StaticResource Brush.Foreground}"
     mc:Ignorable="d">
-    <Window.Resources>
-        <CollectionViewSource x:Key="CollectionViewSource.Items.Navigation" Source="{Binding Items}">
-            <CollectionViewSource.GroupDescriptions>
-                <PropertyGroupDescription PropertyName="Section" />
-            </CollectionViewSource.GroupDescriptions>
-        </CollectionViewSource>
-    </Window.Resources>
-
     <DockPanel>
         <!--  Header  -->
         <Border
