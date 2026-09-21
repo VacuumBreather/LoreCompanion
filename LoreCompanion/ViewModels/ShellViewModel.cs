@@ -3,6 +3,8 @@ using Caliburn.Micro;
 using LoreCompanion.Extensions;
 using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
+using Serilog;
+using LogManager = LoreCompanion.Utilities.LogManager;
 
 namespace LoreCompanion.ViewModels
 {
@@ -11,7 +13,10 @@ namespace LoreCompanion.ViewModels
         private readonly CachedDataLoader _cachedDataLoader;
         private readonly IDialogService _dialogService;
 
-        public ShellViewModel(IEnumerable<SectionScreen> sections, CachedDataLoader cachedDataLoader, IDialogService dialogService)
+        public ShellViewModel(
+            IEnumerable<SectionScreen> sections,
+            CachedDataLoader cachedDataLoader,
+            IDialogService dialogService)
         {
             _cachedDataLoader = cachedDataLoader;
             _dialogService = dialogService;
@@ -36,22 +41,31 @@ namespace LoreCompanion.ViewModels
 
         public ListCollectionView ItemsView { get; }
 
-        protected override Task OnInitializedAsync(CancellationToken cancellationToken)
-        {
-            var firstGroup = (CollectionViewGroup)ItemsView.Groups!.First();
-            var firstScreen = (SectionScreen)firstGroup.Items.First();
-
-            return ActivateItemAsync(firstScreen, cancellationToken);
-        }
+        private static ILogger Logger { get; } = LogManager.GetLogger();
 
         public override async Task<bool> CanCloseAsync(CancellationToken cancellationToken = new())
         {
-            await using var scope = await _dialogService.ShowBusyDialogAsync("Please Wait",
-                                                                             "Closing application...", cancellationToken);
+            Logger.Information("Closing application...");
+
+            await using var scope = await _dialogService.ShowBusyDialogAsync(
+                                        "Please Wait",
+                                        "Closing application...",
+                                        cancellationToken);
 
             await _cachedDataLoader.DisposeAsync();
 
             return await base.CanCloseAsync(cancellationToken);
+        }
+
+        protected override Task OnInitializedAsync(CancellationToken cancellationToken)
+        {
+            Logger.Information("Application initialized");
+            Logger.Information("Showing dashboard...");
+
+            var firstGroup = (CollectionViewGroup)ItemsView.Groups!.First();
+            var firstScreen = (SectionScreen)firstGroup.Items.First();
+
+            return ActivateItemAsync(firstScreen, cancellationToken);
         }
     }
 }

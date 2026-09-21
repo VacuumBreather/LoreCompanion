@@ -7,6 +7,8 @@ using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
 using Microsoft.EntityFrameworkCore;
 using R3;
+using Serilog;
+using LogManager = LoreCompanion.Utilities.LogManager;
 
 namespace LoreCompanion.ViewModels
 {
@@ -87,12 +89,16 @@ namespace LoreCompanion.ViewModels
 
         public bool IsBusy => _busyCount > 0;
 
+        private static ILogger Logger { get; } = LogManager.GetLogger();
+
         [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by the UI")]
         public Task CreateNewAsync()
         {
             var newItem = new Item { Name = "New Item", Description = "Item Description" };
             Items.Add(newItem);
             SelectedItem = newItem;
+
+            Logger.Debug("New item created");
 
             // Immediately switch to editable mode for the new item
             EditMode = EditMode.Editable;
@@ -125,6 +131,7 @@ namespace LoreCompanion.ViewModels
                 else
                 {
                     // Existing item: update database record
+                    Logger.Debug("Deleting item '{Item}' from database...", item);
                     await using var context = await _dbContextFactory.CreateDbContextAsync();
                     context.Items.Remove(item);
                     await context.SaveChangesAsync();
@@ -134,6 +141,7 @@ namespace LoreCompanion.ViewModels
                 var wasSelectedItem = SelectedItem?.Id == item.Id;
 
                 Items.Remove(item);
+                Logger.Debug("Item '{Item}' removed from UI collection", item);
 
                 if (wasSelectedItem)
                 {
@@ -150,6 +158,10 @@ namespace LoreCompanion.ViewModels
 
                     SelectedItem = newSelectedItem;
                 }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Error deleting item '{Item}'", item);
             }
             finally
             {
@@ -182,6 +194,8 @@ namespace LoreCompanion.ViewModels
 
         protected override Task OnInitializedAsync(CancellationToken cancellationToken)
         {
+            Logger.Debug("Initialized");
+
             _subscription = this.ObservePropertyChanged(x => x.SearchText)
                                 .Debounce(TimeSpan.FromMilliseconds(250))
                                 .ObserveOnCurrentDispatcher()
@@ -194,14 +208,18 @@ namespace LoreCompanion.ViewModels
 
         protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
         {
+            Logger.Debug("Deactivating...");
+
             if ((EditMode == EditMode.Editable) && SelectedItem is not null)
             {
                 try
                 {
                     await SaveCurrentAsync();
                 }
-                catch
+                catch (Exception e)
                 {
+                    Logger.Error(e, "Error saving current item during deactivation");
+
                     // Suppress to ensure deactivation continues
                 }
             }
@@ -211,9 +229,10 @@ namespace LoreCompanion.ViewModels
                 await _databaseLock.WaitAsync(cancellationToken);
                 _databaseLock.Release();
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException e)
             {
-                // Gracefully ignore cancellation to ensure cleanup proceeds
+                // Gracefully log and ignore cancellation to ensure cleanup proceeds
+                Logger.Error(e, "Database lock wait cancelled during deactivation");
             }
 
             if (close)
@@ -224,9 +243,10 @@ namespace LoreCompanion.ViewModels
                     {
                         await _loadingTask;
                     }
-                    catch (OperationCanceledException)
+                    catch (OperationCanceledException e)
                     {
                         // Ignore
+                        Logger.Error(e, "Loading task cancelled during deactivation");
                     }
                 }
 
@@ -261,6 +281,8 @@ namespace LoreCompanion.ViewModels
 
             try
             {
+                Logger.Debug("Loading items...");
+
                 await _databaseLock.WaitAsync(cancellationToken);
                 await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -289,10 +311,13 @@ namespace LoreCompanion.ViewModels
                 {
                     UpdateItemsAndSelectFirst(buffer);
                 }
+
+                Logger.Debug("Items loaded");
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException e)
             {
                 // Expected when navigating away; terminate stream cleanly
+                Logger.Debug(e, "Loading task cancelled");
             }
             finally
             {
@@ -329,6 +354,7 @@ namespace LoreCompanion.ViewModels
 
             try
             {
+                Logger.Debug("Saving item '{Item}' to database...", item);
                 await using var context = await _dbContextFactory.CreateDbContextAsync();
 
                 if (item.Id == 0)
@@ -344,9 +370,9 @@ namespace LoreCompanion.ViewModels
 
                 await context.SaveChangesAsync();
             }
-            catch
+            catch (Exception e)
             {
-                // Log eventually
+                Logger.Error(e, "Error saving item '{Item}' to database", item);
             }
             finally
             {
