@@ -45,6 +45,8 @@
         <None Remove="Views\Resources\Shaders\TintShader.ps" />
         <None Remove="Views\Resources\Images\NavigationLandscape.png" />
         <Resource Include="Views\Resources\Images\NavigationLandscape.png" />
+        <None Remove="Views\Resources\Fonts\CormorantGaramond-Italic-VariableFont.ttf" />
+        <Resource Include="Views\Resources\Fonts\CormorantGaramond-Italic-VariableFont.ttf" />
     </ItemGroup>
 
     <!-- NuGet packages -->

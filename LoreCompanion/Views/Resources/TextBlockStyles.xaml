@@ -11,10 +11,14 @@
         /LoreCompanion;component/Views/Resources/Fonts/CormorantGaramond-VariableFont.ttf#Cormorant Garamond Light
     </FontFamily>
 
+    <!--  FontFamily.Default.Italic  -->
+    <FontFamily x:Key="FontFamily.Default.Italic">
+        /LoreCompanion;component/Views/Resources/Fonts/CormorantGaramond-Italic-VariableFont.ttf#Cormorant Garamond Light
+    </FontFamily>
+
     <!--  Style.TextBlock.Body  -->
     <Style x:Key="Style.TextBlock.Body" TargetType="{x:Type TextBlock}">
         <Setter Property="FontFamily" Value="{StaticResource FontFamily.Default}" />
-        <!-- <Setter Property="Foreground" Value="{StaticResource Brush.Foreground}" /> -->
         <Setter Property="FontSize" Value="16" />
     </Style>
 
@@ -39,6 +43,7 @@
         x:Key="Style.TextBlock.Body.Quote"
         BasedOn="{StaticResource Style.TextBlock.Body}"
         TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Default.Italic}" />
         <Setter Property="FontSize" Value="22" />
     </Style>
 
