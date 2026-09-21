@@ -104,6 +104,34 @@
         </Setter>
     </Style>
 
+    <!--  Style.Button.Release  -->
+    <Style
+        x:Key="Style.Button.Release"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="UploadFileRound" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.Refresh  -->
+    <Style
+        x:Key="Style.Button.Refresh"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="Download" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--  Style.Button.Edit  -->
     <Style
         x:Key="Style.Button.Edit"

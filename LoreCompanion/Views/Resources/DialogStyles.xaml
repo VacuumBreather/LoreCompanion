@@ -112,6 +112,50 @@
         </DockPanel>
     </DataTemplate>
 
+    <!--  DataTemplate.ReleaseNotesDialog.Implicit  -->
+    <DataTemplate DataType="{x:Type dialogs:ReleaseNotesDialog}">
+        <DataTemplate.Resources>
+            <converters:EnumFlagSetToVisibilityConverter x:Key="Converter.EnumFlagSetToVisible" />
+            <converters:IsEqualConverter x:Key="Converter.IsEqualTo" />
+            <converters:ChainConverter x:Key="Converter.IsEqualToVisibility">
+                <converters:IsEqualConverter />
+                <BooleanToVisibilityConverter />
+            </converters:ChainConverter>
+        </DataTemplate.Resources>
+        <DockPanel>
+            <TextBlock
+                HorizontalAlignment="Center"
+                DockPanel.Dock="Top"
+                Style="{StaticResource Style.TextBlock.Heading}"
+                Text="{Binding Title, Mode=OneWay}"
+                TextAlignment="Center" />
+            <Button
+                MinWidth="50"
+                Margin="10,10,10,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                controls:CloseDialog.Result="Ok"
+                Content="OK"
+                DockPanel.Dock="Bottom"
+                IsDefault="True"
+                Style="{StaticResource Style.Button.Yes}" />
+            <TextBox
+                Width="500"
+                Height="100"
+                Margin="10,10,20,10"
+                DockPanel.Dock="Bottom"
+                MaxLength="2048"
+                Text="{Binding ReleaseNotes}"
+                TextWrapping="Wrap" />
+            <TextBlock
+                Margin="0,20,0,10"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Text="{Binding Content, Mode=OneWay}"
+                TextAlignment="Center" />
+        </DockPanel>
+    </DataTemplate>
+
     <!--  ControlTemplate.DialogItem  -->
     <ControlTemplate x:Key="ControlTemplate.DialogItem" TargetType="{x:Type controls:DialogItem}">
         <Border

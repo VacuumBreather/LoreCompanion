@@ -20,7 +20,8 @@
             CornerRadius="{StaticResource CornerRadius.Controls}">
             <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
                 <TextBlock
-                    Style="{StaticResource Style.TextBlock.Body.Large}"
+                    Foreground="{Binding (TextElement.Foreground), ElementName=BackgroundBorder}"
+                    Style="{StaticResource Style.TextBlock.Heading}"
                     Text="{Binding Title, Mode=OneWay}"
                     TextWrapping="Wrap" />
                 <TextBlock

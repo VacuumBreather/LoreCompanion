@@ -49,7 +49,14 @@ namespace LoreCompanion.ViewModels
             Items.AddRange(sections);
         }
 
-        public Version CurrentDatabaseVersion { get; private set; } = Version.Parse("0.0.0");
+        public Version CurrentDatabaseVersion
+        {
+            get;
+            private set => Set(ref field, value);
+        } = Version.Parse("0.0.0");
+
+        public Version CurrentApplicationVersion { get; private set; } =
+            typeof(ShellViewModel).Assembly.GetName().Version ?? Version.Parse("0.0.0");
 
         public ListCollectionView ItemsView { get; }
 
@@ -77,6 +84,67 @@ namespace LoreCompanion.ViewModels
             }
 
             return await base.CanCloseAsync(cancellationToken);
+        }
+
+        public async Task RefreshDatabaseAsync()
+        {
+        }
+
+        public async Task PublishDatabaseAsync()
+        {
+            var result = await _dialogService.ShowQueryDialogAsync(
+                             "Publish Database",
+                             "Are you sure you want to publish a new database version?",
+                             DialogResults.YesNo,
+                             DialogResult.Yes);
+
+            if (result != DialogResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                var dbContext = await _dbContextFactory.CreateDbContextAsync();
+
+                var currentVersion =
+                    dbContext.DatabaseReleases.AsEnumerable()
+                             .OrderByDescending(r => r.PublishedAt)
+                             .Select(r => r.Version)
+                             .FirstOrDefault() ??
+                    Version.Parse("0.0.0");
+
+                Version newVersion = new(currentVersion.Major, currentVersion.Minor + 1, currentVersion.Build);
+
+                var releaseNotesDialog = new ReleaseNotesDialog(newVersion);
+                _ = await _dialogService.ShowDialogAsync(releaseNotesDialog);
+
+                dbContext.DatabaseReleases.Add(
+                    new DatabaseRelease
+                    {
+                        Version = newVersion,
+                        PublishedAt = DateTime.UtcNow,
+                        ReleaseNotes = releaseNotesDialog.ReleaseNotes,
+                    });
+
+                await dbContext.SaveChangesAsync();
+
+                CurrentDatabaseVersion = newVersion;
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database",
+                    $"Version {newVersion} released",
+                    NotificationType.Success);
+            }
+            catch (Exception e)
+            {
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database Error",
+                    $"Unable to create database release\n{e.Message}",
+                    NotificationType.Error);
+
+                Logger.Error(e, "Unable to create database release");
+            }
         }
 
         protected override async Task OnInitializedAsync(CancellationToken cancellationToken)

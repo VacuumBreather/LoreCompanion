@@ -2,6 +2,7 @@
     x:Class="LoreCompanion.Views.ShellView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:cm="http://caliburnmicro.com"
     xmlns:controls="clr-namespace:LoreCompanion.Views.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:effects="clr-namespace:LoreCompanion.Views.Effects"
@@ -37,6 +38,18 @@
                     <TextBlock Style="{StaticResource Style.TextBlock.Heading.Large}" Text="The Tarnished Archive" />
                     <TextBlock Style="{StaticResource Style.TextBlock.Subtitle}" Text="Lore • Items • Characters • Locations • More" />
                 </StackPanel>
+                <TextBlock
+                    Margin="0,10,10,10"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    DockPanel.Dock="Right"
+                    Text="{Binding CurrentApplicationVersion}" />
+                <TextBlock
+                    Margin="10,10,0,10"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    DockPanel.Dock="Right"
+                    Text="Version: " />
             </DockPanel>
         </Border>
 
@@ -113,6 +126,7 @@
                                     <TextBlock
                                         Margin="10,0"
                                         VerticalAlignment="Center"
+                                        DockPanel.Dock="Left"
                                         Text="{Binding CurrentDatabaseVersion, StringFormat={}v{0}}" />
                                 </DockPanel>
                                 <TextBlock
@@ -121,6 +135,20 @@
                                     Foreground="{StaticResource Brush.Foreground.Notification.Success}"
                                     Style="{StaticResource Style.TextBlock.Body.Small}"
                                     Text="Up to date" />
+                                <UniformGrid
+                                    Margin="10"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    DockPanel.Dock="Top">
+                                    <Button
+                                        Margin="5"
+                                        cm:Message.Attach="RefreshDatabaseAsync"
+                                        Style="{StaticResource Style.Button.Refresh}" />
+                                    <Button
+                                        Margin="5"
+                                        cm:Message.Attach="PublishDatabaseAsync"
+                                        Style="{StaticResource Style.Button.Release}" />
+                                </UniformGrid>
                             </DockPanel>
                         </Grid>
                     </Border>
