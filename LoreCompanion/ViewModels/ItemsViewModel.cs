@@ -13,10 +13,12 @@ namespace LoreCompanion.ViewModels
     {
         private readonly IDbContextFactory<LoreDbContext> _dbContextFactory;
         private readonly IDialogService _dialogService;
-        private readonly SemaphoreSlim _saveLock = new(1, 1);
+        private readonly SemaphoreSlim _databaseLock = new(1, 1);
         private IDisposable? _subscription;
 
         private int _busyCount;
+
+        private Task? _loadingTask;
 
         public ItemsViewModel(IDbContextFactory<LoreDbContext> dbContextFactory, IDialogService dialogService)
             : base(NavigationSection.Lore)
@@ -63,6 +65,8 @@ namespace LoreCompanion.ViewModels
             get;
             set
             {
+                var previousItem = SelectedItem;
+
                 if (!Set(ref field, value))
                 {
                     return;
@@ -71,9 +75,10 @@ namespace LoreCompanion.ViewModels
                 NotifyOfPropertyChange(nameof(CanEditCurrent));
                 NotifyOfPropertyChange(nameof(CanSaveCurrent));
 
-                if (EditMode == EditMode.Editable)
+                if ((EditMode == EditMode.Editable) && previousItem is not null)
                 {
-                    _ = SaveCurrentAsync();
+                    EditMode = EditMode.ReadOnly;
+                    _ = SaveItemAsync(previousItem);
                 }
             }
         }
@@ -105,40 +110,47 @@ namespace LoreCompanion.ViewModels
                 return;
             }
 
-            await using var context = await _dbContextFactory.CreateDbContextAsync();
+            await _databaseLock.WaitAsync();
 
-            if (item.Id == 0)
+            try
             {
-                // New item: no action required
-            }
-            else
-            {
-                // Existing item: update database record
-                context.Items.Remove(item);
-            }
-
-            var oldIndex = Items.IndexOf(item);
-            var wasSelectedItem = SelectedItem?.Id == item.Id;
-
-            Items.Remove(item);
-
-            if (wasSelectedItem)
-            {
-                Item? newSelectedItem = null;
-
-                if (Items.Count > oldIndex)
+                if (item.Id == 0)
                 {
-                    newSelectedItem = Items[oldIndex];
+                    // New item: no action required
                 }
-                else if ((oldIndex > 0) && (Items.Count > oldIndex - 1))
+                else
                 {
-                    newSelectedItem = Items[oldIndex - 1];
+                    // Existing item: update database record
+                    await using var context = await _dbContextFactory.CreateDbContextAsync();
+                    context.Items.Remove(item);
+                    await context.SaveChangesAsync();
                 }
 
-                SelectedItem = newSelectedItem;
-            }
+                var oldIndex = Items.IndexOf(item);
+                var wasSelectedItem = SelectedItem?.Id == item.Id;
 
-            await context.SaveChangesAsync();
+                Items.Remove(item);
+
+                if (wasSelectedItem)
+                {
+                    Item? newSelectedItem = null;
+
+                    if (Items.Count > oldIndex)
+                    {
+                        newSelectedItem = Items[oldIndex];
+                    }
+                    else if ((oldIndex > 0) && (Items.Count > oldIndex - 1))
+                    {
+                        newSelectedItem = Items[oldIndex - 1];
+                    }
+
+                    SelectedItem = newSelectedItem;
+                }
+            }
+            finally
+            {
+                _databaseLock.Release();
+            }
         }
 
         public void EditCurrentAsync()
@@ -158,8 +170,8 @@ namespace LoreCompanion.ViewModels
                 return;
             }
 
-            await SaveSelectedItemAsync();
             EditMode = EditMode.ReadOnly;
+            await SaveItemAsync(SelectedItem);
         }
 
         protected override Task OnInitializedAsync(CancellationToken cancellationToken)
@@ -169,7 +181,7 @@ namespace LoreCompanion.ViewModels
                                 .ObserveOnCurrentDispatcher()
                                 .Subscribe(_ => ItemsView.Refresh());
 
-            _ = Task.Run(() => LoadItemsProgressivelyAsync(cancellationToken), cancellationToken);
+            _loadingTask = Task.Run(() => LoadItemsProgressivelyAsync(cancellationToken), cancellationToken);
 
             return Task.CompletedTask;
         }
@@ -190,8 +202,8 @@ namespace LoreCompanion.ViewModels
 
             try
             {
-                await _saveLock.WaitAsync(cancellationToken);
-                _saveLock.Release();
+                await _databaseLock.WaitAsync(cancellationToken);
+                _databaseLock.Release();
             }
             catch (OperationCanceledException)
             {
@@ -200,6 +212,18 @@ namespace LoreCompanion.ViewModels
 
             if (close)
             {
+                if (_loadingTask is not null)
+                {
+                    try
+                    {
+                        await _loadingTask;
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Ignore
+                    }
+                }
+
                 _subscription?.Dispose();
                 _subscription = null;
             }
@@ -231,9 +255,10 @@ namespace LoreCompanion.ViewModels
 
             try
             {
+                await _databaseLock.WaitAsync(cancellationToken);
                 await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-                Items.Clear();
+                Execute.OnUIThread(() => Items.Clear());
 
                 const int BatchSize = 25;
                 var buffer = new List<Item>(BatchSize);
@@ -263,6 +288,10 @@ namespace LoreCompanion.ViewModels
             {
                 // Expected when navigating away; terminate stream cleanly
             }
+            finally
+            {
+                _databaseLock.Release();
+            }
         }
 
         private void UpdateItemsAndSelectFirst(List<Item> buffer)
@@ -288,35 +317,34 @@ namespace LoreCompanion.ViewModels
                    item.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase);
         }
 
-        private async Task SaveSelectedItemAsync()
+        private async Task SaveItemAsync(Item item)
         {
-            if (SelectedItem is null)
-            {
-                return;
-            }
-
-            await _saveLock.WaitAsync();
+            await _databaseLock.WaitAsync();
 
             try
             {
                 await using var context = await _dbContextFactory.CreateDbContextAsync();
 
-                if (SelectedItem.Id == 0)
+                if (item.Id == 0)
                 {
                     // New item: insert into database
-                    context.Items.Add(SelectedItem);
+                    context.Items.Add(item);
                 }
                 else
                 {
                     // Existing item: update database record
-                    context.Items.Update(SelectedItem);
+                    context.Items.Update(item);
                 }
 
                 await context.SaveChangesAsync();
             }
+            catch
+            {
+                // Log eventually
+            }
             finally
             {
-                _saveLock.Release();
+                _databaseLock.Release();
             }
         }
     }
