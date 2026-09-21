@@ -38,7 +38,7 @@ namespace LoreCompanion.Views.Controls
             typeof(DialogHost),
             new PropertyMetadata(null, OnPrivateContentChanged));
 
-        private Grid _rootGrid;
+        private Grid? _rootGrid;
 
         /// <summary>Initializes static members of the <see cref="DialogHost"/> class.</summary>
         static DialogHost()
