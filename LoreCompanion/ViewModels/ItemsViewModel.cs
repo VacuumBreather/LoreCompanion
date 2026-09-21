@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows.Data;
 using Caliburn.Micro;
 using LoreCompanion.Models;
@@ -9,15 +10,15 @@ using R3;
 
 namespace LoreCompanion.ViewModels
 {
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global", Justification = "Instantiated by DI")]
     public sealed class ItemsViewModel : SectionScreen
     {
         private readonly IDbContextFactory<LoreDbContext> _dbContextFactory;
         private readonly IDialogService _dialogService;
         private readonly SemaphoreSlim _databaseLock = new(1, 1);
+
         private IDisposable? _subscription;
-
         private int _busyCount;
-
         private Task? _loadingTask;
 
         public ItemsViewModel(IDbContextFactory<LoreDbContext> dbContextFactory, IDialogService dialogService)
@@ -58,6 +59,7 @@ namespace LoreCompanion.ViewModels
 
         public bool CanSaveCurrent => SelectedItem is not null && (EditMode == EditMode.Editable);
 
+        [SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "Used by the UI")]
         public BindableCollection<Item> Items { get; } = [];
 
         public Item? SelectedItem
@@ -85,6 +87,7 @@ namespace LoreCompanion.ViewModels
 
         public bool IsBusy => _busyCount > 0;
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by the UI")]
         public Task CreateNewAsync()
         {
             var newItem = new Item { Name = "New Item", Description = "Item Description" };
@@ -97,6 +100,7 @@ namespace LoreCompanion.ViewModels
             return Task.CompletedTask;
         }
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by the UI")]
         public async Task DeleteAsync(Item item)
         {
             var dialogResult = await _dialogService.ShowQueryDialogAsync(
@@ -153,6 +157,7 @@ namespace LoreCompanion.ViewModels
             }
         }
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by the UI")]
         public void EditCurrentAsync()
         {
             if (SelectedItem is null)
@@ -163,6 +168,7 @@ namespace LoreCompanion.ViewModels
             EditMode = EditMode.Editable;
         }
 
+        [SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "Used by the UI")]
         public async Task SaveCurrentAsync()
         {
             if (SelectedItem is null)
