@@ -87,7 +87,7 @@ namespace LoreCompanion.ViewModels
 
         public Task CreateNewAsync()
         {
-            var newItem = new Item { Name = "Demo", Description = "Demo Description" };
+            var newItem = new Item { Name = "New Item", Description = "Item Description" };
             Items.Add(newItem);
             SelectedItem = newItem;
 
