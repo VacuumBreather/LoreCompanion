@@ -13,6 +13,7 @@ namespace LoreCompanion.ViewModels
     {
         private readonly IDbContextFactory<LoreDbContext> _dbContextFactory;
         private readonly IDialogService _dialogService;
+        private readonly SemaphoreSlim _saveLock = new(1, 1);
         private IDisposable? _subscription;
 
         private int _busyCount;
@@ -72,7 +73,7 @@ namespace LoreCompanion.ViewModels
 
                 if (EditMode == EditMode.Editable)
                 {
-                    SaveCurrentAsync().GetAwaiter().GetResult();
+                    _ = SaveCurrentAsync();
                 }
             }
         }
@@ -161,7 +162,52 @@ namespace LoreCompanion.ViewModels
             EditMode = EditMode.ReadOnly;
         }
 
-        public IDisposable SetBusy()
+        protected override Task OnInitializedAsync(CancellationToken cancellationToken)
+        {
+            _subscription = this.ObservePropertyChanged(x => x.SearchText)
+                                .Debounce(TimeSpan.FromMilliseconds(250))
+                                .ObserveOnCurrentDispatcher()
+                                .Subscribe(_ => ItemsView.Refresh());
+
+            _ = Task.Run(() => LoadItemsProgressivelyAsync(cancellationToken), cancellationToken);
+
+            return Task.CompletedTask;
+        }
+
+        protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
+        {
+            if ((EditMode == EditMode.Editable) && SelectedItem is not null)
+            {
+                try
+                {
+                    await SaveCurrentAsync();
+                }
+                catch
+                {
+                    // Suppress to ensure deactivation continues
+                }
+            }
+
+            try
+            {
+                await _saveLock.WaitAsync(cancellationToken);
+                _saveLock.Release();
+            }
+            catch (OperationCanceledException)
+            {
+                // Gracefully ignore cancellation to ensure cleanup proceeds
+            }
+
+            if (close)
+            {
+                _subscription?.Dispose();
+                _subscription = null;
+            }
+
+            await base.OnDeactivateAsync(close, cancellationToken);
+        }
+
+        private BusyScope SetBusy()
         {
             if (Interlocked.Increment(ref _busyCount) == 1)
             {
@@ -175,33 +221,6 @@ namespace LoreCompanion.ViewModels
                     NotifyOfPropertyChange(nameof(IsBusy));
                 }
             });
-        }
-
-        protected override Task OnInitializedAsync(CancellationToken cancellationToken)
-        {
-            _subscription = this.ObservePropertyChanged(x => x.SearchText)
-                                .Debounce(TimeSpan.FromMilliseconds(250))
-                                .ObserveOnCurrentDispatcher()
-                                .Subscribe(_ => ItemsView.Refresh());
-
-            _ = Task.Run(() => LoadItemsProgressivelyAsync(cancellationToken), cancellationToken);
-
-            return Task.CompletedTask;
-        }
-
-        protected override Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
-        {
-            if (close)
-            {
-                _subscription?.Dispose();
-            }
-
-            if (EditMode == EditMode.Editable)
-            {
-                return SaveSelectedItemAsync();
-            }
-
-            return base.OnDeactivateAsync(close, cancellationToken);
         }
 
         private async Task LoadItemsProgressivelyAsync(CancellationToken cancellationToken)
@@ -276,20 +295,29 @@ namespace LoreCompanion.ViewModels
                 return;
             }
 
-            await using var context = await _dbContextFactory.CreateDbContextAsync();
+            await _saveLock.WaitAsync();
 
-            if (SelectedItem.Id == 0)
+            try
             {
-                // New item: insert into database
-                context.Items.Add(SelectedItem);
-            }
-            else
-            {
-                // Existing item: update database record
-                context.Items.Update(SelectedItem);
-            }
+                await using var context = await _dbContextFactory.CreateDbContextAsync();
 
-            await context.SaveChangesAsync();
+                if (SelectedItem.Id == 0)
+                {
+                    // New item: insert into database
+                    context.Items.Add(SelectedItem);
+                }
+                else
+                {
+                    // Existing item: update database record
+                    context.Items.Update(SelectedItem);
+                }
+
+                await context.SaveChangesAsync();
+            }
+            finally
+            {
+                _saveLock.Release();
+            }
         }
     }
 }
