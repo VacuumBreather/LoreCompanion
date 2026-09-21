@@ -49,6 +49,15 @@
     <Color x:Key="Color.Primary.99">#FFFDFCFB</Color>
     <Color x:Key="Color.Primary.100">#FFFFFFFF</Color>
 
-    <Color x:Key="Color.Custom.Background">#FF070B0E</Color>
-    <Color x:Key="Color.Custom.Panel">#FF080D11</Color>
+    <!--  Error  -->
+    <Color x:Key="Color.Notification.Error.Dark">#FF351B21</Color>
+    <Color x:Key="Color.Notification.Error.Light">#FFFFB8C0</Color>
+
+    <!--  Warning  -->
+    <Color x:Key="Color.Notification.Warning.Dark">#FF352D1B</Color>
+    <Color x:Key="Color.Notification.Warning.Light">#FFFFDFA3</Color>
+
+    <!--  Success  -->
+    <Color x:Key="Color.Notification.Success.Dark">#FF193523</Color>
+    <Color x:Key="Color.Notification.Success.Light">#FFA9E0B9</Color>
 </ResourceDictionary>

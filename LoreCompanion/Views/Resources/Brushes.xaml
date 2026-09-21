@@ -134,4 +134,34 @@
         x:Key="Brush.Border.MouseOver"
         po:Freeze="True"
         Color="{StaticResource Color.Primary.70}" />
+
+    <!--  Error  -->
+    <SolidColorBrush
+        x:Key="Brush.Background.Notification.Error"
+        po:Freeze="True"
+        Color="{StaticResource Color.Notification.Error.Dark}" />
+    <SolidColorBrush
+        x:Key="Brush.Foreground.Notification.Error"
+        po:Freeze="True"
+        Color="{StaticResource Color.Notification.Error.Light}" />
+
+    <!--  Warning  -->
+    <SolidColorBrush
+        x:Key="Brush.Background.Notification.Warning"
+        po:Freeze="True"
+        Color="{StaticResource Color.Notification.Warning.Dark}" />
+    <SolidColorBrush
+        x:Key="Brush.Foreground.Notification.Warning"
+        po:Freeze="True"
+        Color="{StaticResource Color.Notification.Warning.Light}" />
+
+    <!--  Success  -->
+    <SolidColorBrush
+        x:Key="Brush.Background.Notification.Success"
+        po:Freeze="True"
+        Color="{StaticResource Color.Notification.Success.Dark}" />
+    <SolidColorBrush
+        x:Key="Brush.Foreground.Notification.Success"
+        po:Freeze="True"
+        Color="{StaticResource Color.Notification.Success.Light}" />
 </ResourceDictionary>

@@ -4,9 +4,7 @@ using System.Windows.Media;
 
 namespace LoreCompanion.Views.Controls
 {
-    /// <summary>
-    /// Overlays wrapped content with a semi-transparent background and customizable busy indicator.
-    /// </summary>
+    /// <summary>Overlays wrapped content with a semi-transparent background and customizable busy indicator.</summary>
     [TemplatePart(Name = OverlayGridPartName, Type = typeof(Grid))]
     public class BusyDecorator : ContentControl
     {

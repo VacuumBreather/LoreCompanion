@@ -5,7 +5,7 @@
     xmlns:converters="clr-namespace:LoreCompanion.Views.Converters"
     xmlns:dialogs="clr-namespace:LoreCompanion.ViewModels.Dialogs">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="ListBoxStyles.xaml" />
+        <ResourceDictionary Source="NotificationStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
     <!--  DataTemplate.QueryDialog.Implicit  -->
@@ -112,8 +112,8 @@
         </DockPanel>
     </DataTemplate>
 
-    <!--  Caliburn.ControlTemplate.DialogItem  -->
-    <ControlTemplate x:Key="Caliburn.ControlTemplate.DialogItem" TargetType="{x:Type controls:DialogItem}">
+    <!--  ControlTemplate.DialogItem  -->
+    <ControlTemplate x:Key="ControlTemplate.DialogItem" TargetType="{x:Type controls:DialogItem}">
         <Border
             x:Name="Border"
             Padding="{TemplateBinding Padding}"
@@ -127,8 +127,8 @@
         </Border>
     </ControlTemplate>
 
-    <!--  Caliburn.ControlTemplate.DialogHost  -->
-    <ControlTemplate x:Key="Caliburn.ControlTemplate.DialogHost" TargetType="{x:Type controls:DialogHost}">
+    <!--  ControlTemplate.DialogHost  -->
+    <ControlTemplate x:Key="ControlTemplate.DialogHost" TargetType="{x:Type controls:DialogHost}">
         <Grid
             x:Name="PART_RootGrid"
             Background="{TemplateBinding OverlayBackgroundBrush}"
@@ -141,8 +141,8 @@
         </Grid>
     </ControlTemplate>
 
-    <!--  Caliburn.Style.DialogItem  -->
-    <Style x:Key="Caliburn.Style.DialogItem" TargetType="{x:Type controls:DialogItem}">
+    <!--  Style.DialogItem  -->
+    <Style x:Key="Style.DialogItem" TargetType="{x:Type controls:DialogItem}">
         <Setter Property="IsTabStop" Value="False" />
         <Setter Property="Focusable" Value="False" />
         <Setter Property="KeyboardNavigation.ControlTabNavigation" Value="Cycle" />
@@ -154,23 +154,23 @@
         <Setter Property="Padding" Value="40,20" />
         <Setter Property="BorderBrush" Value="{StaticResource Brush.Border}" />
         <Setter Property="BorderThickness" Value="2" />
-        <Setter Property="Template" Value="{StaticResource Caliburn.ControlTemplate.DialogItem}" />
+        <Setter Property="Template" Value="{StaticResource ControlTemplate.DialogItem}" />
     </Style>
 
-    <!--  Caliburn.Style.DialogHost  -->
-    <Style x:Key="Caliburn.Style.DialogHost" TargetType="{x:Type controls:DialogHost}">
+    <!--  Style.DialogHost  -->
+    <Style x:Key="Style.DialogHost" TargetType="{x:Type controls:DialogHost}">
         <Setter Property="OverlayBackgroundBrush" Value="{StaticResource Brush.Background.DialogHost}" />
         <Setter Property="IsTabStop" Value="False" />
         <Setter Property="Focusable" Value="False" />
-        <Setter Property="DialogContainerStyle" Value="{StaticResource Caliburn.Style.DialogItem}" />
+        <Setter Property="DialogContainerStyle" Value="{StaticResource Style.DialogItem}" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="Template" Value="{StaticResource Caliburn.ControlTemplate.DialogHost}" />
+        <Setter Property="Template" Value="{StaticResource ControlTemplate.DialogHost}" />
     </Style>
 
     <!--  Style.DialogItem.Implicit  -->
-    <Style BasedOn="{StaticResource Caliburn.Style.DialogItem}" TargetType="{x:Type controls:DialogItem}" />
+    <Style BasedOn="{StaticResource Style.DialogItem}" TargetType="{x:Type controls:DialogItem}" />
 
     <!--  Style.DialogHost.Implicit  -->
-    <Style BasedOn="{StaticResource Caliburn.Style.DialogHost}" TargetType="{x:Type controls:DialogHost}" />
+    <Style BasedOn="{StaticResource Style.DialogHost}" TargetType="{x:Type controls:DialogHost}" />
 </ResourceDictionary>

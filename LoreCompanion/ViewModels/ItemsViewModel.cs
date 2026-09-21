@@ -5,6 +5,7 @@ using Caliburn.Micro;
 using LoreCompanion.Models;
 using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
+using LoreCompanion.ViewModels.Notifications;
 using Microsoft.EntityFrameworkCore;
 using R3;
 using Serilog;
@@ -17,17 +18,23 @@ namespace LoreCompanion.ViewModels
     {
         private readonly IDbContextFactory<LoreDbContext> _dbContextFactory;
         private readonly IDialogService _dialogService;
+        private readonly INotificationService _notificationService;
         private readonly SemaphoreSlim _databaseLock = new(1, 1);
 
         private IDisposable? _subscription;
         private int _busyCount;
         private Task? _loadingTask;
 
-        public ItemsViewModel(IDbContextFactory<LoreDbContext> dbContextFactory, IDialogService dialogService)
+        public ItemsViewModel(
+            IDbContextFactory<LoreDbContext> dbContextFactory,
+            IDialogService dialogService,
+            INotificationService notificationService)
             : base(NavigationSection.Lore)
         {
             _dbContextFactory = dbContextFactory;
             _dialogService = dialogService;
+            _notificationService = notificationService;
+
             DisplayName = "Items";
 
             ItemsView = CollectionViewSource.GetDefaultView(Items);
@@ -98,14 +105,25 @@ namespace LoreCompanion.ViewModels
         [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by the UI")]
         public Task CreateNewAsync()
         {
-            var newItem = new Item { Name = "New Item", Description = "Item Description" };
-            Items.Add(newItem);
-            SelectedItem = newItem;
+            // var newItem = new Item { Name = "New Item", Description = "Item Description" };
+            // Items.Add(newItem);
+            // SelectedItem = newItem;
+            //
+            // Logger.Debug("New item created");
 
-            Logger.Debug("New item created");
+            // _ = _notificationService.ShowNotificationAsync(
+            //     new NotificationScreen(
+            //         "Item Created",
+            //         $"Item '{newItem.Name}' created successfully."));
 
             // Immediately switch to editable mode for the new item
-            EditMode = EditMode.Editable;
+            // EditMode = EditMode.Editable;
+
+            _ = _notificationService.ShowNotificationAsync(
+                new NotificationScreen(
+                    "Item Created",
+                    "Item 'New Item' created successfully.",
+                    NotificationType.Success));
 
             return Task.CompletedTask;
         }

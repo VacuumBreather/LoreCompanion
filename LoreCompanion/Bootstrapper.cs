@@ -8,6 +8,7 @@ using LoreCompanion.Models;
 using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels;
 using LoreCompanion.ViewModels.Dialogs;
+using LoreCompanion.ViewModels.Notifications;
 using LoreCompanion.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,6 +56,7 @@ namespace LoreCompanion
             services.AddSingleton<IWindowManager, WindowManager>();
             services.AddSingleton<IEventAggregator, EventAggregator>();
             services.AddSingleton<IDialogService, DialogConductor>();
+            services.AddSingleton<INotificationService, NotificationConductor>();
 
             // Sets up SQLite with the file path
             var dbPath = Path.Combine(AppDataFolder, "lorecompanion.db");

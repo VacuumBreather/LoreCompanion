@@ -3,6 +3,7 @@ using Caliburn.Micro;
 using LoreCompanion.Extensions;
 using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
+using LoreCompanion.ViewModels.Notifications;
 using Serilog;
 using LogManager = LoreCompanion.Utilities.LogManager;
 
@@ -12,14 +13,18 @@ namespace LoreCompanion.ViewModels
     {
         private readonly CachedDataLoader _cachedDataLoader;
         private readonly IDialogService _dialogService;
+        private readonly INotificationService _notificationService;
 
         public ShellViewModel(
             IEnumerable<SectionScreen> sections,
             CachedDataLoader cachedDataLoader,
-            IDialogService dialogService)
+            IDialogService dialogService,
+            INotificationService notificationService)
         {
             _cachedDataLoader = cachedDataLoader;
             _dialogService = dialogService;
+            _notificationService = notificationService;
+
             ItemsView = (ListCollectionView)CollectionViewSource.GetDefaultView(Items);
             ItemsView.GroupDescriptions!.Add(new PropertyGroupDescription(nameof(SectionScreen.Section)));
 
@@ -54,18 +59,38 @@ namespace LoreCompanion.ViewModels
 
             await _cachedDataLoader.DisposeAsync();
 
+            if (_notificationService is IDeactivate deactivateNotifications)
+            {
+                await deactivateNotifications.DeactivateAsync(true, cancellationToken);
+            }
+
+            if (_dialogService is IDeactivate deactivateDialogs)
+            {
+                await deactivateDialogs.DeactivateAsync(true, cancellationToken);
+            }
+
             return await base.CanCloseAsync(cancellationToken);
         }
 
-        protected override Task OnInitializedAsync(CancellationToken cancellationToken)
+        protected override async Task OnInitializedAsync(CancellationToken cancellationToken)
         {
             Logger.Information("Application initialized");
             Logger.Information("Showing dashboard...");
 
+            if (_notificationService is IActivate activateNotifications)
+            {
+                await activateNotifications.ActivateAsync(cancellationToken);
+            }
+
+            if (_dialogService is IActivate activateDialogs)
+            {
+                await activateDialogs.ActivateAsync(cancellationToken);
+            }
+
             var firstGroup = (CollectionViewGroup)ItemsView.Groups!.First();
             var firstScreen = (SectionScreen)firstGroup.Items.First();
 
-            return ActivateItemAsync(firstScreen, cancellationToken);
+            await ActivateItemAsync(firstScreen, cancellationToken);
         }
     }
 }
