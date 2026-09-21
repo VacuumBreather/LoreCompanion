@@ -82,7 +82,11 @@ namespace LoreCompanion.ViewModels
                 if ((EditMode == EditMode.Editable) && previousItem is not null)
                 {
                     EditMode = EditMode.ReadOnly;
-                    _ = SaveItemAsync(previousItem);
+
+                    if (Items.Contains(previousItem))
+                    {
+                        _ = SaveItemAsync(previousItem);
+                    }
                 }
             }
         }
