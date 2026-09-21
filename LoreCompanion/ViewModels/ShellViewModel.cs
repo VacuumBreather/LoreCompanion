@@ -75,17 +75,20 @@ namespace LoreCompanion.ViewModels
         protected override async Task OnInitializedAsync(CancellationToken cancellationToken)
         {
             Logger.Information("Application initialized");
-            Logger.Information("Showing dashboard...");
 
             if (_notificationService is IActivate activateNotifications)
             {
+                Logger.Debug("Activating notification service...");
                 await activateNotifications.ActivateAsync(cancellationToken);
             }
 
             if (_dialogService is IActivate activateDialogs)
             {
+                Logger.Debug("Activating dialog service...");
                 await activateDialogs.ActivateAsync(cancellationToken);
             }
+
+            Logger.Information("Showing dashboard...");
 
             var firstGroup = (CollectionViewGroup)ItemsView.Groups!.First();
             var firstScreen = (SectionScreen)firstGroup.Items.First();

@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
+using Serilog;
 
 namespace LoreCompanion.Utilities
 {
@@ -30,6 +31,8 @@ namespace LoreCompanion.Utilities
         {
             Directory.CreateDirectory(_diskPath);
         }
+
+        private static ILogger Logger { get; } = LogManager.GetLogger();
 
         public Task<byte[]?> GetDataAsync(string dataUrl, CancellationToken token)
         {
@@ -78,8 +81,10 @@ namespace LoreCompanion.Utilities
             {
                 await Task.WhenAll(_activeDiskWrites.Keys);
             }
-            catch
+            catch (Exception e)
             {
+                Logger.Error(e, "Error during disk write cancellation");
+
                 // Ignore cancellation and file write exceptions during teardown
             }
 
@@ -131,8 +136,10 @@ namespace LoreCompanion.Utilities
 
                         return diskData;
                     }
-                    catch (Exception) when (!token.IsCancellationRequested)
+                    catch (Exception e) when (!token.IsCancellationRequested)
                     {
+                        Logger.Error(e, "Error reading disk cache");
+
                         // If reading disk cache fails (e.g., file corruption), proceed to download
                     }
                 }
@@ -162,8 +169,10 @@ namespace LoreCompanion.Utilities
             {
                 return null;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.Error(e, "Error downloading data");
+
                 return null;
             }
             finally
@@ -204,8 +213,9 @@ namespace LoreCompanion.Utilities
                         // Clean up temp file on shutdown cancellation
                         TryDeleteFile(tempPath);
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
+                        Logger.Error(e, "Error writing to disk");
                         TryDeleteFile(tempPath);
                     }
                 },
