@@ -2,6 +2,7 @@
 using System.Windows.Data;
 using Caliburn.Micro;
 using LoreCompanion.Models;
+using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
 using Microsoft.EntityFrameworkCore;
 using R3;
@@ -13,6 +14,8 @@ namespace LoreCompanion.ViewModels
         private readonly IDbContextFactory<LoreDbContext> _dbContextFactory;
         private readonly IDialogService _dialogService;
         private IDisposable? _subscription;
+
+        private int _busyCount;
 
         public ItemsViewModel(IDbContextFactory<LoreDbContext> dbContextFactory, IDialogService dialogService)
             : base(NavigationSection.Lore)
@@ -73,6 +76,8 @@ namespace LoreCompanion.ViewModels
                 }
             }
         }
+
+        public bool IsBusy => _busyCount > 0;
 
         public Task CreateNewAsync()
         {
@@ -156,21 +161,75 @@ namespace LoreCompanion.ViewModels
             EditMode = EditMode.ReadOnly;
         }
 
-        protected override async Task OnInitializedAsync(CancellationToken cancellationToken)
+        public IDisposable SetBusy()
         {
-            await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+            if (Interlocked.Increment(ref _busyCount) == 1)
+            {
+                NotifyOfPropertyChange(nameof(IsBusy));
+            }
 
-            var items = await context.Items.AsNoTracking().ToListAsync(cancellationToken);
+            return new BusyScope(() =>
+            {
+                if (Interlocked.Decrement(ref _busyCount) == 0)
+                {
+                    NotifyOfPropertyChange(nameof(IsBusy));
+                }
+            });
+        }
 
-            Items.Clear();
-            Items.AddRange(items);
-
-            SelectedItem = Items.FirstOrDefault();
-
+        protected override Task OnInitializedAsync(CancellationToken cancellationToken)
+        {
             _subscription = this.ObservePropertyChanged(x => x.SearchText)
                                 .Debounce(TimeSpan.FromMilliseconds(250))
                                 .ObserveOnCurrentDispatcher()
                                 .Subscribe(_ => ItemsView.Refresh());
+
+            // Kick off progressive background loading without blocking view display
+            _ = LoadItemsProgressivelyAsync(cancellationToken);
+
+            return Task.CompletedTask;
+
+            // await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+            //
+            // var items = await context.Items.AsNoTracking().ToListAsync(cancellationToken);
+            //
+            // Items.Clear();
+            // Items.AddRange(items);
+            //
+            // SelectedItem = Items.FirstOrDefault();
+        }
+
+        private async Task LoadItemsProgressivelyAsync(CancellationToken cancellationToken)
+        {
+            using var busy = SetBusy();
+
+            try
+            {
+                await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+                Items.Clear();
+
+                await Task.Delay(5000);
+
+                // Stream items asynchronously from the database
+                await foreach (var item in context.Items.AsNoTracking().AsAsyncEnumerable().WithCancellation(cancellationToken))
+                {
+                    Execute.OnUIThread(() =>
+                    {
+                        Items.Add(item);
+
+                        // Automatically select the first item once it arrives
+                        if (SelectedItem is null)
+                        {
+                            SelectedItem = item;
+                        }
+                    });
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected when navigating away; terminate stream cleanly
+            }
         }
 
         protected override Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)

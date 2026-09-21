@@ -46,9 +46,9 @@ namespace LoreCompanion.ViewModels
 
         public override async Task<bool> CanCloseAsync(CancellationToken cancellationToken = new())
         {
-            await using var scope = await _dialogService.ShowBusyDialogAsync("Closing", "Finalizing cache operations...", cancellationToken);
+            await using var scope = await _dialogService.ShowBusyDialogAsync("Please Wait",
+                                                                             "Closing application...", cancellationToken);
 
-            await Task.Delay(5000, cancellationToken);
             await _cachedDataLoader.DisposeAsync();
 
             return await base.CanCloseAsync(cancellationToken);
