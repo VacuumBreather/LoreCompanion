@@ -26,8 +26,10 @@ namespace LoreCompanion.ViewModels.Dialogs
 
             if (close)
             {
-                _activeTrackers[item].TrySetResult(item.DialogResult);
-                _activeTrackers.Remove(item);
+                if (_activeTrackers.Remove(item, out var tcs))
+                {
+                    tcs.TrySetResult(item.DialogResult);
+                }
             }
         }
 
@@ -90,10 +92,30 @@ namespace LoreCompanion.ViewModels.Dialogs
             return ShowDialogAsync(_queryDialog, cancellationToken);
         }
 
+        /// <inheritdoc/>
+        public async Task<IAsyncDisposable> ShowBusyDialogAsync(
+            string title,
+            string content,
+            CancellationToken cancellationToken = default)
+        {
+            var busyDialog = new QueryDialog(title, content, DialogResults.None);
+            await ActivateItemAsync(busyDialog, cancellationToken);
+
+            return new BusyDialogScope(busyDialog);
+        }
+
+        private sealed class BusyDialogScope(DialogScreen dialog) : IAsyncDisposable
+        {
+            public async ValueTask DisposeAsync()
+            {
+                await dialog.CloseDialogAsync(DialogResult.None);
+            }
+        }
+
         private sealed class IdentityComparer<T> : IEqualityComparer<T>
             where T : class
         {
-            public bool Equals(T x, T y)
+            public bool Equals(T? x, T? y)
             {
                 return ReferenceEquals(x, y);
             }

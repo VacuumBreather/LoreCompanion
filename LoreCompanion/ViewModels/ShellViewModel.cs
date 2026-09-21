@@ -2,16 +2,19 @@
 using Caliburn.Micro;
 using LoreCompanion.Extensions;
 using LoreCompanion.Utilities;
+using LoreCompanion.ViewModels.Dialogs;
 
 namespace LoreCompanion.ViewModels
 {
     public sealed class ShellViewModel : Conductor<SectionScreen>.Collection.OneActive
     {
         private readonly CachedDataLoader _cachedDataLoader;
+        private readonly IDialogService _dialogService;
 
-        public ShellViewModel(IEnumerable<SectionScreen> sections, CachedDataLoader cachedDataLoader)
+        public ShellViewModel(IEnumerable<SectionScreen> sections, CachedDataLoader cachedDataLoader, IDialogService dialogService)
         {
             _cachedDataLoader = cachedDataLoader;
+            _dialogService = dialogService;
             ItemsView = (ListCollectionView)CollectionViewSource.GetDefaultView(Items);
             ItemsView.GroupDescriptions!.Add(new PropertyGroupDescription(nameof(SectionScreen.Section)));
 
@@ -43,6 +46,9 @@ namespace LoreCompanion.ViewModels
 
         public override async Task<bool> CanCloseAsync(CancellationToken cancellationToken = new())
         {
+            await using var scope = await _dialogService.ShowBusyDialogAsync("Closing", "Finalizing cache operations...", cancellationToken);
+
+            await Task.Delay(5000, cancellationToken);
             await _cachedDataLoader.DisposeAsync();
 
             return await base.CanCloseAsync(cancellationToken);

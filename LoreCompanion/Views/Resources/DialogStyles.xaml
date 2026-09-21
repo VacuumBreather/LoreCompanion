@@ -3,8 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="clr-namespace:LoreCompanion.Views.Controls"
     xmlns:converters="clr-namespace:LoreCompanion.Views.Converters"
-    xmlns:dialogs="clr-namespace:LoreCompanion.ViewModels.Dialogs"
-    xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks">
+    xmlns:dialogs="clr-namespace:LoreCompanion.ViewModels.Dialogs">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="ListBoxStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
@@ -22,6 +21,12 @@
                 Style="{StaticResource Style.TextBlock.Heading}"
                 Text="{Binding Title, Mode=OneWay}"
                 TextAlignment="Center" />
+            <ProgressBar
+                Height="4"
+                Margin="0,10,0,0"
+                DockPanel.Dock="Bottom"
+                IsIndeterminate="True"
+                Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Caliburn.Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResults.None}}" />
             <UniformGrid
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
@@ -142,7 +147,7 @@
         <Setter Property="MinHeight" Value="150" />
         <Setter Property="Border.CornerRadius" Value="10" />
         <Setter Property="Background" Value="{StaticResource Brush.Background.Panel}" />
-        <Setter Property="Padding" Value="50,25" />
+        <Setter Property="Padding" Value="40,20" />
         <Setter Property="BorderBrush" Value="{StaticResource Brush.Border}" />
         <Setter Property="BorderThickness" Value="2" />
         <Setter Property="Template" Value="{StaticResource Caliburn.ControlTemplate.DialogItem}" />
