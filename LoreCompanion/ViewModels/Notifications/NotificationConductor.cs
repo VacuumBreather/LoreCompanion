@@ -12,7 +12,7 @@ namespace LoreCompanion.ViewModels.Notifications
         {
             get;
             set => Set(ref field, value < MinimumExpirationTime ? MinimumExpirationTime : value);
-        } = TimeSpan.FromSeconds(value: 10);
+        } = TimeSpan.FromSeconds(value: 5);
 
         /// <inheritdoc/>
         public Task ShowNotificationAsync(
