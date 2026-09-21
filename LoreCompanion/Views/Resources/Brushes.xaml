@@ -144,6 +144,10 @@
         x:Key="Brush.Foreground.Notification.Error"
         po:Freeze="True"
         Color="{StaticResource Color.Notification.Error.Light}" />
+    <SolidColorBrush
+        x:Key="Brush.Border.Notification.Error"
+        po:Freeze="True"
+        Color="{StaticResource Color.Notification.Error.VeryDark}" />
 
     <!--  Warning  -->
     <SolidColorBrush
@@ -154,6 +158,10 @@
         x:Key="Brush.Foreground.Notification.Warning"
         po:Freeze="True"
         Color="{StaticResource Color.Notification.Warning.Light}" />
+    <SolidColorBrush
+        x:Key="Brush.Border.Notification.Warning"
+        po:Freeze="True"
+        Color="{StaticResource Color.Notification.Warning.VeryDark}" />
 
     <!--  Success  -->
     <SolidColorBrush
@@ -164,4 +172,8 @@
         x:Key="Brush.Foreground.Notification.Success"
         po:Freeze="True"
         Color="{StaticResource Color.Notification.Success.Light}" />
+    <SolidColorBrush
+        x:Key="Brush.Border.Notification.Success"
+        po:Freeze="True"
+        Color="{StaticResource Color.Notification.Success.VeryDark}" />
 </ResourceDictionary>

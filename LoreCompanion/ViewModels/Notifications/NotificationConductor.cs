@@ -16,14 +16,13 @@ namespace LoreCompanion.ViewModels.Notifications
 
         /// <inheritdoc/>
         public Task ShowNotificationAsync(
-            NotificationScreen notification,
+            string title,
+            string content,
+            NotificationType type = NotificationType.Information,
+            TimeSpan? expirationTime = null,
             CancellationToken cancellationToken = default)
         {
-            if (Items.Contains(notification))
-            {
-                throw new InvalidOperationException(
-                    $"Attempting to show a {notification.GetType().Name} notification with the same instance multiple times simultaneously.");
-            }
+            var notification = new NotificationScreen(title, content, type, expirationTime ?? ExpirationTime);
 
             return ActivateItemAsync(notification, cancellationToken);
         }

@@ -105,25 +105,14 @@ namespace LoreCompanion.ViewModels
         [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by the UI")]
         public Task CreateNewAsync()
         {
-            // var newItem = new Item { Name = "New Item", Description = "Item Description" };
-            // Items.Add(newItem);
-            // SelectedItem = newItem;
-            //
-            // Logger.Debug("New item created");
+            var newItem = new Item { Name = "New Item", Description = "Item Description" };
+            Items.Add(newItem);
+            SelectedItem = newItem;
 
-            // _ = _notificationService.ShowNotificationAsync(
-            //     new NotificationScreen(
-            //         "Item Created",
-            //         $"Item '{newItem.Name}' created successfully."));
+            Logger.Debug("New item created");
 
             // Immediately switch to editable mode for the new item
-            // EditMode = EditMode.Editable;
-
-            _ = _notificationService.ShowNotificationAsync(
-                new NotificationScreen(
-                    "Item Created",
-                    "Item 'New Item' created successfully.",
-                    NotificationType.Success));
+            EditMode = EditMode.Editable;
 
             return Task.CompletedTask;
         }
@@ -180,9 +169,18 @@ namespace LoreCompanion.ViewModels
 
                     SelectedItem = newSelectedItem;
                 }
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Item Deleted",
+                    $"Item '{item.Name}' was deleted successfully.");
             }
             catch (Exception e)
             {
+                _ = _notificationService.ShowNotificationAsync(
+                    "Deletion Failed",
+                    $"Could not delete item '{item.Name}'.\n{e.Message}",
+                    NotificationType.Error);
+
                 Logger.Error(e, "Error deleting item '{Item}'", item);
             }
             finally
@@ -240,6 +238,12 @@ namespace LoreCompanion.ViewModels
                 }
                 catch (Exception e)
                 {
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Database Error",
+                        $"Could not save current item.\n{e.Message}",
+                        NotificationType.Error,
+                        cancellationToken: CancellationToken.None);
+
                     // Log and ignore cancellation to ensure cleanup proceeds
                     Logger.Error(e, "Error saving current item during deactivation");
                 }
@@ -252,6 +256,12 @@ namespace LoreCompanion.ViewModels
             }
             catch (OperationCanceledException e)
             {
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database Error",
+                    $"Could not finish database operation.\n{e.Message}",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+
                 // Log and ignore cancellation to ensure cleanup proceeds
                 Logger.Error(e, "Database lock wait cancelled during deactivation");
             }
@@ -267,7 +277,7 @@ namespace LoreCompanion.ViewModels
                     catch (OperationCanceledException e)
                     {
                         // Log and ignore cancellation to ensure cleanup proceeds
-                        Logger.Error(e, "Loading task cancelled during deactivation");
+                        Logger.Debug(e, "Loading task cancelled during deactivation");
                     }
                 }
 
@@ -337,7 +347,7 @@ namespace LoreCompanion.ViewModels
             }
             catch (OperationCanceledException e)
             {
-                Logger.Error(e, "Loading task cancelled");
+                Logger.Debug(e, "Loading task cancelled");
             }
             finally
             {
@@ -389,9 +399,18 @@ namespace LoreCompanion.ViewModels
                 }
 
                 await context.SaveChangesAsync();
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Item Saved",
+                    $"Item '{item.Name}' was saved successfully.");
             }
             catch (Exception e)
             {
+                _ = _notificationService.ShowNotificationAsync(
+                    "Save Failed",
+                    $"Could not save item '{item.Name}'.\n{e.Message}",
+                    NotificationType.Error);
+
                 Logger.Error(e, "Error saving item '{Item}' to database", item);
             }
             finally

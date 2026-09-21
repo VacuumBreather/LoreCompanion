@@ -15,12 +15,24 @@ namespace LoreCompanion.ViewModels.Notifications
         TimeSpan ExpirationTime { get; set; }
 
         /// <summary>Shows the specified <see cref="NotificationScreen"/> as a notification.</summary>
-        /// <param name="notification">The notification to show.</param>
+        /// <param name="title">The title of the notification.</param>
+        /// <param name="content">The content of the notification.</param>
+        /// <param name="type">The type of the notification.</param>
+        /// <param name="expirationTime">
+        ///     (Optional) The expiration time after which notifications are automatically closed. The
+        ///     minimum is one second. If this is not provided, the global expiration time set on the
+        ///     <see cref="INotificationService"/> will be used.
+        /// </param>
         /// <param name="cancellationToken">
         ///     (Optional) A cancellation token that can be used by other objects or threads to receive
         ///     notice of cancellation.
         /// </param>
         /// <returns>A Task that represents the asynchronous save operation.</returns>
-        Task ShowNotificationAsync(NotificationScreen notification, CancellationToken cancellationToken = default);
+        Task ShowNotificationAsync(
+            string title,
+            string content,
+            NotificationType type = NotificationType.Information,
+            TimeSpan? expirationTime = null,
+            CancellationToken cancellationToken = default);
     }
 }

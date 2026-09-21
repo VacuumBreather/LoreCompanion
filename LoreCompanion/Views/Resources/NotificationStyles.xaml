@@ -4,11 +4,9 @@
     xmlns:cm="http://caliburnmicro.com"
     xmlns:controls="clr-namespace:LoreCompanion.Views.Controls"
     xmlns:notifications="clr-namespace:LoreCompanion.ViewModels.Notifications">
-
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="ListBoxStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
-
 
     <!--  DataTemplate.NotificationScreen.Implicit  -->
     <DataTemplate DataType="{x:Type notifications:NotificationScreen}">
@@ -16,8 +14,10 @@
             Name="BackgroundBorder"
             MinHeight="75"
             Padding="25,15"
-            Background="{StaticResource Brush.Background}"
-            CornerRadius="4">
+            Background="{StaticResource Brush.Background.Button}"
+            BorderBrush="{StaticResource Brush.Border}"
+            BorderThickness="1"
+            CornerRadius="{StaticResource CornerRadius.Controls}">
             <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
                 <TextBlock
                     Style="{StaticResource Style.TextBlock.Body.Large}"
@@ -30,20 +30,20 @@
             </StackPanel>
         </Border>
         <DataTemplate.Triggers>
-            <DataTrigger Binding="{Binding Type, Mode=OneWay}" Value="{x:Static notifications:NotificationType.Information}">
-                <Setter TargetName="BackgroundBorder" Property="Background" Value="{StaticResource Brush.Background.Button}" />
-            </DataTrigger>
             <DataTrigger Binding="{Binding Type, Mode=OneWay}" Value="{x:Static notifications:NotificationType.Success}">
                 <Setter TargetName="BackgroundBorder" Property="Background" Value="{StaticResource Brush.Background.Notification.Success}" />
                 <Setter TargetName="BackgroundBorder" Property="TextElement.Foreground" Value="{StaticResource Brush.Foreground.Notification.Success}" />
+                <Setter TargetName="BackgroundBorder" Property="BorderBrush" Value="{StaticResource Brush.Border.Notification.Success}" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Type, Mode=OneWay}" Value="{x:Static notifications:NotificationType.Warning}">
                 <Setter TargetName="BackgroundBorder" Property="Background" Value="{StaticResource Brush.Background.Notification.Warning}" />
                 <Setter TargetName="BackgroundBorder" Property="TextElement.Foreground" Value="{StaticResource Brush.Foreground.Notification.Warning}" />
+                <Setter TargetName="BackgroundBorder" Property="BorderBrush" Value="{StaticResource Brush.Border.Notification.Warning}" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Type, Mode=OneWay}" Value="{x:Static notifications:NotificationType.Error}">
                 <Setter TargetName="BackgroundBorder" Property="Background" Value="{StaticResource Brush.Background.Notification.Error}" />
                 <Setter TargetName="BackgroundBorder" Property="TextElement.Foreground" Value="{StaticResource Brush.Foreground.Notification.Error}" />
+                <Setter TargetName="BackgroundBorder" Property="BorderBrush" Value="{StaticResource Brush.Border.Notification.Error}" />
             </DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>
@@ -88,31 +88,22 @@
 
     <!--  ControlTemplate.NotificationItem  -->
     <ControlTemplate x:Key="ControlTemplate.NotificationItem" TargetType="{x:Type controls:NotificationItem}">
-        <Border
-            x:Name="Border"
-            Padding="{TemplateBinding Padding}"
-            Background="{TemplateBinding Background}"
-            BorderBrush="{TemplateBinding BorderBrush}"
-            BorderThickness="{TemplateBinding BorderThickness}"
-            CornerRadius="{TemplateBinding Border.CornerRadius}"
-            RenderTransformOrigin=".5,.5">
-            <Grid>
-                <ContentPresenter
-                    x:Name="ContentPresenter"
-                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                    Content="{TemplateBinding ContentControl.Content}"
-                    ContentStringFormat="{TemplateBinding ContentControl.ContentStringFormat}"
-                    ContentTemplate="{TemplateBinding ContentControl.ContentTemplate}"
-                    ContentTemplateSelector="{TemplateBinding ContentControl.ContentTemplateSelector}" />
-                <Button
-                    Margin="10"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    cm:Message.Attach="Close"
-                    Style="{StaticResource Style.Button.CloseNotifications}" />
-            </Grid>
-            <Border.RenderTransform>
+        <Grid RenderTransformOrigin=".5,.5">
+            <ContentPresenter
+                x:Name="ContentPresenter"
+                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                Content="{TemplateBinding ContentControl.Content}"
+                ContentStringFormat="{TemplateBinding ContentControl.ContentStringFormat}"
+                ContentTemplate="{TemplateBinding ContentControl.ContentTemplate}"
+                ContentTemplateSelector="{TemplateBinding ContentControl.ContentTemplateSelector}" />
+            <Button
+                Margin="10"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                cm:Message.Attach="Close"
+                Style="{StaticResource Style.Button.CloseNotifications}" />
+            <Grid.RenderTransform>
                 <TransformGroup>
                     <MatrixTransform x:Name="PART_MatrixTransform" />
                     <RotateTransform x:Name="PART_RotateTransform" Angle="0" />
@@ -120,11 +111,11 @@
                     <SkewTransform x:Name="PART_SkewTransform" AngleX="0" AngleY="0" />
                     <TranslateTransform x:Name="PART_TranslateTransform" X="0" Y="0" />
                 </TransformGroup>
-            </Border.RenderTransform>
-            <Border.LayoutTransform>
+            </Grid.RenderTransform>
+            <Grid.LayoutTransform>
                 <ScaleTransform x:Name="PART_LayoutScaleTransform" ScaleX="1" ScaleY="1" />
-            </Border.LayoutTransform>
-        </Border>
+            </Grid.LayoutTransform>
+        </Grid>
     </ControlTemplate>
 
     <!--  ControlTemplate.NotificationHost  -->
@@ -159,11 +150,10 @@
         BasedOn="{StaticResource Style.TransitioningContentControl}"
         TargetType="{x:Type controls:NotificationItem}">
         <Setter Property="MaxWidth" Value="300" />
-        <Setter Property="MinWidth" Value="300" />
-        <Setter Property="Width" Value="300" />
+        <Setter Property="MinWidth" Value="350" />
+        <Setter Property="Width" Value="350" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
-        <Setter Property="Border.CornerRadius" Value="{StaticResource CornerRadius.Controls}" />
         <Setter Property="TransitionEffect" Value="{controls:ZoomInTransition}" />
         <Setter Property="CloseTransitionEffect" Value="{controls:ShrinkOutTransition Duration='0:0:0.333'}" />
         <Setter Property="Template" Value="{StaticResource ControlTemplate.NotificationItem}" />
