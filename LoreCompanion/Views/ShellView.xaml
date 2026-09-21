@@ -8,8 +8,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
     Title="MainWindow"
-    Width="800"
-    Height="600"
+    Width="1360"
+    Height="768"
     d:DataContext="{d:DesignInstance viewModels:ShellViewModel,
                                      IsDesignTimeCreatable=False}"
     Background="{StaticResource Brush.Background}"
