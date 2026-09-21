@@ -5,6 +5,7 @@
     xmlns:controls="clr-namespace:LoreCompanion.Views.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:effects="clr-namespace:LoreCompanion.Views.Effects"
+    xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
     Title="MainWindow"
@@ -88,10 +89,39 @@
                                     <effects:TintShaderEffect TintColor="{StaticResource Color.Primary.60}" />
                                 </Image.Effect>
                             </Image>
-                            <ListBox
-                                ItemsSource="{Binding ItemsView}"
-                                SelectedItem="{Binding ActiveItem}"
-                                Style="{StaticResource Style.ListBox.Navigation}" />
+                            <DockPanel>
+                                <ListBox
+                                    DockPanel.Dock="Top"
+                                    ItemsSource="{Binding ItemsView}"
+                                    SelectedItem="{Binding ActiveItem}"
+                                    Style="{StaticResource Style.ListBox.Navigation}" />
+
+                                <TextBlock
+                                    Margin="8,12,8,4"
+                                    DockPanel.Dock="Top"
+                                    Style="{StaticResource Style.TextBlock.Heading.Navigation}"
+                                    Text="Database" />
+                                <DockPanel
+                                    Margin="16,8"
+                                    VerticalAlignment="Top"
+                                    DockPanel.Dock="Top">
+                                    <icon:PackIconMaterial
+                                        VerticalAlignment="Top"
+                                        DockPanel.Dock="Left"
+                                        Foreground="{StaticResource Brush.Foreground.Primary}"
+                                        Kind="Database" />
+                                    <TextBlock
+                                        Margin="10,0"
+                                        VerticalAlignment="Center"
+                                        Text="{Binding CurrentDatabaseVersion, StringFormat={}v{0}}" />
+                                </DockPanel>
+                                <TextBlock
+                                    Margin="16,0"
+                                    DockPanel.Dock="Top"
+                                    Foreground="{StaticResource Brush.Foreground.Notification.Success}"
+                                    Style="{StaticResource Style.TextBlock.Body.Small}"
+                                    Text="Up to date" />
+                            </DockPanel>
                         </Grid>
                     </Border>
                     <ContentControl x:Name="ActiveItem" />

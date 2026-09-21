@@ -14,7 +14,7 @@ namespace LoreCompanion.Models
         [MaxLength(2048)]
         public string Description { get; set; } = "";
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{Name} ({Id})";

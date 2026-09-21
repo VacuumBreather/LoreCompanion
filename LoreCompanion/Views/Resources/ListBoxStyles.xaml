@@ -2,7 +2,9 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:cm="http://caliburnmicro.com"
+    xmlns:converters="clr-namespace:LoreCompanion.Views.Converters"
     xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
+    xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="TextBoxStyles.xaml" />
@@ -146,18 +148,27 @@
         </Setter>
     </Style>
 
+    <!--  Converter.NavigationIcon  -->
+    <converters:NavigationIconConverter x:Key="Converter.NavigationIcon">
+        <helpers:TypeIconMapping Icon="{x:Static icon:PackIconMaterialDesignKind.Home}" Type="{x:Type viewModels:DashboardViewModel}" />
+        <helpers:TypeIconMapping Icon="{x:Static icon:PackIconMaterialDesignKind.Person}" Type="{x:Type viewModels:CharactersViewModel}" />
+        <helpers:TypeIconMapping Icon="{x:Static icon:PackIconRPGAwesomeKind.Broadsword}" Type="{x:Type viewModels:ItemsViewModel}" />
+        <helpers:TypeIconMapping Icon="{x:Static icon:PackIconMaterialDesignKind.VideoLibrary}" Type="{x:Type viewModels:EpisodesViewMode}" />
+    </converters:NavigationIconConverter>
+
     <!--  ItemTemplate.ListBox.Navigation  -->
     <DataTemplate x:Key="ItemTemplate.ListBox.Navigation" DataType="{x:Type viewModels:SectionScreen}">
-        <StackPanel Orientation="Horizontal">
-
-            <!--  <Image  -->
-            <!--  Height="16"  -->
-            <!--  Margin="0,0,8,0"  -->
-            <!--  Source="{Binding Icon}"  -->
-            <!--  Width="16" />  -->
-
-            <TextBlock VerticalAlignment="Center" Text="{Binding DisplayName}" />
-        </StackPanel>
+        <DockPanel>
+            <icon:PackIconControl
+                VerticalAlignment="Center"
+                DockPanel.Dock="Left"
+                Foreground="{StaticResource Brush.Foreground.Primary}"
+                Kind="{Binding Converter={StaticResource Converter.NavigationIcon}}" />
+            <TextBlock
+                Margin="10,0"
+                VerticalAlignment="Center"
+                Text="{Binding DisplayName}" />
+        </DockPanel>
     </DataTemplate>
 
     <!--  GroupStyle.ListBox.Navigation  -->

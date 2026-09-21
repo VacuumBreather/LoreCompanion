@@ -1,9 +1,11 @@
 ﻿using System.Windows.Data;
 using Caliburn.Micro;
 using LoreCompanion.Extensions;
+using LoreCompanion.Models;
 using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
 using LoreCompanion.ViewModels.Notifications;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using LogManager = LoreCompanion.Utilities.LogManager;
 
@@ -11,16 +13,19 @@ namespace LoreCompanion.ViewModels
 {
     public sealed class ShellViewModel : Conductor<SectionScreen>.Collection.OneActive
     {
+        private readonly IDbContextFactory<LoreDbContext> _dbContextFactory;
         private readonly CachedDataLoader _cachedDataLoader;
         private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
 
         public ShellViewModel(
             IEnumerable<SectionScreen> sections,
+            IDbContextFactory<LoreDbContext> dbContextFactory,
             CachedDataLoader cachedDataLoader,
             IDialogService dialogService,
             INotificationService notificationService)
         {
+            _dbContextFactory = dbContextFactory;
             _cachedDataLoader = cachedDataLoader;
             _dialogService = dialogService;
             _notificationService = notificationService;
@@ -43,6 +48,8 @@ namespace LoreCompanion.ViewModels
 
             Items.AddRange(sections);
         }
+
+        public Version CurrentDatabaseVersion { get; private set; } = Version.Parse("0.0.0");
 
         public ListCollectionView ItemsView { get; }
 
@@ -86,6 +93,15 @@ namespace LoreCompanion.ViewModels
             {
                 Logger.Debug("Activating dialog service...");
                 await activateDialogs.ActivateAsync(cancellationToken);
+            }
+
+            await using (var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken))
+            {
+                CurrentDatabaseVersion = dbContext.DatabaseReleases.AsEnumerable()
+                                                  .OrderByDescending(r => r.PublishedAt)
+                                                  .Select(r => r.Version)
+                                                  .FirstOrDefault() ??
+                                         Version.Parse("0.0.0");
             }
 
             Logger.Information("Showing dashboard...");

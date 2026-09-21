@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -18,10 +17,6 @@ namespace LoreCompanion
 {
     public class Bootstrapper : BootstrapperBase
     {
-        private static readonly string AppDataFolder = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "LoreCompanion");
-
         private ServiceProvider _serviceProvider = null!;
 
         public Bootstrapper()
@@ -37,7 +32,7 @@ namespace LoreCompanion
         {
             ServiceCollection services = new();
 
-            services.AddConfiguredSerilog(AppDataFolder);
+            services.AddConfiguredSerilog(AppHelper.AppDataFolder);
 
             services.Scan(scan => scan.FromAssemblyOf<Bootstrapper>()
                                       .AddClasses(classes => classes.AssignableTo<SectionScreen>()
@@ -58,10 +53,7 @@ namespace LoreCompanion
             services.AddSingleton<IDialogService, DialogConductor>();
             services.AddSingleton<INotificationService, NotificationConductor>();
 
-            // Sets up SQLite with the file path
-            var dbPath = Path.Combine(AppDataFolder, "lorecompanion.db");
-
-            services.AddDbContextFactory<LoreDbContext>(options => options.UseSqlite($"Data Source={dbPath}"));
+            services.AddDbContextFactory<LoreDbContext>(options => options.UseSqlite(AppHelper.ConnectionString));
 
             _serviceProvider = services.BuildServiceProvider();
         }
