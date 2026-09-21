@@ -222,9 +222,8 @@ namespace LoreCompanion.ViewModels
                 }
                 catch (Exception e)
                 {
+                    // Log and ignore cancellation to ensure cleanup proceeds
                     Logger.Error(e, "Error saving current item during deactivation");
-
-                    // Suppress to ensure deactivation continues
                 }
             }
 
@@ -235,7 +234,7 @@ namespace LoreCompanion.ViewModels
             }
             catch (OperationCanceledException e)
             {
-                // Gracefully log and ignore cancellation to ensure cleanup proceeds
+                // Log and ignore cancellation to ensure cleanup proceeds
                 Logger.Error(e, "Database lock wait cancelled during deactivation");
             }
 
@@ -249,7 +248,7 @@ namespace LoreCompanion.ViewModels
                     }
                     catch (OperationCanceledException e)
                     {
-                        // Ignore
+                        // Log and ignore cancellation to ensure cleanup proceeds
                         Logger.Error(e, "Loading task cancelled during deactivation");
                     }
                 }
@@ -320,8 +319,7 @@ namespace LoreCompanion.ViewModels
             }
             catch (OperationCanceledException e)
             {
-                // Expected when navigating away; terminate stream cleanly
-                Logger.Debug(e, "Loading task cancelled");
+                Logger.Error(e, "Loading task cancelled");
             }
             finally
             {
