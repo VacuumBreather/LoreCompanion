@@ -11,8 +11,12 @@
     <!--  DataTemplate.QueryDialog.Implicit  -->
     <DataTemplate DataType="{x:Type dialogs:QueryDialog}">
         <DataTemplate.Resources>
-            <converters:EnumFlagSetToVisibilityConverter x:Key="Caliburn.Converter.EnumFlagSetToVisible" />
-            <converters:IsEqualConverter x:Key="Caliburn.Converter.IsEqualTo" />
+            <converters:EnumFlagSetToVisibilityConverter x:Key="Converter.EnumFlagSetToVisible" />
+            <converters:IsEqualConverter x:Key="Converter.IsEqualTo" />
+            <converters:ChainConverter x:Key="Converter.IsEqualToVisibility">
+                <converters:IsEqualConverter />
+                <BooleanToVisibilityConverter />
+            </converters:ChainConverter>
         </DataTemplate.Resources>
         <DockPanel>
             <TextBlock
@@ -26,7 +30,7 @@
                 Margin="0,10,0,0"
                 DockPanel.Dock="Bottom"
                 IsIndeterminate="True"
-                Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Caliburn.Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResults.None}}" />
+                Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.IsEqualToVisibility}, ConverterParameter={x:Static dialogs:DialogResults.None}}" />
             <UniformGrid
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
@@ -37,67 +41,67 @@
                     Margin="10,0"
                     controls:CloseDialog.Result="Ok"
                     Content="OK"
-                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Caliburn.Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Ok}}"
-                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Caliburn.Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Ok}}" />
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Ok}}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Ok}}" />
                 <Button
                     MinWidth="50"
                     Margin="10,0"
                     controls:CloseDialog.Result="Yes"
-                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Caliburn.Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Yes}}"
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Yes}}"
                     Style="{StaticResource Style.Button.Yes}"
-                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Caliburn.Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Yes}}" />
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Yes}}" />
                 <Button
                     MinWidth="50"
                     Margin="10,0"
                     controls:CloseDialog.Result="No"
                     IsCancel="True"
-                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Caliburn.Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.No}}"
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.No}}"
                     Style="{StaticResource Style.Button.No}"
-                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Caliburn.Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.No}}" />
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.No}}" />
                 <Button
                     MinWidth="50"
                     Margin="10,0"
                     controls:CloseDialog.Result="Retry"
                     Content="Retry"
-                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Caliburn.Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Retry}}"
-                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Caliburn.Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Retry}}" />
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Retry}}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Retry}}" />
                 <Button
                     MinWidth="50"
                     Margin="10,0"
                     controls:CloseDialog.Result="TryAgain"
                     Content="Try Again"
-                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Caliburn.Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.TryAgain}}"
-                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Caliburn.Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.TryAgain}}" />
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.TryAgain}}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.TryAgain}}" />
                 <Button
                     MinWidth="50"
                     Margin="10,0"
                     controls:CloseDialog.Result="Abort"
                     Content="Abort"
                     IsCancel="True"
-                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Caliburn.Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Abort}}"
-                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Caliburn.Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Abort}}" />
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Abort}}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Abort}}" />
                 <Button
                     MinWidth="50"
                     Margin="10,0"
                     controls:CloseDialog.Result="Continue"
                     Content="Continue"
-                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Caliburn.Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Continue}}"
-                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Caliburn.Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Continue}}" />
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Continue}}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Continue}}" />
                 <Button
                     MinWidth="50"
                     Margin="10,0"
                     controls:CloseDialog.Result="Ignore"
                     Content="Ignore"
-                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Caliburn.Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Ignore}}"
-                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Caliburn.Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Ignore}}" />
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Ignore}}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Ignore}}" />
                 <Button
                     MinWidth="50"
                     Margin="10,0"
                     controls:CloseDialog.Result="Cancel"
                     Content="Cancel"
                     IsCancel="True"
-                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Caliburn.Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Cancel}}"
-                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Caliburn.Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Cancel}}" />
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Cancel}}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Cancel}}" />
             </UniformGrid>
             <TextBlock
                 Margin="0,20,0,30"
