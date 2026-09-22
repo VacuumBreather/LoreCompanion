@@ -236,6 +236,18 @@ namespace LoreCompanion.ViewModels
             return Task.CompletedTask;
         }
 
+        [PublicAPI]
+        public async Task RollbackCurrentAsync()
+        {
+            if (SelectedItem is null)
+            {
+                return;
+            }
+
+            EditMode = EditMode.ReadOnly;
+            await RollbackItemAsync(SelectedItem);
+        }
+
         protected override Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             Logger.Debug("Activated");

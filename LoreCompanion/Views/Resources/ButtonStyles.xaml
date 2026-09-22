@@ -234,6 +234,20 @@
         </Setter>
     </Style>
 
+    <!--  Style.Button.Cancel  -->
+    <Style
+        x:Key="Style.Button.Cancel"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="Cancel" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--  Style.Button.Yes  -->
     <Style
         x:Key="Style.Button.Yes"

@@ -74,6 +74,13 @@
                                 cm:Message.Attach="SaveCurrentAsync"
                                 DockPanel.Dock="Right"
                                 Style="{StaticResource Style.Button.Save}" />
+                            <Button
+                                Margin="5"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                cm:Message.Attach="RollbackCurrentAsync"
+                                DockPanel.Dock="Right"
+                                Style="{StaticResource Style.Button.Cancel}" />
                             <TextBox MaxLength="128" Text="{Binding Name}" />
                         </DockPanel>
                         <TextBox
