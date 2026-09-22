@@ -200,7 +200,7 @@
         <Setter Property="ContentTemplate">
             <Setter.Value>
                 <DataTemplate>
-                    <iconPacks:PackIconMaterialDesign Kind="Download" />
+                    <iconPacks:PackIconMaterialDesign Kind="Refresh" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>

@@ -4,11 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:cm="http://caliburnmicro.com"
     xmlns:controls="clr-namespace:LoreCompanion.Views.Controls"
+    xmlns:converters="clr-namespace:LoreCompanion.Views.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:effects="clr-namespace:LoreCompanion.Views.Effects"
     xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
     xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:utilities="clr-namespace:LoreCompanion.Utilities"
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
     Title="MainWindow"
     Width="1360"
@@ -67,7 +69,7 @@
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
                         DockPanel.Dock="Right"
-                        Text="{Binding CurrentApplicationVersion}" />
+                        Text="{x:Static utilities:AppHelper.CurrentVersion}" />
                     <TextBlock
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
@@ -146,6 +148,38 @@
                                 </Image.Effect>
                             </Image>
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <ScrollViewer.Resources>
+                                    <helpers:DatabaseStatusTemplateSelector x:Key="DataTemplateSelector.DatabaseStatus">
+                                        <helpers:DatabaseStatusTemplateSelector.UnknownTemplate>
+                                            <DataTemplate>
+                                                <TextBlock
+                                                    Foreground="{StaticResource Brush.Foreground.Notification.Warning}"
+                                                    Style="{StaticResource Style.TextBlock.Body.Small}"
+                                                    Text="Unknown" />
+                                            </DataTemplate>
+                                        </helpers:DatabaseStatusTemplateSelector.UnknownTemplate>
+                                        <helpers:DatabaseStatusTemplateSelector.UpToDateTemplate>
+                                            <DataTemplate>
+                                                <TextBlock
+                                                    Foreground="{StaticResource Brush.Foreground}"
+                                                    Style="{StaticResource Style.TextBlock.Body.Small}"
+                                                    Text="Up to date" />
+                                            </DataTemplate>
+                                        </helpers:DatabaseStatusTemplateSelector.UpToDateTemplate>
+                                        <helpers:DatabaseStatusTemplateSelector.OutOfDateTemplate>
+                                            <DataTemplate>
+                                                <TextBlock
+                                                    Foreground="{StaticResource Brush.Foreground.Notification.Success}"
+                                                    Style="{StaticResource Style.TextBlock.Body.Small}"
+                                                    Text="Update available" />
+                                            </DataTemplate>
+                                        </helpers:DatabaseStatusTemplateSelector.OutOfDateTemplate>
+                                    </helpers:DatabaseStatusTemplateSelector>
+                                    <converters:ChainConverter x:Key="Converter.UpToDateToHidden">
+                                        <converters:IsEqualConverter />
+                                        <converters:BoolToVisibilityConverter FalseVisibility="Visible" TrueVisibility="Collapsed" />
+                                    </converters:ChainConverter>
+                                </ScrollViewer.Resources>
                                 <DockPanel>
                                     <ListBox
                                         DockPanel.Dock="Top"
@@ -172,12 +206,11 @@
                                             DockPanel.Dock="Left"
                                             Text="{Binding CurrentDatabaseVersion, StringFormat={}v{0}}" />
                                     </DockPanel>
-                                    <TextBlock
+                                    <ContentControl
                                         Margin="16,0"
-                                        DockPanel.Dock="Top"
-                                        Foreground="{StaticResource Brush.Foreground.Notification.Success}"
-                                        Style="{StaticResource Style.TextBlock.Body.Small}"
-                                        Text="Up to date" />
+                                        Content="{Binding DatabaseStatus}"
+                                        ContentTemplateSelector="{StaticResource DataTemplateSelector.DatabaseStatus}"
+                                        DockPanel.Dock="Top" />
                                     <UniformGrid
                                         Margin="10"
                                         HorizontalAlignment="Left"
@@ -186,7 +219,8 @@
                                         <Button
                                             Margin="5"
                                             cm:Message.Attach="RefreshDatabaseAsync"
-                                            Style="{StaticResource Style.Button.Refresh}" />
+                                            Style="{StaticResource Style.Button.Refresh}"
+                                            Visibility="{Binding DatabaseStatus, Converter={StaticResource Converter.UpToDateToHidden}, ConverterParameter={x:Static viewModels:DatabaseStatus.UpToDate}}" />
                                         <Button
                                             Margin="5"
                                             cm:Message.Attach="PublishDatabaseAsync"

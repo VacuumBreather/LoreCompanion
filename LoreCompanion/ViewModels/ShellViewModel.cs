@@ -73,6 +73,12 @@ namespace LoreCompanion.ViewModels
 
         public bool IsBusy => _busyCount > 0;
 
+        public DatabaseStatus DatabaseStatus
+        {
+            get;
+            private set => Set(ref field, value);
+        } = DatabaseStatus.Unknown;
+
         private static ILogger Logger { get; } = LogManager.GetLogger();
 
         public override async Task<bool> CanCloseAsync(CancellationToken cancellationToken = new())
@@ -258,6 +264,7 @@ namespace LoreCompanion.ViewModels
             client.Configure();
 
             DatabaseManifest? manifest;
+            DatabaseStatus = DatabaseStatus.Unknown;
 
             try
             {
@@ -333,8 +340,12 @@ namespace LoreCompanion.ViewModels
 
             if (manifest.Version <= currentVersion)
             {
+                DatabaseStatus = DatabaseStatus.UpToDate;
+
                 return;
             }
+
+            DatabaseStatus = DatabaseStatus.OutOfDate;
 
             var result = await _dialogService.ShowQueryDialogAsync(
                              "Database update",
@@ -454,6 +465,7 @@ namespace LoreCompanion.ViewModels
                 File.Move(tempPath, AppHelper.DatabasePath, true);
 
                 CurrentDatabaseVersion = await MigrateDatabaseAsync(cancellationToken);
+                DatabaseStatus = DatabaseStatus.UpToDate;
 
                 Logger.Information("Database updated to version {Version}", manifest.Version);
 
