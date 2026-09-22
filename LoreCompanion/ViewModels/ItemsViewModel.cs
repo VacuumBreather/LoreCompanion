@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Windows.Data;
 using Caliburn.Micro;
+using JetBrains.Annotations;
 using LoreCompanion.Models;
 using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
@@ -68,7 +69,7 @@ namespace LoreCompanion.ViewModels
 
         public bool CanSaveCurrent => SelectedItem is not null && (EditMode == EditMode.Editable);
 
-        [SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "Used by the UI")]
+        [PublicAPI]
         public BindableCollection<Item> Items { get; } = [];
 
         public Item? SelectedItem
@@ -86,14 +87,16 @@ namespace LoreCompanion.ViewModels
                 NotifyOfPropertyChange(nameof(CanEditCurrent));
                 NotifyOfPropertyChange(nameof(CanSaveCurrent));
 
-                if ((EditMode == EditMode.Editable) && previousItem is not null)
+                if ((EditMode != EditMode.Editable) || previousItem is null)
                 {
-                    EditMode = EditMode.ReadOnly;
+                    return;
+                }
 
-                    if (Items.Contains(previousItem))
-                    {
-                        _ = SaveItemAsync(previousItem);
-                    }
+                EditMode = EditMode.ReadOnly;
+
+                if (Items.Contains(previousItem))
+                {
+                    _ = SaveItemAsync(previousItem);
                 }
             }
         }
@@ -102,7 +105,7 @@ namespace LoreCompanion.ViewModels
 
         private static ILogger Logger { get; } = LogManager.GetLogger();
 
-        [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by the UI")]
+        [PublicAPI]
         public Task CreateNewAsync()
         {
             var newItem = new Item { Name = "New Item", Description = "Item Description" };
@@ -117,11 +120,11 @@ namespace LoreCompanion.ViewModels
             return Task.CompletedTask;
         }
 
-        [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by the UI")]
+        [PublicAPI]
         public async Task DeleteAsync(Item item)
         {
             var dialogResult = await _dialogService.ShowQueryDialogAsync(
-                                   "Delete Item",
+                                   "Delete item",
                                    $"Are you sure you want to delete this item?\n\n'{item.Name}'",
                                    DialogResults.YesNo,
                                    DialogResult.Yes);
@@ -171,7 +174,7 @@ namespace LoreCompanion.ViewModels
                 }
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Item Deleted",
+                    "Item deleted",
                     $"Item '{item.Name}' was deleted successfully.");
             }
             catch (Exception e)
@@ -179,7 +182,7 @@ namespace LoreCompanion.ViewModels
                 Logger.Error(e, "Error deleting item '{Item}'", item);
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Deletion Failed",
+                    "Deletion failed",
                     $"Could not delete item '{item.Name}'.\n{e.Message}",
                     NotificationType.Error);
             }
@@ -189,27 +192,23 @@ namespace LoreCompanion.ViewModels
             }
         }
 
-        [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by the UI")]
+        [PublicAPI]
         public void EditCurrentAsync()
         {
-            if (SelectedItem is null)
+            if (SelectedItem is not null)
             {
-                return;
+                EditMode = EditMode.Editable;
             }
-
-            EditMode = EditMode.Editable;
         }
 
-        [SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "Used by the UI")]
+        [PublicAPI]
         public async Task SaveCurrentAsync()
         {
-            if (SelectedItem is null)
+            if (SelectedItem is not null)
             {
-                return;
+                EditMode = EditMode.ReadOnly;
+                await SaveItemAsync(SelectedItem);
             }
-
-            EditMode = EditMode.ReadOnly;
-            await SaveItemAsync(SelectedItem);
         }
 
         protected override Task OnActivatedAsync(CancellationToken cancellationToken)
@@ -244,7 +243,7 @@ namespace LoreCompanion.ViewModels
                     Logger.Error(e, "Error saving current item during deactivation");
 
                     _ = _notificationService.ShowNotificationAsync(
-                        "Database Error",
+                        "Database error",
                         $"Could not save current item.\n{e.Message}",
                         NotificationType.Error,
                         cancellationToken: CancellationToken.None);
@@ -262,7 +261,7 @@ namespace LoreCompanion.ViewModels
                 Logger.Error(e, "Database lock wait cancelled during deactivation");
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Database Error",
+                    "Database error",
                     $"Could not finish database operation.\n{e.Message}",
                     NotificationType.Error,
                     cancellationToken: CancellationToken.None);
@@ -319,7 +318,11 @@ namespace LoreCompanion.ViewModels
                 await _databaseLock.WaitAsync(cancellationToken);
                 await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-                Execute.OnUIThread(() => Items.Clear());
+                Execute.OnUIThread(() =>
+                {
+                    SelectedItem = null;
+                    Items.Clear();
+                });
 
                 const int BatchSize = 25;
                 var buffer = new List<Item>(BatchSize);
@@ -403,7 +406,7 @@ namespace LoreCompanion.ViewModels
                 await context.SaveChangesAsync();
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Item Saved",
+                    "Item saved",
                     $"Item '{item.Name}' was saved successfully.");
             }
             catch (Exception e)
@@ -411,7 +414,7 @@ namespace LoreCompanion.ViewModels
                 Logger.Error(e, "Error saving item '{Item}' to database", item);
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Save Failed",
+                    "Save failed",
                     $"Could not save item '{item.Name}'.\n{e.Message}",
                     NotificationType.Error);
             }

@@ -100,7 +100,7 @@ namespace LoreCompanion
             }
             catch (Exception exception)
             {
-                Log.Error(exception, "An error occurred during startup");
+                Log.Fatal(exception, "An error occurred during startup");
 
                 Application.Current.Shutdown();
             }
@@ -108,8 +108,6 @@ namespace LoreCompanion
 
         protected override void OnExit(object sender, EventArgs e)
         {
-            // Offload to ThreadPool to avoid SynchronizationContext deadlock
-            // while holding the main thread so the OS does not terminate the process prematurely.
             try
             {
                 var logger = LogManager.GetLogger();

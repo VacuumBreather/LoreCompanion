@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Windows.Data;
 using Caliburn.Micro;
+using JetBrains.Annotations;
 using LoreCompanion.Extensions;
 using LoreCompanion.Models;
 using LoreCompanion.Utilities;
@@ -122,6 +123,7 @@ namespace LoreCompanion.ViewModels
             return await base.CanCloseAsync(cancellationToken);
         }
 
+        [PublicAPI]
         public async Task PublishDatabaseAsync()
         {
             var result = await _dialogService.ShowQueryDialogAsync(
@@ -179,6 +181,7 @@ namespace LoreCompanion.ViewModels
             }
         }
 
+        [PublicAPI]
         public async Task RefreshDatabaseAsync()
         {
             try
@@ -197,6 +200,7 @@ namespace LoreCompanion.ViewModels
             catch (OperationCanceledException) when (_databaseUpdate is { IsCancellationRequested: true })
             {
                 // Ignore and proceed
+                Logger.Debug("Database update was canceled");
             }
             finally
             {
@@ -215,6 +219,7 @@ namespace LoreCompanion.ViewModels
             }
 
             CurrentDatabaseVersion = await MigrateDatabaseAsync(cancellationToken);
+            Logger.Information("Database version: {Version}", CurrentDatabaseVersion);
 
             if (_notificationService is IActivate activateNotifications)
             {
@@ -257,7 +262,7 @@ namespace LoreCompanion.ViewModels
             try
             {
                 await using var scope = await _dialogService.ShowBusyDialogAsync(
-                                            "Please Wait",
+                                            "Please wait",
                                             "Checking for database update...",
                                             cancellationToken);
 
@@ -269,20 +274,32 @@ namespace LoreCompanion.ViewModels
                 Logger.Error(e, "Failed to retrieve database manifest");
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Database Update",
+                    "Database update",
                     $"Failed to retrieve database manifest.\n{e.Message}",
                     NotificationType.Error,
                     cancellationToken: CancellationToken.None);
 
                 return;
             }
-            catch (OperationCanceledException e)
+            catch (OperationCanceledException e) when (cancellationToken.IsCancellationRequested)
             {
-                Logger.Error(e, "Database manifest retrieval canceled");
+                Logger.Warning(e, "Database manifest retrieval canceled");
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Database Update",
+                    "Database update",
                     $"Database manifest retrieval canceled.\n{e.Message}",
+                    NotificationType.Warning,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+            catch (OperationCanceledException e)
+            {
+                Logger.Error(e, "Database manifest retrieval timed out");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    $"Database manifest retrieval timed out.\n{e.Message}",
                     NotificationType.Error,
                     cancellationToken: CancellationToken.None);
 
@@ -293,7 +310,7 @@ namespace LoreCompanion.ViewModels
                 Logger.Error(e, "Failed to parse database manifest");
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Database Update",
+                    "Database update",
                     $"Failed to parse database manifest.\n{e.Message}",
                     NotificationType.Error,
                     cancellationToken: CancellationToken.None);
@@ -306,7 +323,7 @@ namespace LoreCompanion.ViewModels
                 Logger.Error("Database manifest does not contain a valid version");
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Database Update",
+                    "Database update",
                     "Database manifest does not contain a valid version.",
                     NotificationType.Error,
                     cancellationToken: CancellationToken.None);
@@ -320,7 +337,7 @@ namespace LoreCompanion.ViewModels
             }
 
             var result = await _dialogService.ShowQueryDialogAsync(
-                             "Database Update",
+                             "Database update",
                              $"New database update available (v{manifest.Version})\nDo you want to update now?",
                              DialogResults.YesNo,
                              DialogResult.Yes,
@@ -336,7 +353,7 @@ namespace LoreCompanion.ViewModels
                 Logger.Error("Database manifest does not contain a download URL");
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Database Update",
+                    "Database update",
                     "Database manifest does not contain a download URL.",
                     NotificationType.Error,
                     cancellationToken: CancellationToken.None);
@@ -349,7 +366,7 @@ namespace LoreCompanion.ViewModels
                 Logger.Error("Database manifest does not contain a SHA-256 hash");
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Database Update",
+                    "Database update",
                     "Database manifest does not contain a SHA-256 hash.",
                     NotificationType.Error,
                     cancellationToken: CancellationToken.None);
@@ -362,7 +379,7 @@ namespace LoreCompanion.ViewModels
             try
             {
                 await using var scope = await _dialogService.ShowBusyDialogAsync(
-                                            "Please Wait",
+                                            "Please wait",
                                             "Downloading database update...",
                                             cancellationToken);
 
@@ -373,20 +390,32 @@ namespace LoreCompanion.ViewModels
                 Logger.Error(e, "Failed to download database {Version}", manifest.Version);
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Database Update",
+                    "Database update",
                     $"Failed to download database {manifest.Version}\n{e.Message}",
                     NotificationType.Error,
                     cancellationToken: CancellationToken.None);
 
                 return;
             }
-            catch (OperationCanceledException e)
+            catch (OperationCanceledException e) when (cancellationToken.IsCancellationRequested)
             {
-                Logger.Error(e, "Database {Version} download canceled", manifest.Version);
+                Logger.Warning(e, "Database {Version} download canceled", manifest.Version);
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Database Update",
+                    "Database update",
                     $"Database {manifest.Version} download canceled\n{e.Message}",
+                    NotificationType.Warning,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+            catch (OperationCanceledException e)
+            {
+                Logger.Error(e, "Database {Version} download timed out", manifest.Version);
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    $"Database {manifest.Version} download timed out\n{e.Message}",
                     NotificationType.Error,
                     cancellationToken: CancellationToken.None);
 
@@ -401,7 +430,7 @@ namespace LoreCompanion.ViewModels
                 Logger.Error("Database {Version} failed SHA-256 verification", manifest.Version);
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Database Update",
+                    "Database update",
                     $"Database {manifest.Version} failed SHA-256 verification",
                     NotificationType.Error,
                     cancellationToken: CancellationToken.None);
@@ -414,7 +443,7 @@ namespace LoreCompanion.ViewModels
             try
             {
                 await using var scope = await _dialogService.ShowBusyDialogAsync(
-                                            "Please Wait",
+                                            "Please wait",
                                             "Updating database...",
                                             cancellationToken);
 
@@ -429,19 +458,19 @@ namespace LoreCompanion.ViewModels
                 Logger.Information("Database updated to version {Version}", manifest.Version);
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Database Update",
+                    "Database update",
                     $"Database updated to version {manifest.Version}",
                     NotificationType.Success,
                     cancellationToken: CancellationToken.None);
             }
             catch (OperationCanceledException e)
             {
-                Logger.Error(e, "Database update was canceled");
+                Logger.Warning(e, "Database update was canceled");
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Database Update",
+                    "Database update",
                     $"Database update was canceled\n{e.Message}",
-                    NotificationType.Error,
+                    NotificationType.Warning,
                     cancellationToken: CancellationToken.None);
             }
             catch (Exception e)
@@ -449,7 +478,7 @@ namespace LoreCompanion.ViewModels
                 Logger.Error(e, "Failed to update database");
 
                 _ = _notificationService.ShowNotificationAsync(
-                    "Database Update",
+                    "Database update",
                     $"Failed to update database\n{e.Message}",
                     NotificationType.Error,
                     cancellationToken: CancellationToken.None);
@@ -466,12 +495,12 @@ namespace LoreCompanion.ViewModels
                     catch (Exception e)
                     {
                         // Nothing useful to do if cleanup itself fails.
-                        Logger.Error(e, "Failed to delete temporary database file");
+                        Logger.Warning(e, "Failed to delete temporary database file");
 
                         _ = _notificationService.ShowNotificationAsync(
-                            "Database Update",
+                            "Database update",
                             $"Failed to delete temporary database file\n{e.Message}",
-                            NotificationType.Error,
+                            NotificationType.Warning,
                             cancellationToken: CancellationToken.None);
                     }
                 }
