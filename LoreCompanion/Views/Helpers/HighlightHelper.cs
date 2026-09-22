@@ -72,14 +72,6 @@ namespace LoreCompanion.Views.Helpers
             obj.SetValue(HighlightForegroundBrushProperty, value);
         }
 
-        private static void OnHighlightChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is TextBlock textBlock)
-            {
-                UpdateHighlight(textBlock);
-            }
-        }
-
         public static void UpdateHighlight(TextBlock textBlock)
         {
             var text = GetText(textBlock);
@@ -101,6 +93,7 @@ namespace LoreCompanion.Views.Helpers
             {
                 var formattedText = TypographyHelper.TransformText(text, allCaps, letterSpacing);
                 textBlock.Inlines.Add(new Run(formattedText));
+
                 return;
             }
 
@@ -114,8 +107,9 @@ namespace LoreCompanion.Views.Helpers
                 {
                     // Add remaining unmatched text
                     var remaining = text.Substring(currentIndex);
-                    var transformed = TransformChunk(remaining, allCaps, letterSpacing, isEndOfString: true);
+                    var transformed = TransformChunk(remaining, allCaps, letterSpacing, true);
                     textBlock.Inlines.Add(new Run(transformed));
+
                     break;
                 }
 
@@ -123,24 +117,31 @@ namespace LoreCompanion.Views.Helpers
                 if (matchIndex > currentIndex)
                 {
                     var chunk = text.Substring(currentIndex, matchIndex - currentIndex);
-                    var transformed = TransformChunk(chunk, allCaps, letterSpacing, isEndOfString: false);
+                    var transformed = TransformChunk(chunk, allCaps, letterSpacing, false);
                     textBlock.Inlines.Add(new Run(transformed));
                 }
 
                 // Add highlighted chunk
                 var matchEnd = matchIndex + query.Length;
                 var matchText = text.Substring(matchIndex, query.Length);
-                var transformedMatch = TransformChunk(matchText, allCaps, letterSpacing, isEndOfString: matchEnd >= text.Length);
+                var transformedMatch = TransformChunk(matchText, allCaps, letterSpacing, matchEnd >= text.Length);
 
                 var matchRun = new Run(transformedMatch)
                 {
-                    Background = highlightBrush,
-                    Foreground = highlightForegroundBrush,
+                    Background = highlightBrush, Foreground = highlightForegroundBrush,
                 };
 
                 textBlock.Inlines.Add(matchRun);
 
                 currentIndex = matchEnd;
+            }
+        }
+
+        private static void OnHighlightChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is TextBlock textBlock)
+            {
+                UpdateHighlight(textBlock);
             }
         }
 

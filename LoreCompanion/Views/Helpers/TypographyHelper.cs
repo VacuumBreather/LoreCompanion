@@ -45,6 +45,29 @@ namespace LoreCompanion.Views.Helpers
             textBlock.SetValue(IncreaseLetterSpacingProperty, value);
         }
 
+        public static string TransformText(string? text, bool allCaps, bool increaseLetterSpacing)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return text ?? string.Empty;
+            }
+
+            var result = text;
+
+            if (allCaps)
+            {
+                result = result.ToUpperInvariant();
+            }
+
+            if (increaseLetterSpacing)
+            {
+                var clean = result.Replace("\u200A", "");
+                result = string.Join("\u200A", clean.ToCharArray());
+            }
+
+            return result;
+        }
+
         private static void OnTextBlockLoaded(object sender, RoutedEventArgs e)
         {
             if (sender is TextBlock textBlock)
@@ -52,6 +75,7 @@ namespace LoreCompanion.Views.Helpers
                 if (!string.IsNullOrEmpty(HighlightHelper.GetText(textBlock)))
                 {
                     HighlightHelper.UpdateHighlight(textBlock);
+
                     return;
                 }
 
@@ -84,6 +108,7 @@ namespace LoreCompanion.Views.Helpers
             if (!string.IsNullOrEmpty(HighlightHelper.GetText(textBlock)))
             {
                 HighlightHelper.UpdateHighlight(textBlock);
+
                 return;
             }
 
@@ -113,29 +138,6 @@ namespace LoreCompanion.Views.Helpers
             }
         }
 
-        public static string TransformText(string? text, bool allCaps, bool increaseLetterSpacing)
-        {
-            if (string.IsNullOrEmpty(text))
-            {
-                return text ?? string.Empty;
-            }
-
-            var result = text;
-
-            if (allCaps)
-            {
-                result = result.ToUpperInvariant();
-            }
-
-            if (increaseLetterSpacing)
-            {
-                var clean = result.Replace("\u200A", "");
-                result = string.Join("\u200A", clean.ToCharArray());
-            }
-
-            return result;
-        }
-
         private static void ApplyTypography(TextBlock textBlock)
         {
             var allCaps = GetAllCaps(textBlock);
@@ -153,6 +155,7 @@ namespace LoreCompanion.Views.Helpers
                 if (binding.Converter is TypographyValueConverter)
                 {
                     BindingOperations.GetBindingExpression(textBlock, TextBlock.TextProperty)?.UpdateTarget();
+
                     return;
                 }
 
@@ -164,6 +167,7 @@ namespace LoreCompanion.Views.Helpers
 
                 var newBinding = CloneBinding(binding, wrappedConverter);
                 BindingOperations.SetBinding(textBlock, TextBlock.TextProperty, newBinding);
+
                 return;
             }
 
@@ -172,6 +176,7 @@ namespace LoreCompanion.Views.Helpers
                 if (multiBinding.Converter is TypographyMultiValueConverter)
                 {
                     BindingOperations.GetMultiBindingExpression(textBlock, TextBlock.TextProperty)?.UpdateTarget();
+
                     return;
                 }
 
@@ -183,6 +188,7 @@ namespace LoreCompanion.Views.Helpers
 
                 var newBinding = CloneMultiBinding(multiBinding, wrappedConverter);
                 BindingOperations.SetBinding(textBlock, TextBlock.TextProperty, newBinding);
+
                 return;
             }
 

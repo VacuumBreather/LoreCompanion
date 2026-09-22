@@ -13,5 +13,11 @@ namespace LoreCompanion.Utilities
         public static readonly string ConnectionString = $"Data Source={DatabasePath}";
 
         public static readonly bool IsAdminMode = Environment.GetCommandLineArgs().Contains("--admin");
+
+        public static readonly string DatabaseManifestUrl =
+            "https://raw.githubusercontent.com/VacuumBreather/LoreCompanion/refs/heads/database/database_manifest.json";
+
+        public static readonly Version CurrentVersion =
+            typeof(AppHelper).Assembly.GetName().Version ?? Version.Parse("0.0.0");
     }
 }

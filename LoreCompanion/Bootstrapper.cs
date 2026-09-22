@@ -96,11 +96,6 @@ namespace LoreCompanion
         {
             try
             {
-                await using var context = await _serviceProvider.GetRequiredService<IDbContextFactory<LoreDbContext>>()
-                                                                .CreateDbContextAsync();
-
-                await context.Database.MigrateAsync();
-
                 await DisplayRootViewForAsync<ShellViewModel>();
             }
             catch (Exception exception)

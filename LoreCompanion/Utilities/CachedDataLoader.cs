@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using LoreCompanion.Extensions;
 using Microsoft.Extensions.Caching.Memory;
 using Serilog;
 
@@ -10,10 +11,7 @@ namespace LoreCompanion.Utilities
 {
     public sealed class CachedDataLoader : IDisposable, IAsyncDisposable
     {
-        private static readonly HttpClient HttpClient = new();
-
         private readonly MemoryCache _memoryCache = new(new MemoryCacheOptions { SizeLimit = 1024 });
-
         private readonly string _diskPath = Path.Combine(Path.GetTempPath(), nameof(LoreCompanion), "Cache");
 
         // Deduplicate simultaneous requests for the same URL
@@ -24,6 +22,7 @@ namespace LoreCompanion.Utilities
 
         // Signal cancellation to all background operations upon application shutdown
         private readonly CancellationTokenSource _shutdownCts = new();
+        private HttpClient? _httpClient;
 
         private bool _isDisposed;
 
@@ -33,6 +32,20 @@ namespace LoreCompanion.Utilities
         }
 
         private static ILogger Logger { get; } = LogManager.GetLogger();
+
+        private HttpClient HttpClient
+        {
+            get
+            {
+                if (_httpClient is null)
+                {
+                    _httpClient = new HttpClient();
+                    _httpClient.Configure();
+                }
+
+                return _httpClient;
+            }
+        }
 
         public Task<byte[]?> GetDataAsync(string dataUrl, CancellationToken token)
         {
@@ -63,6 +76,7 @@ namespace LoreCompanion.Utilities
             CancelPendingWrites();
             _memoryCache.Dispose();
             _shutdownCts.Dispose();
+            _httpClient?.Dispose();
         }
 
         public async ValueTask DisposeAsync()
@@ -90,6 +104,7 @@ namespace LoreCompanion.Utilities
 
             _memoryCache.Dispose();
             _shutdownCts.Dispose();
+            _httpClient?.Dispose();
         }
 
         private static void TryDeleteFile(string path)

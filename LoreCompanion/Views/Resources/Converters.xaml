@@ -14,4 +14,7 @@
         x:Key="Converter.FalseToHidden"
         FalseVisibility="Hidden"
         TrueVisibility="Visible" />
+
+    <!--  Converter.BoolInversion  -->
+    <converters:BoolInversionConverter x:Key="Converter.BoolInversion" />
 </ResourceDictionary>

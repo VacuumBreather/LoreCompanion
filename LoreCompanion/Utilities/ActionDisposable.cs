@@ -1,6 +1,6 @@
 ﻿namespace LoreCompanion.Utilities
 {
-    public sealed class BusyScope(Action onDispose) : IDisposable
+    public sealed class ActionDisposable(Action onDispose) : IDisposable
     {
         private readonly Action _onDispose = onDispose ?? throw new ArgumentNullException(nameof(onDispose));
         private int _disposed;

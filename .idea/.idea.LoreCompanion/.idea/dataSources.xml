@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:sqlite:C:\Users\schmi\AppData\Roaming\LoreCompanion\lorecompanion.db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="lorecompanion.db.tmp" uuid="902cac9b-6456-4bbe-aaab-b95e0281951d">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:C:\Users\schmi\AppData\Roaming\LoreCompanion\lorecompanion.db.tmp</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

@@ -131,7 +131,7 @@
                 </Border>
 
                 <!--  Content  -->
-                <DockPanel>
+                <DockPanel IsEnabled="{Binding IsBusy, Converter={StaticResource Converter.BoolInversion}}">
                     <Border
                         Background="{StaticResource Brush.Background.Panel}"
                         BorderBrush="{StaticResource Brush.Border.Primary}"

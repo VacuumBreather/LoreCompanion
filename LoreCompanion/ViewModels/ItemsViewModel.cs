@@ -176,12 +176,12 @@ namespace LoreCompanion.ViewModels
             }
             catch (Exception e)
             {
+                Logger.Error(e, "Error deleting item '{Item}'", item);
+
                 _ = _notificationService.ShowNotificationAsync(
                     "Deletion Failed",
                     $"Could not delete item '{item.Name}'.\n{e.Message}",
                     NotificationType.Error);
-
-                Logger.Error(e, "Error deleting item '{Item}'", item);
             }
             finally
             {
@@ -212,9 +212,11 @@ namespace LoreCompanion.ViewModels
             await SaveItemAsync(SelectedItem);
         }
 
-        protected override Task OnInitializedAsync(CancellationToken cancellationToken)
+        protected override Task OnActivatedAsync(CancellationToken cancellationToken)
         {
-            Logger.Debug("Initialized");
+            Logger.Debug("Activated");
+
+            _subscription?.Dispose();
 
             _subscription = this.ObservePropertyChanged(x => x.SearchText)
                                 .Debounce(TimeSpan.FromMilliseconds(250))
@@ -223,7 +225,7 @@ namespace LoreCompanion.ViewModels
 
             _loadingTask = Task.Run(() => LoadItemsProgressivelyAsync(cancellationToken), cancellationToken);
 
-            return Task.CompletedTask;
+            return base.OnActivatedAsync(cancellationToken);
         }
 
         protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
@@ -238,14 +240,14 @@ namespace LoreCompanion.ViewModels
                 }
                 catch (Exception e)
                 {
+                    // Log and ignore cancellation to ensure cleanup proceeds
+                    Logger.Error(e, "Error saving current item during deactivation");
+
                     _ = _notificationService.ShowNotificationAsync(
                         "Database Error",
                         $"Could not save current item.\n{e.Message}",
                         NotificationType.Error,
                         cancellationToken: CancellationToken.None);
-
-                    // Log and ignore cancellation to ensure cleanup proceeds
-                    Logger.Error(e, "Error saving current item during deactivation");
                 }
             }
 
@@ -256,14 +258,14 @@ namespace LoreCompanion.ViewModels
             }
             catch (OperationCanceledException e)
             {
+                // Log and ignore cancellation to ensure cleanup proceeds
+                Logger.Error(e, "Database lock wait cancelled during deactivation");
+
                 _ = _notificationService.ShowNotificationAsync(
                     "Database Error",
                     $"Could not finish database operation.\n{e.Message}",
                     NotificationType.Error,
                     cancellationToken: CancellationToken.None);
-
-                // Log and ignore cancellation to ensure cleanup proceeds
-                Logger.Error(e, "Database lock wait cancelled during deactivation");
             }
 
             if (close)
@@ -288,14 +290,14 @@ namespace LoreCompanion.ViewModels
             await base.OnDeactivateAsync(close, cancellationToken);
         }
 
-        private BusyScope SetBusy()
+        private ActionDisposable SetBusy()
         {
             if (Interlocked.Increment(ref _busyCount) == 1)
             {
                 NotifyOfPropertyChange(nameof(IsBusy));
             }
 
-            return new BusyScope(() =>
+            return new ActionDisposable(() =>
             {
                 if (Interlocked.Decrement(ref _busyCount) == 0)
                 {
@@ -406,12 +408,12 @@ namespace LoreCompanion.ViewModels
             }
             catch (Exception e)
             {
+                Logger.Error(e, "Error saving item '{Item}' to database", item);
+
                 _ = _notificationService.ShowNotificationAsync(
                     "Save Failed",
                     $"Could not save item '{item.Name}'.\n{e.Message}",
                     NotificationType.Error);
-
-                Logger.Error(e, "Error saving item '{Item}' to database", item);
             }
             finally
             {
