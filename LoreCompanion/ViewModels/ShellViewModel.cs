@@ -1,4 +1,7 @@
-﻿using System.Windows.Data;
+﻿using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Windows.Data;
 using Caliburn.Micro;
 using LoreCompanion.Extensions;
 using LoreCompanion.Models;
@@ -158,6 +161,8 @@ namespace LoreCompanion.ViewModels
                 Logger.Information("Admin mode detected!");
             }
 
+            await ScanForReleases();
+
             if (_notificationService is IActivate activateNotifications)
             {
                 Logger.Debug("Activating notification service...");
@@ -185,6 +190,19 @@ namespace LoreCompanion.ViewModels
             var firstScreen = (SectionScreen)firstGroup.Items.First();
 
             await ActivateItemAsync(firstScreen, cancellationToken);
+        }
+
+        private async Task ScanForReleases()
+        {
+            var client = new HttpClient();
+
+            client.DefaultRequestHeaders.UserAgent.Add(
+                new ProductInfoHeaderValue("LoreCompanion", CurrentApplicationVersion.ToString()));
+
+            var json = await client.GetStringAsync("https://raw.githubusercontent.com/VacuumBreather/LoreCompanion/refs/heads/database_manifest/database_manifest.json");
+            var manifest = JsonSerializer.Deserialize<DatabaseManifest>(json);
+
+            Console.WriteLine($"{manifest.Version}: {manifest.DownloadUrl}");
         }
     }
 }
