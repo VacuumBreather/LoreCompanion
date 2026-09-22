@@ -538,7 +538,7 @@ namespace LoreCompanion.ViewModels
                 return;
             }
 
-            if (manifest?.RequiredAppVersion is null or { Major: 0, Minor: 0 })
+            if (manifest.RequiredAppVersion is null or { Major: 0, Minor: 0 })
             {
                 Logger.Error("Database manifest does not contain a valid required app version");
 
