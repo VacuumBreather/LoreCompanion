@@ -96,6 +96,11 @@
         po:Freeze="True"
         Color="{StaticResource Color.Primary.80}" />
     <SolidColorBrush
+        x:Key="Brush.Foreground.Primary.Transparent"
+        po:Freeze="True"
+        Opacity="0.67"
+        Color="{StaticResource Color.Primary.80}" />
+    <SolidColorBrush
         x:Key="Brush.Foreground.Button"
         po:Freeze="True"
         Color="{StaticResource Color.Background.10}" />

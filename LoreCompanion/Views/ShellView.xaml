@@ -14,8 +14,10 @@
     Height="768"
     d:DataContext="{d:DesignInstance viewModels:ShellViewModel,
                                      IsDesignTimeCreatable=False}"
+    AllowsTransparency="True"
     Background="{StaticResource Brush.Background}"
     Foreground="{StaticResource Brush.Foreground}"
+    WindowStyle="None"
     mc:Ignorable="d">
     <DockPanel>
         <!--  Header  -->
@@ -23,7 +25,10 @@
             Background="{StaticResource Brush.Background.Secondary}"
             BorderBrush="{StaticResource Brush.Border.Primary}"
             BorderThickness="0,0,0,1"
-            DockPanel.Dock="Top">
+            DockPanel.Dock="Top"
+            MouseDown="OnTitleBarMouseDown"
+            MouseLeftButtonUp="OnTitleBarMouseLeftButtonUp"
+            MouseMove="OnTitleBarMouseMove">
             <DockPanel>
                 <Image
                     Height="50"
@@ -38,18 +43,36 @@
                     <TextBlock Style="{StaticResource Style.TextBlock.Heading.Large}" Text="The Tarnished Archive" />
                     <TextBlock Style="{StaticResource Style.TextBlock.Subtitle}" Text="Lore • Items • Characters • Locations • More" />
                 </StackPanel>
-                <TextBlock
-                    Margin="0,10,10,10"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    DockPanel.Dock="Right"
-                    Text="{Binding CurrentApplicationVersion}" />
-                <TextBlock
-                    Margin="10,10,0,10"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    DockPanel.Dock="Right"
-                    Text="Version: " />
+
+                <DockPanel Margin="10,5">
+                    <UniformGrid
+                        HorizontalAlignment="Right"
+                        DockPanel.Dock="Top"
+                        Rows="1">
+                        <Button
+                            Margin="5"
+                            Click="OnWindowMinimize"
+                            Style="{StaticResource Style.Button.WindowMinimize}" />
+                        <Button
+                            Margin="5"
+                            Click="OnWindowMaximize"
+                            Style="{StaticResource Style.Button.WindowMaximize}" />
+                        <Button
+                            Margin="5"
+                            Click="OnWindowClose"
+                            Style="{StaticResource Style.Button.WindowClose}" />
+                    </UniformGrid>
+                    <TextBlock
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Right"
+                        Text="{Binding CurrentApplicationVersion}" />
+                    <TextBlock
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Right"
+                        Text="Version: " />
+                </DockPanel>
             </DockPanel>
         </Border>
 
@@ -102,54 +125,55 @@
                                     <effects:TintShaderEffect TintColor="{StaticResource Color.Primary.60}" />
                                 </Image.Effect>
                             </Image>
-                            <DockPanel>
-                                <ListBox
-                                    DockPanel.Dock="Top"
-                                    ItemsSource="{Binding ItemsView}"
-                                    SelectedItem="{Binding ActiveItem}"
-                                    Style="{StaticResource Style.ListBox.Navigation}" />
-
-                                <TextBlock
-                                    Margin="8,12,8,4"
-                                    DockPanel.Dock="Top"
-                                    Style="{StaticResource Style.TextBlock.Heading.Navigation}"
-                                    Text="Database" />
-                                <DockPanel
-                                    Margin="16,8"
-                                    VerticalAlignment="Top"
-                                    DockPanel.Dock="Top">
-                                    <icon:PackIconMaterial
-                                        VerticalAlignment="Top"
-                                        DockPanel.Dock="Left"
-                                        Foreground="{StaticResource Brush.Foreground.Primary}"
-                                        Kind="Database" />
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <DockPanel>
+                                    <ListBox
+                                        DockPanel.Dock="Top"
+                                        ItemsSource="{Binding ItemsView}"
+                                        SelectedItem="{Binding ActiveItem}"
+                                        Style="{StaticResource Style.ListBox.Navigation}" />
                                     <TextBlock
-                                        Margin="10,0"
-                                        VerticalAlignment="Center"
-                                        DockPanel.Dock="Left"
-                                        Text="{Binding CurrentDatabaseVersion, StringFormat={}v{0}}" />
+                                        Margin="8,12,8,4"
+                                        DockPanel.Dock="Top"
+                                        Style="{StaticResource Style.TextBlock.Heading.Navigation}"
+                                        Text="Database" />
+                                    <DockPanel
+                                        Margin="16,8"
+                                        VerticalAlignment="Top"
+                                        DockPanel.Dock="Top">
+                                        <icon:PackIconMaterial
+                                            VerticalAlignment="Top"
+                                            DockPanel.Dock="Left"
+                                            Foreground="{StaticResource Brush.Foreground.Primary}"
+                                            Kind="Database" />
+                                        <TextBlock
+                                            Margin="10,0"
+                                            VerticalAlignment="Center"
+                                            DockPanel.Dock="Left"
+                                            Text="{Binding CurrentDatabaseVersion, StringFormat={}v{0}}" />
+                                    </DockPanel>
+                                    <TextBlock
+                                        Margin="16,0"
+                                        DockPanel.Dock="Top"
+                                        Foreground="{StaticResource Brush.Foreground.Notification.Success}"
+                                        Style="{StaticResource Style.TextBlock.Body.Small}"
+                                        Text="Up to date" />
+                                    <UniformGrid
+                                        Margin="10"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Top"
+                                        DockPanel.Dock="Top">
+                                        <Button
+                                            Margin="5"
+                                            cm:Message.Attach="RefreshDatabaseAsync"
+                                            Style="{StaticResource Style.Button.Refresh}" />
+                                        <Button
+                                            Margin="5"
+                                            cm:Message.Attach="PublishDatabaseAsync"
+                                            Style="{StaticResource Style.Button.Release}" />
+                                    </UniformGrid>
                                 </DockPanel>
-                                <TextBlock
-                                    Margin="16,0"
-                                    DockPanel.Dock="Top"
-                                    Foreground="{StaticResource Brush.Foreground.Notification.Success}"
-                                    Style="{StaticResource Style.TextBlock.Body.Small}"
-                                    Text="Up to date" />
-                                <UniformGrid
-                                    Margin="10"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top"
-                                    DockPanel.Dock="Top">
-                                    <Button
-                                        Margin="5"
-                                        cm:Message.Attach="RefreshDatabaseAsync"
-                                        Style="{StaticResource Style.Button.Refresh}" />
-                                    <Button
-                                        Margin="5"
-                                        cm:Message.Attach="PublishDatabaseAsync"
-                                        Style="{StaticResource Style.Button.Release}" />
-                                </UniformGrid>
-                            </DockPanel>
+                            </ScrollViewer>
                         </Grid>
                     </Border>
                     <ContentControl x:Name="ActiveItem" />
