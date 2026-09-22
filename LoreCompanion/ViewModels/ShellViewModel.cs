@@ -172,13 +172,13 @@ namespace LoreCompanion.ViewModels
 
             try
             {
-                var dbContext = await _dbContextFactory.CreateDbContextAsync();
+                await using var context = await _dbContextFactory.CreateDbContextAsync();
 
                 var currentVersion =
-                    dbContext.DatabaseReleases.AsEnumerable()
-                             .OrderByDescending(r => r.PublishedAt)
-                             .Select(r => r.Version)
-                             .FirstOrDefault() ??
+                    context.DatabaseReleases.AsEnumerable()
+                           .OrderByDescending(r => r.PublishedAt)
+                           .Select(r => r.Version)
+                           .FirstOrDefault() ??
                     Version.Parse("0.0.0");
 
                 Version newVersion = new(currentVersion.Major, currentVersion.Minor + 1, currentVersion.Build);
@@ -186,7 +186,7 @@ namespace LoreCompanion.ViewModels
                 var releaseNotesDialog = new ReleaseNotesDialog(newVersion);
                 _ = await _dialogService.ShowDialogAsync(releaseNotesDialog);
 
-                dbContext.DatabaseReleases.Add(
+                context.DatabaseReleases.Add(
                     new DatabaseRelease
                     {
                         Version = newVersion,
@@ -194,7 +194,7 @@ namespace LoreCompanion.ViewModels
                         ReleaseNotes = releaseNotesDialog.ReleaseNotes,
                     });
 
-                await dbContext.SaveChangesAsync();
+                await context.SaveChangesAsync();
 
                 CurrentDatabaseVersion = newVersion;
 
