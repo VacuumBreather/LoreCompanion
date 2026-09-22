@@ -75,11 +75,13 @@ namespace LoreCompanion.ViewModels
 
             if (_notificationService is IDeactivate deactivateNotifications)
             {
+                Logger.Debug("Closing notification service...");
                 await deactivateNotifications.DeactivateAsync(true, cancellationToken);
             }
 
             if (_dialogService is IDeactivate deactivateDialogs)
             {
+                Logger.Debug("Closing dialog service...");
                 await deactivateDialogs.DeactivateAsync(true, cancellationToken);
             }
 

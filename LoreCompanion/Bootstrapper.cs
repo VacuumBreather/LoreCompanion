@@ -12,6 +12,7 @@ using LoreCompanion.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using LogManager = LoreCompanion.Utilities.LogManager;
 
 namespace LoreCompanion
 {
@@ -116,6 +117,9 @@ namespace LoreCompanion
             // while holding the main thread so the OS does not terminate the process prematurely.
             try
             {
+                var logger = LogManager.GetLogger();
+                logger.Information("Application is shutting down...");
+
                 Task.Run(async () =>
                     {
                         if (_serviceProvider is IAsyncDisposable asyncDisposable)
