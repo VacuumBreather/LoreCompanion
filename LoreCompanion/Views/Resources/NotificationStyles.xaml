@@ -14,6 +14,7 @@
             Name="BackgroundBorder"
             MinHeight="75"
             Padding="25,15"
+            cm:Bind.ModelWithoutContext="{Binding}"
             Background="{StaticResource Brush.Background.Button}"
             BorderBrush="{StaticResource Brush.Border}"
             BorderThickness="1"
@@ -89,7 +90,7 @@
 
     <!--  ControlTemplate.NotificationItem  -->
     <ControlTemplate x:Key="ControlTemplate.NotificationItem" TargetType="{x:Type controls:NotificationItem}">
-        <Grid RenderTransformOrigin=".5,.5">
+        <Grid cm:Bind.ModelWithoutContext="{Binding}" RenderTransformOrigin=".5,.5">
             <ContentPresenter
                 x:Name="ContentPresenter"
                 HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
