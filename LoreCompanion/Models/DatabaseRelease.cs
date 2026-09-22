@@ -6,11 +6,23 @@ namespace LoreCompanion.Models
     [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
     public class DatabaseRelease : EntityBase
     {
-        public Version Version { get; set; } = new();
+        public Version Version
+        {
+            get;
+            set => Set(ref field, value);
+        } = new();
 
-        public DateTimeOffset PublishedAt { get; set; }
+        public DateTimeOffset PublishedAt
+        {
+            get;
+            set => Set(ref field, value);
+        }
 
         [MaxLength(2048)]
-        public string? ReleaseNotes { get; set; }
+        public string? ReleaseNotes
+        {
+            get;
+            set => Set(ref field, value);
+        }
     }
 }

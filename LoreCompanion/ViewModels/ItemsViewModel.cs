@@ -175,27 +175,7 @@ namespace LoreCompanion.ViewModels
                     await context.SaveChangesAsync();
                 }
 
-                var oldIndex = Items.IndexOf(item);
-                var wasSelectedItem = SelectedItem?.Id == item.Id;
-
-                Items.Remove(item);
-                Logger.Debug("Item '{Item}' removed from UI collection", item);
-
-                if (wasSelectedItem)
-                {
-                    Item? newSelectedItem = null;
-
-                    if (Items.Count > oldIndex)
-                    {
-                        newSelectedItem = Items[oldIndex];
-                    }
-                    else if ((oldIndex > 0) && (Items.Count > oldIndex - 1))
-                    {
-                        newSelectedItem = Items[oldIndex - 1];
-                    }
-
-                    SelectedItem = newSelectedItem;
-                }
+                RemoveItemAndUpdateSelection(item);
 
                 _ = _notificationService.ShowNotificationAsync(
                     "Item deleted",
@@ -337,6 +317,31 @@ namespace LoreCompanion.ViewModels
             await base.OnDeactivateAsync(close, cancellationToken);
         }
 
+        private void RemoveItemAndUpdateSelection(Item item)
+        {
+            var oldIndex = Items.IndexOf(item);
+            var wasSelectedItem = SelectedItem?.Id == item.Id;
+
+            Items.Remove(item);
+            Logger.Debug("Item '{Item}' removed from UI collection", item);
+
+            if (wasSelectedItem)
+            {
+                Item? newSelectedItem = null;
+
+                if (Items.Count > oldIndex)
+                {
+                    newSelectedItem = Items[oldIndex];
+                }
+                else if ((oldIndex > 0) && (Items.Count > oldIndex - 1))
+                {
+                    newSelectedItem = Items[oldIndex - 1];
+                }
+
+                SelectedItem = newSelectedItem;
+            }
+        }
+
         private ActionDisposable SetBusy()
         {
             if (Interlocked.Increment(ref _busyCount) == 1)
@@ -468,6 +473,7 @@ namespace LoreCompanion.ViewModels
             catch (Exception e)
             {
                 Logger.Error(e, "Error saving item '{Item}' to database", item);
+                await RollbackItemAsync(item);
 
                 _ = _notificationService.ShowNotificationAsync(
                     "Save failed",
@@ -477,6 +483,43 @@ namespace LoreCompanion.ViewModels
             finally
             {
                 _databaseLock.Release();
+            }
+        }
+
+        private async Task RollbackItemAsync(Item item)
+        {
+            try
+            {
+                if (item.Id == 0)
+                {
+                    // Unsaved new item: remove from collection to prevent ghost records
+                    Execute.OnUIThread(() => { RemoveItemAndUpdateSelection(item); });
+
+                    return;
+                }
+
+                // Existing item: fetch pristine record from database
+                await using var context = await _dbContextFactory.CreateDbContextAsync();
+                var original = await context.Items.AsNoTracking().FirstOrDefaultAsync(x => x.Id == item.Id);
+
+                if (original is not null)
+                {
+                    Execute.OnUIThread(() =>
+                    {
+                        item.Name = original.Name;
+                        item.Description = original.Description;
+                        ItemsView.Refresh();
+                    });
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Failed to revert item '{Item}' after save failure", item);
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Rollback failed",
+                    $"Failed to revert item '{item}' after save failure.\n{e.Message}",
+                    NotificationType.Error);
             }
         }
     }

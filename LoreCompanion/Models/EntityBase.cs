@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Caliburn.Micro;
 
 namespace LoreCompanion.Models
 {
-    public abstract class EntityBase : IEquatable<EntityBase>
+    public abstract class EntityBase : PropertyChangedBase, IEquatable<EntityBase>
     {
         [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global", Justification = "Used by EF Core")]
         public int Id { get; set; }
