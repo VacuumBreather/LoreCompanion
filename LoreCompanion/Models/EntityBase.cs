@@ -4,6 +4,7 @@ namespace LoreCompanion.Models
 {
     public abstract class EntityBase : IEquatable<EntityBase>
     {
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global", Justification = "Used by EF Core")]
         public int Id { get; set; }
 
         public override bool Equals(object? obj)
