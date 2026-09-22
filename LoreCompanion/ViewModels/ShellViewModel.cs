@@ -13,6 +13,7 @@ using LoreCompanion.ViewModels.Notifications;
 using LoreCompanion.Views.Helpers;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using R3;
 using Serilog;
 using LogManager = LoreCompanion.Utilities.LogManager;
 
@@ -24,6 +25,7 @@ namespace LoreCompanion.ViewModels
         private readonly CachedDataLoader _cachedDataLoader;
         private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
+        private readonly IEventAggregator _eventAggregator;
         private readonly SectionScreen _dashboard;
 
         private CancellationTokenSource? _databaseUpdate;
@@ -34,12 +36,14 @@ namespace LoreCompanion.ViewModels
             IDbContextFactory<LoreDbContext> dbContextFactory,
             CachedDataLoader cachedDataLoader,
             IDialogService dialogService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IEventAggregator eventAggregator)
         {
             _dbContextFactory = dbContextFactory;
             _cachedDataLoader = cachedDataLoader;
             _dialogService = dialogService;
             _notificationService = notificationService;
+            _eventAggregator = eventAggregator;
 
             ItemsView = (ListCollectionView)CollectionViewSource.GetDefaultView(Items);
             ItemsView.GroupDescriptions!.Add(new PropertyGroupDescription(nameof(SectionScreen.Section)));
@@ -473,6 +477,7 @@ namespace LoreCompanion.ViewModels
 
                 CurrentDatabaseVersion = await MigrateDatabaseAsync(cancellationToken);
                 DatabaseStatus = DatabaseStatus.UpToDate;
+                await _eventAggregator.PublishOnUIThreadAsync(new DatabaseUpdatedEvent(), cancellationToken);
 
                 Logger.Information("Database updated to version {Version}", manifest.Version);
 

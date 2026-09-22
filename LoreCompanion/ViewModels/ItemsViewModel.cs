@@ -15,7 +15,7 @@ using LogManager = LoreCompanion.Utilities.LogManager;
 namespace LoreCompanion.ViewModels
 {
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global", Justification = "Instantiated by DI")]
-    public sealed class ItemsViewModel : SectionScreen
+    public sealed class ItemsViewModel : SectionScreen, IHandle<DatabaseUpdatedEvent>
     {
         private readonly IDbContextFactory<LoreDbContext> _dbContextFactory;
         private readonly IDialogService _dialogService;
@@ -23,18 +23,21 @@ namespace LoreCompanion.ViewModels
         private readonly SemaphoreSlim _databaseLock = new(1, 1);
 
         private IDisposable? _subscription;
+        private bool _databaseRefreshNeeded = true;
         private int _busyCount;
         private Task? _loadingTask;
 
         public ItemsViewModel(
             IDbContextFactory<LoreDbContext> dbContextFactory,
             IDialogService dialogService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IEventAggregator eventAggregator)
             : base(NavigationSection.Lore)
         {
             _dbContextFactory = dbContextFactory;
             _dialogService = dialogService;
             _notificationService = notificationService;
+            eventAggregator.SubscribeOnPublishedThread(this);
 
             DisplayName = "Items";
 
@@ -246,6 +249,13 @@ namespace LoreCompanion.ViewModels
             }
         }
 
+        public Task HandleAsync(DatabaseUpdatedEvent message, CancellationToken cancellationToken)
+        {
+            _databaseRefreshNeeded = true;
+
+            return Task.CompletedTask;
+        }
+
         protected override Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             Logger.Debug("Activated");
@@ -257,7 +267,10 @@ namespace LoreCompanion.ViewModels
                                 .ObserveOnCurrentDispatcher()
                                 .Subscribe(_ => ItemsView.Refresh());
 
-            _loadingTask = Task.Run(() => LoadItemsProgressivelyAsync(cancellationToken), cancellationToken);
+            if (_databaseRefreshNeeded)
+            {
+                _loadingTask = Task.Run(() => LoadItemsProgressivelyAsync(cancellationToken), cancellationToken);
+            }
 
             return base.OnActivatedAsync(cancellationToken);
         }
@@ -383,6 +396,7 @@ namespace LoreCompanion.ViewModels
                     UpdateItemsAndSelectFirst(buffer);
                 }
 
+                _databaseRefreshNeeded = false;
                 Logger.Debug("Items loaded");
             }
             catch (OperationCanceledException e)
