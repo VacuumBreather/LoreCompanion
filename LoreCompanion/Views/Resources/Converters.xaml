@@ -15,6 +15,9 @@
         FalseVisibility="Hidden"
         TrueVisibility="Visible" />
 
+    <!--  Converter.NullToCollapsed  -->
+    <converters:IsNullToVisibilityConverter x:Key="Converter.NullToCollapsed" />
+
     <!--  Converter.BoolInversion  -->
     <converters:BoolInversionConverter x:Key="Converter.BoolInversion" />
 </ResourceDictionary>

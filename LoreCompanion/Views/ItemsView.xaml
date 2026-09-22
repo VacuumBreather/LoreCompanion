@@ -142,7 +142,8 @@
                 Grid.Column="1"
                 Margin="20"
                 Content="{Binding SelectedItem}"
-                ContentTemplate="{Binding EditMode, Mode=OneWay, Converter={StaticResource Converter.ContentTemplate}}" />
+                ContentTemplate="{Binding EditMode, Mode=OneWay, Converter={StaticResource Converter.ContentTemplate}}"
+                Visibility="{Binding SelectedItem, Converter={StaticResource Converter.NullToCollapsed}}" />
         </Grid>
     </controls:BusyDecorator>
 </UserControl>

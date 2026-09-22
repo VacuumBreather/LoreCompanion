@@ -250,9 +250,15 @@ namespace LoreCompanion.ViewModels
             _subscription?.Dispose();
 
             _subscription = this.ObservePropertyChanged(x => x.SearchText)
+                                .DistinctUntilChanged()
                                 .Debounce(TimeSpan.FromMilliseconds(250))
                                 .ObserveOnCurrentDispatcher()
-                                .Subscribe(_ => ItemsView.Refresh());
+                                .Subscribe(_ => ApplyFilterAndSyncSelection());
+
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                ApplyFilterAndSyncSelection();
+            }
 
             if (_databaseRefreshNeeded)
             {
@@ -322,6 +328,17 @@ namespace LoreCompanion.ViewModels
             }
 
             await base.OnDeactivateAsync(close, cancellationToken);
+        }
+
+        private void ApplyFilterAndSyncSelection()
+        {
+            ItemsView.Refresh();
+
+            // Keep current selection if it still satisfies the filter; otherwise select the first match
+            if (SelectedItem is null || !ItemsView.Contains(SelectedItem))
+            {
+                SelectedItem = ItemsView.Cast<Item>().FirstOrDefault();
+            }
         }
 
         private void RemoveItemAndUpdateSelection(Item item)
