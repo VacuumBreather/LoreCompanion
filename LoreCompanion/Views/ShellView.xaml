@@ -69,7 +69,7 @@
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
                         DockPanel.Dock="Right"
-                        Text="{x:Static utilities:AppHelper.CurrentVersion}" />
+                        Text="{x:Static utilities:AppHelper.CurrentVersionString}" />
                     <TextBlock
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
@@ -218,7 +218,7 @@
                                         DockPanel.Dock="Top">
                                         <Button
                                             Margin="5"
-                                            cm:Message.Attach="RefreshDatabaseAsync"
+                                            cm:Message.Attach="CheckForDatabaseUpdateAsync"
                                             Style="{StaticResource Style.Button.Refresh}"
                                             Visibility="{Binding DatabaseStatus, Converter={StaticResource Converter.UpToDateToHidden}, ConverterParameter={x:Static viewModels:DatabaseStatus.UpToDate}}" />
                                         <Button

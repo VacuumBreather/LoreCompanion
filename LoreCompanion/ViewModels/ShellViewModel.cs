@@ -1,10 +1,13 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Windows;
 using System.Windows.Data;
 using Caliburn.Micro;
 using JetBrains.Annotations;
+using LoreCompanion.Dtos;
 using LoreCompanion.Extensions;
 using LoreCompanion.Models;
 using LoreCompanion.Utilities;
@@ -13,7 +16,6 @@ using LoreCompanion.ViewModels.Notifications;
 using LoreCompanion.Views.Helpers;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using R3;
 using Serilog;
 using LogManager = LoreCompanion.Utilities.LogManager;
 
@@ -28,6 +30,7 @@ namespace LoreCompanion.ViewModels
         private readonly IEventAggregator _eventAggregator;
         private readonly SectionScreen _dashboard;
 
+        private CancellationTokenSource? _applicationUpdate;
         private CancellationTokenSource? _databaseUpdate;
         private int _busyCount;
 
@@ -98,6 +101,19 @@ namespace LoreCompanion.ViewModels
                 Logger.Error(e, "Error closing cached data loader");
             }
 
+            if (_applicationUpdate is not null)
+            {
+                try
+                {
+                    await _applicationUpdate.CancelAsync();
+                    _applicationUpdate = null;
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "Error awaiting application update");
+                }
+            }
+
             if (_databaseUpdate is not null)
             {
                 try
@@ -107,7 +123,7 @@ namespace LoreCompanion.ViewModels
                 }
                 catch (Exception e)
                 {
-                    Logger.Error(e, "Error awaiting for database update");
+                    Logger.Error(e, "Error awaiting database update");
                 }
             }
 
@@ -199,7 +215,7 @@ namespace LoreCompanion.ViewModels
         }
 
         [PublicAPI]
-        public async Task RefreshDatabaseAsync()
+        public async Task CheckForDatabaseUpdateAsync()
         {
             try
             {
@@ -250,7 +266,160 @@ namespace LoreCompanion.ViewModels
                 await activateDialogs.ActivateAsync(cancellationToken);
             }
 
-            _ = RefreshDatabaseAsync();
+            _ = CheckForUpdatesAsync();
+        }
+
+        private async Task CheckForApplicationUpdateAsync()
+        {
+            try
+            {
+                _applicationUpdate = new CancellationTokenSource();
+                using var client = new HttpClient();
+                client.Configure();
+
+                ApplicationManifest? manifest;
+
+                try
+                {
+                    await using var scope = await _dialogService.ShowBusyDialogAsync(
+                                                "Please wait",
+                                                "Checking for application update...",
+                                                _applicationUpdate.Token);
+
+                    var json = await client.GetStringAsync(AppHelper.ApplicationManifestUrl, _applicationUpdate.Token);
+                    manifest = JsonSerializer.Deserialize<ApplicationManifest>(json);
+                }
+                catch (HttpRequestException e)
+                {
+                    Logger.Error(e, "Failed to retrieve application manifest");
+
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Application update",
+                        $"Failed to retrieve application manifest.\n{e.Message}",
+                        NotificationType.Error,
+                        cancellationToken: CancellationToken.None);
+
+                    return;
+                }
+                catch (OperationCanceledException e) when (_applicationUpdate.IsCancellationRequested)
+                {
+                    Logger.Warning(e, "Application manifest retrieval canceled");
+
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Application update",
+                        $"Application manifest retrieval canceled.\n{e.Message}",
+                        NotificationType.Warning,
+                        cancellationToken: CancellationToken.None);
+
+                    return;
+                }
+                catch (OperationCanceledException e)
+                {
+                    Logger.Error(e, "Application manifest retrieval timed out");
+
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Application update",
+                        $"Application manifest retrieval timed out.\n{e.Message}",
+                        NotificationType.Error,
+                        cancellationToken: CancellationToken.None);
+
+                    return;
+                }
+                catch (JsonException e)
+                {
+                    Logger.Error(e, "Failed to parse application manifest");
+
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Application update",
+                        $"Failed to parse application manifest.\n{e.Message}",
+                        NotificationType.Error,
+                        cancellationToken: CancellationToken.None);
+
+                    return;
+                }
+
+                if (manifest?.Version is null or { Major: 0, Minor: 0 })
+                {
+                    Logger.Error("Application manifest does not contain a valid version");
+
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Application update",
+                        "Application manifest does not contain a valid version.",
+                        NotificationType.Error,
+                        cancellationToken: CancellationToken.None);
+
+                    return;
+                }
+
+                if (manifest.Version <= AppHelper.CurrentVersion)
+                {
+                    // We are up to date
+                    return;
+                }
+
+                var result = await _dialogService.ShowQueryDialogAsync(
+                                 "Application update",
+                                 $"Application update available (v{manifest.Version})\nDo you want to update now?",
+                                 DialogResults.YesNo,
+                                 DialogResult.Yes,
+                                 _applicationUpdate.Token);
+
+                if (result != DialogResult.Yes)
+                {
+                    return;
+                }
+
+                if (manifest.Url is null)
+                {
+                    Logger.Error("Application manifest does not contain a valid URL");
+
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Application update",
+                        "Application manifest does not contain a valid URL.",
+                        NotificationType.Error,
+                        cancellationToken: CancellationToken.None);
+
+                    return;
+                }
+
+                Logger.Information("Opening browser with new release URL");
+
+                try
+                {
+                    Process.Start(
+                        new ProcessStartInfo { FileName = manifest.Url.AbsoluteUri, UseShellExecute = true });
+
+                    Logger.Information("Shutting down application for update");
+                    Application.Current.Shutdown();
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "Failed to open browser with new release URL");
+
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Application update",
+                        "Failed to open browser with new release URL.",
+                        NotificationType.Error,
+                        cancellationToken: CancellationToken.None);
+                }
+            }
+            catch (OperationCanceledException) when (_applicationUpdate is { IsCancellationRequested: true })
+            {
+                // Ignore and proceed
+                Logger.Debug("Application update was canceled");
+            }
+            finally
+            {
+                _applicationUpdate?.Dispose();
+                _applicationUpdate = null;
+            }
+        }
+
+        private async Task CheckForUpdatesAsync()
+        {
+            using var scope = SetBusy();
+            await CheckForApplicationUpdateAsync();
+            await CheckForDatabaseUpdateAsync();
         }
 
         private ActionDisposable SetBusy()
@@ -360,7 +529,7 @@ namespace LoreCompanion.ViewModels
 
             var result = await _dialogService.ShowQueryDialogAsync(
                              "Database update",
-                             $"New database update available (v{manifest.Version})\nDo you want to update now?",
+                             $"Database update available (v{manifest.Version})\nDo you want to update now?",
                              DialogResults.YesNo,
                              DialogResult.Yes,
                              cancellationToken);
