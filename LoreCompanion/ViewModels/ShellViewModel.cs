@@ -359,7 +359,7 @@ namespace LoreCompanion.ViewModels
 
                 var result = await _dialogService.ShowQueryDialogAsync(
                                  "Application update",
-                                 $"Application update available (v{manifest.Version})\nDo you want to update now?",
+                                 $"Application update available: v{manifest.Version}\n\nDo you want to update now?",
                                  DialogResults.YesNo,
                                  DialogResult.Yes,
                                  _applicationUpdate.Token);
@@ -386,8 +386,7 @@ namespace LoreCompanion.ViewModels
 
                 try
                 {
-                    Process.Start(
-                        new ProcessStartInfo { FileName = manifest.Url.AbsoluteUri, UseShellExecute = true });
+                    Process.Start(new ProcessStartInfo { FileName = manifest.Url.AbsoluteUri, UseShellExecute = true });
 
                     Logger.Information("Shutting down application for update");
                     Application.Current.Shutdown();
@@ -529,13 +528,36 @@ namespace LoreCompanion.ViewModels
 
             var result = await _dialogService.ShowQueryDialogAsync(
                              "Database update",
-                             $"Database update available (v{manifest.Version})\nDo you want to update now?",
+                             $"Database update available: v{manifest.Version}\n\nDo you want to update now?",
                              DialogResults.YesNo,
                              DialogResult.Yes,
                              cancellationToken);
 
             if (result != DialogResult.Yes)
             {
+                return;
+            }
+
+            if (manifest?.RequiredAppVersion is null or { Major: 0, Minor: 0 })
+            {
+                Logger.Error("Database manifest does not contain a valid required app version");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    "Database manifest does not contain a valid required app version.",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+
+            if (manifest.RequiredAppVersion > AppHelper.CurrentVersion)
+            {
+                await _dialogService.ShowInformationDialogAsync(
+                    "Database update",
+                    $"Database update requires application version v{manifest.RequiredAppVersion}",
+                    cancellationToken);
+
                 return;
             }
 
