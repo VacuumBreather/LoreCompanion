@@ -47,10 +47,11 @@ namespace LoreCompanion.ViewModels.Dialogs
         /// <summary>Displays a busy dialog with the specified title and content.</summary>
         /// <param name="title">The title of the busy dialog.</param>
         /// <param name="content">The content or description to be shown in the busy dialog.</param>
-        /// <param name="cancellationToken">
-        /// (Optional) A cancellation token that can be used to receive notice of cancellation.
-        /// </param>
-        /// <returns>A Task that represents the asynchronous operation. The Task result contains a disposable scope for managing the dialog lifecycle.</returns>
+        /// <param name="cancellationToken">(Optional) A cancellation token that can be used to receive notice of cancellation.</param>
+        /// <returns>
+        ///     A Task that represents the asynchronous operation. The Task result contains a disposable scope for managing
+        ///     the dialog lifecycle.
+        /// </returns>
         Task<IAsyncDisposable> ShowBusyDialogAsync(
             string title,
             string content,

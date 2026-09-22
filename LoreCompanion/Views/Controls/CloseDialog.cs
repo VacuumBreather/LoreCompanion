@@ -39,6 +39,14 @@ namespace LoreCompanion.Views.Controls
             button.SetValue(ResultProperty, result);
         }
 
+        private static void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                Attach(button);
+            }
+        }
+
         private static void OnResultChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is not Button button)
@@ -46,7 +54,17 @@ namespace LoreCompanion.Views.Controls
                 return;
             }
 
-            var result = ((DialogResult)e.NewValue).ToString().ToUpper();
+            button.DataContextChanged -= OnDataContextChanged;
+            button.DataContextChanged += OnDataContextChanged;
+
+            Attach(button);
+        }
+
+        private static void Attach(Button button)
+        {
+            Message.SetAttach(button, string.Empty);
+
+            var result = GetResult(button).ToString().ToUpperInvariant();
 
             Message.SetAttach(button, $"[Event {Click}] = [Action {CloseDialogAsync}('{result}')]");
         }

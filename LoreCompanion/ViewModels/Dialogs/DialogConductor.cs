@@ -6,15 +6,13 @@ namespace LoreCompanion.ViewModels.Dialogs
     /// <summary>A conductor handling dialogs.</summary>
     public sealed class DialogConductor : Conductor<DialogScreen>.Collection.OneActive, IDialogService
     {
-        private readonly QueryDialog _queryDialog = new("", "", DialogResults.Ok, DialogResult.Ok);
-
         private readonly Dictionary<DialogScreen, TaskCompletionSource<DialogResult>> _activeTrackers =
             new(new IdentityComparer<DialogScreen>());
 
         /// <summary>Initializes a new instance of the <see cref="DialogConductor"/> class.</summary>
         public DialogConductor()
         {
-            DisplayName = GetType().Name;
+            DisplayName = nameof(DialogConductor);
         }
 
         public override async Task DeactivateItemAsync(
@@ -46,7 +44,7 @@ namespace LoreCompanion.ViewModels.Dialogs
             }
 
             var tcs = new TaskCompletionSource<DialogResult>();
-            _activeTrackers[dialog] = tcs;
+            _activeTrackers.Add(dialog, tcs);
 
             try
             {
@@ -70,12 +68,9 @@ namespace LoreCompanion.ViewModels.Dialogs
             DialogResult defaultResult = DialogResult.None,
             CancellationToken cancellationToken = default)
         {
-            _queryDialog.Title = title;
-            _queryDialog.Content = content;
-            _queryDialog.DialogResults = dialogResults;
-            _queryDialog.DefaultResult = defaultResult;
+            var queryDialog = new QueryDialog(title, content, dialogResults, defaultResult);
 
-            return ShowDialogAsync(_queryDialog, cancellationToken);
+            return ShowDialogAsync(queryDialog, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -84,12 +79,9 @@ namespace LoreCompanion.ViewModels.Dialogs
             string content,
             CancellationToken cancellationToken = default)
         {
-            _queryDialog.Title = title;
-            _queryDialog.Content = content;
-            _queryDialog.DialogResults = DialogResults.Ok;
-            _queryDialog.DefaultResult = DialogResult.Ok;
+            var queryDialog = new QueryDialog(title, content, DialogResults.Ok, DialogResult.Ok);
 
-            return ShowDialogAsync(_queryDialog, cancellationToken);
+            return ShowDialogAsync(queryDialog, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -98,10 +90,11 @@ namespace LoreCompanion.ViewModels.Dialogs
             string content,
             CancellationToken cancellationToken = default)
         {
-            var busyDialog = new QueryDialog(title, content, DialogResults.None);
-            await ActivateItemAsync(busyDialog, cancellationToken);
+            var queryDialog = new QueryDialog(title, content, DialogResults.None);
 
-            return new BusyDialogScope(busyDialog);
+            await ActivateItemAsync(queryDialog, cancellationToken);
+
+            return new BusyDialogScope(queryDialog);
         }
 
         private sealed class BusyDialogScope(DialogScreen dialog) : IAsyncDisposable
