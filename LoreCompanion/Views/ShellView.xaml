@@ -6,6 +6,7 @@
     xmlns:controls="clr-namespace:LoreCompanion.Views.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:effects="clr-namespace:LoreCompanion.Views.Effects"
+    xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
     xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
@@ -14,6 +15,7 @@
     Height="768"
     d:DataContext="{d:DesignInstance viewModels:ShellViewModel,
                                      IsDesignTimeCreatable=False}"
+    helpers:AdminHelper.IsAdminMode="{Binding IsAdminMode, Mode=OneTime}"
     AllowsTransparency="True"
     Background="{StaticResource Brush.Background}"
     Foreground="{StaticResource Brush.Foreground}"
@@ -44,7 +46,7 @@
                     <TextBlock Style="{StaticResource Style.TextBlock.Subtitle}" Text="Lore • Items • Characters • Locations • More" />
                 </StackPanel>
 
-                <DockPanel Margin="10,5">
+                <DockPanel Margin="10,5" DockPanel.Dock="Right">
                     <UniformGrid
                         HorizontalAlignment="Right"
                         DockPanel.Dock="Top"
@@ -72,6 +74,25 @@
                         VerticalAlignment="Center"
                         DockPanel.Dock="Right"
                         Text="Version: " />
+                </DockPanel>
+                <DockPanel
+                    Margin="0,0,50,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    DockPanel.Dock="Right"
+                    Visibility="{Binding (helpers:AdminHelper.IsAdminMode), RelativeSource={RelativeSource Self}, Converter={StaticResource Converter.TrueToVisible}}">
+                    <TextBlock
+                        Margin="0,10,0,0"
+                        DockPanel.Dock="Bottom"
+                        Foreground="{StaticResource Brush.Foreground.Notification.Warning}"
+                        Style="{StaticResource Style.TextBlock.Heading}"
+                        Text="Admin Mode" />
+                    <icon:PackIconMaterialDesign
+                        Width="25"
+                        Height="25"
+                        HorizontalAlignment="Center"
+                        Foreground="{StaticResource Brush.Foreground.Notification.Warning}"
+                        Kind="AdminPanelSettings" />
                 </DockPanel>
             </DockPanel>
         </Border>
@@ -170,7 +191,8 @@
                                         <Button
                                             Margin="5"
                                             cm:Message.Attach="PublishDatabaseAsync"
-                                            Style="{StaticResource Style.Button.Release}" />
+                                            Style="{StaticResource Style.Button.Release}"
+                                            Visibility="{Binding (helpers:AdminHelper.IsAdminMode), RelativeSource={RelativeSource Self}, Converter={StaticResource Converter.TrueToVisible}}" />
                                     </UniformGrid>
                                 </DockPanel>
                             </ScrollViewer>

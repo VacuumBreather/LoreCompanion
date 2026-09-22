@@ -30,6 +30,8 @@ namespace LoreCompanion.ViewModels
             _dialogService = dialogService;
             _notificationService = notificationService;
 
+            IsAdminMode = Environment.GetCommandLineArgs().Contains("--admin");
+
             ItemsView = (ListCollectionView)CollectionViewSource.GetDefaultView(Items);
             ItemsView.GroupDescriptions!.Add(new PropertyGroupDescription(nameof(SectionScreen.Section)));
 
@@ -59,6 +61,8 @@ namespace LoreCompanion.ViewModels
             typeof(ShellViewModel).Assembly.GetName().Version ?? Version.Parse("0.0.0");
 
         public ListCollectionView ItemsView { get; }
+
+        public bool IsAdminMode { get; }
 
         private static ILogger Logger { get; } = LogManager.GetLogger();
 

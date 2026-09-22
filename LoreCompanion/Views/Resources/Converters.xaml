@@ -1,0 +1,17 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:LoreCompanion.Views.Converters">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="BasicValues.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <!--  Converter.TrueToVisible  -->
+    <converters:BoolToVisibilityConverter x:Key="Converter.TrueToVisible" />
+
+    <!--  Converter.FalseToHidden  -->
+    <converters:BoolToVisibilityConverter
+        x:Key="Converter.FalseToHidden"
+        FalseVisibility="Hidden"
+        TrueVisibility="Visible" />
+</ResourceDictionary>
