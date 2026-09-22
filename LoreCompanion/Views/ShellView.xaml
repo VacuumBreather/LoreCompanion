@@ -15,7 +15,6 @@
     Height="768"
     d:DataContext="{d:DesignInstance viewModels:ShellViewModel,
                                      IsDesignTimeCreatable=False}"
-    helpers:AdminHelper.IsAdminMode="{Binding IsAdminMode, Mode=OneTime}"
     AllowsTransparency="True"
     Background="{StaticResource Brush.Background}"
     Foreground="{StaticResource Brush.Foreground}"
@@ -80,7 +79,7 @@
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     DockPanel.Dock="Right"
-                    Visibility="{Binding (helpers:AdminHelper.IsAdminMode), RelativeSource={RelativeSource Self}, Converter={StaticResource Converter.TrueToVisible}}">
+                    Visibility="{x:Static helpers:AdminHelper.AdminModeVisibility}">
                     <TextBlock
                         Margin="0,10,0,0"
                         DockPanel.Dock="Bottom"
@@ -192,7 +191,7 @@
                                             Margin="5"
                                             cm:Message.Attach="PublishDatabaseAsync"
                                             Style="{StaticResource Style.Button.Release}"
-                                            Visibility="{Binding (helpers:AdminHelper.IsAdminMode), RelativeSource={RelativeSource Self}, Converter={StaticResource Converter.TrueToVisible}}" />
+                                            Visibility="{x:Static helpers:AdminHelper.AdminModeVisibility}" />
                                     </UniformGrid>
                                 </DockPanel>
                             </ScrollViewer>

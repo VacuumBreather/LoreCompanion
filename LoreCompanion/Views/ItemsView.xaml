@@ -30,7 +30,7 @@
                                 cm:Message.Attach="EditCurrentAsync"
                                 DockPanel.Dock="Right"
                                 Style="{StaticResource Style.Button.Edit}"
-                                Visibility="{Binding (helpers:AdminHelper.IsAdminMode), RelativeSource={RelativeSource Self}, Converter={StaticResource Converter.TrueToVisible}}" />
+                                Visibility="{x:Static helpers:AdminHelper.AdminModeVisibility}" />
                             <TextBlock
                                 helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
                                 helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
@@ -108,12 +108,12 @@
                             Style="{StaticResource Style.TextBlock.Heading}"
                             Text="Search Results" />
                         <Button
-                            x:Name="CreateNew"
                             Margin="5"
                             HorizontalAlignment="Right"
+                            cm:Message.Attach="CreateNewAsync"
                             DockPanel.Dock="Right"
                             Style="{StaticResource Style.Button.New}"
-                            Visibility="{Binding (helpers:AdminHelper.IsAdminMode), RelativeSource={RelativeSource Self}, Converter={StaticResource Converter.TrueToVisible}}" />
+                            Visibility="{x:Static helpers:AdminHelper.AdminModeVisibility}" />
                     </DockPanel>
                     <ListBox
                         Background="Transparent"
