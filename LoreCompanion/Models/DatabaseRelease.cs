@@ -24,5 +24,20 @@ namespace LoreCompanion.Models
             get;
             set => Set(ref field, value);
         }
+
+        public override void BeginEdit()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void CancelEdit()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void EndEdit()
+        {
+            throw new NotSupportedException();
+        }
     }
 }

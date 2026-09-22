@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace LoreCompanion.Models
 {
-    public abstract class EntityBase : INotifyPropertyChanged, IEquatable<EntityBase>
+    public abstract class EntityBase : INotifyPropertyChanged, IEditableObject, IEquatable<EntityBase>
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -55,6 +55,15 @@ namespace LoreCompanion.Models
 
             return (Id != 0) && (Id == other.Id);
         }
+
+        /// <inheritdoc/>
+        public abstract void BeginEdit();
+
+        /// <inheritdoc/>
+        public abstract void CancelEdit();
+
+        /// <inheritdoc/>
+        public abstract void EndEdit();
 
         protected virtual bool Set<T>(ref T oldValue, T newValue, [CallerMemberName] string? propertyName = null)
         {

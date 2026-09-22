@@ -65,19 +65,9 @@ namespace LoreCompanion.ViewModels
                     return;
                 }
 
-                if (!Set(ref field, value))
-                {
-                    return;
-                }
-
-                NotifyOfPropertyChange(nameof(CanEditCurrent));
-                NotifyOfPropertyChange(nameof(CanSaveCurrent));
+                Set(ref field, value);
             }
         } = EditMode.ReadOnly;
-
-        public bool CanEditCurrent => SelectedItem is not null && (EditMode == EditMode.ReadOnly);
-
-        public bool CanSaveCurrent => SelectedItem is not null && (EditMode == EditMode.Edit);
 
         [PublicAPI]
         public BindableCollection<Item> Items { get; } = [];
@@ -93,9 +83,6 @@ namespace LoreCompanion.ViewModels
                 {
                     return;
                 }
-
-                NotifyOfPropertyChange(nameof(CanEditCurrent));
-                NotifyOfPropertyChange(nameof(CanSaveCurrent));
 
                 if ((EditMode != EditMode.Edit) || previousItem is null)
                 {
@@ -132,6 +119,7 @@ namespace LoreCompanion.ViewModels
             Logger.Debug("New item created");
 
             // Immediately switch to editable mode for the new item
+            newItem.BeginEdit();
             EditMode = EditMode.Edit;
 
             return Task.CompletedTask;
@@ -208,6 +196,7 @@ namespace LoreCompanion.ViewModels
 
             if (SelectedItem is not null)
             {
+                SelectedItem.BeginEdit();
                 EditMode = EditMode.Edit;
             }
         }
@@ -237,15 +226,21 @@ namespace LoreCompanion.ViewModels
         }
 
         [PublicAPI]
-        public async Task RollbackCurrentAsync()
+        public void RollbackCurrent()
         {
             if (SelectedItem is null)
             {
                 return;
             }
 
+            var current = SelectedItem;
             EditMode = EditMode.ReadOnly;
-            await RollbackItemAsync(SelectedItem);
+            SelectedItem.CancelEdit();
+
+            if (current.Id == 0)
+            {
+                RemoveItemAndUpdateSelection(current);
+            }
         }
 
         protected override Task OnActivatedAsync(CancellationToken cancellationToken)
@@ -270,6 +265,9 @@ namespace LoreCompanion.ViewModels
         protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
         {
             Logger.Debug("Deactivating...");
+
+            _subscription?.Dispose();
+            _subscription = null;
 
             if ((EditMode == EditMode.Edit) && SelectedItem is not null)
             {
@@ -321,9 +319,6 @@ namespace LoreCompanion.ViewModels
                         Logger.Debug(e, "Loading task cancelled during deactivation");
                     }
                 }
-
-                _subscription?.Dispose();
-                _subscription = null;
             }
 
             await base.OnDeactivateAsync(close, cancellationToken);
@@ -331,14 +326,19 @@ namespace LoreCompanion.ViewModels
 
         private void RemoveItemAndUpdateSelection(Item item)
         {
-            var oldIndex = Items.IndexOf(item);
-            var wasSelectedItem = SelectedItem?.Id == item.Id;
-
-            Items.Remove(item);
-            Logger.Debug("Item '{Item}' removed from UI collection", item);
-
-            if (wasSelectedItem)
+            Execute.OnUIThread(() =>
             {
+                var oldIndex = Items.IndexOf(item);
+                var wasSelectedItem = ReferenceEquals(SelectedItem, item);
+
+                Items.Remove(item);
+                Logger.Debug("Item '{Item}' removed from UI collection", item);
+
+                if (!wasSelectedItem)
+                {
+                    return;
+                }
+
                 Item? newSelectedItem = null;
 
                 if (Items.Count > oldIndex)
@@ -351,7 +351,7 @@ namespace LoreCompanion.ViewModels
                 }
 
                 SelectedItem = newSelectedItem;
-            }
+            });
         }
 
         private ActionDisposable SetBusy()
@@ -478,6 +478,8 @@ namespace LoreCompanion.ViewModels
 
                 await context.SaveChangesAsync();
 
+                item.EndEdit();
+
                 _ = _notificationService.ShowNotificationAsync(
                     "Item saved",
                     $"Item '{item.Name}' was saved successfully.");
@@ -485,7 +487,12 @@ namespace LoreCompanion.ViewModels
             catch (Exception e)
             {
                 Logger.Error(e, "Error saving item '{Item}' to database", item);
-                await RollbackItemAsync(item);
+                item.CancelEdit();
+
+                if (item.Id == 0)
+                {
+                    RemoveItemAndUpdateSelection(item);
+                }
 
                 _ = _notificationService.ShowNotificationAsync(
                     "Save failed",
@@ -495,43 +502,6 @@ namespace LoreCompanion.ViewModels
             finally
             {
                 _databaseLock.Release();
-            }
-        }
-
-        private async Task RollbackItemAsync(Item item)
-        {
-            try
-            {
-                if (item.Id == 0)
-                {
-                    // Unsaved new item: remove from collection to prevent ghost records
-                    Execute.OnUIThread(() => { RemoveItemAndUpdateSelection(item); });
-
-                    return;
-                }
-
-                // Existing item: fetch pristine record from database
-                await using var context = await _dbContextFactory.CreateDbContextAsync();
-                var original = await context.Items.AsNoTracking().FirstOrDefaultAsync(x => x.Id == item.Id);
-
-                if (original is not null)
-                {
-                    Execute.OnUIThread(() =>
-                    {
-                        item.Name = original.Name;
-                        item.Description = original.Description;
-                        ItemsView.Refresh();
-                    });
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Failed to revert item '{Item}' after save failure", item);
-
-                _ = _notificationService.ShowNotificationAsync(
-                    "Rollback failed",
-                    $"Failed to revert item '{item}' after save failure.\n{e.Message}",
-                    NotificationType.Error);
             }
         }
     }
