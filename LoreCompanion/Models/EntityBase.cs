@@ -2,23 +2,13 @@
 
 namespace LoreCompanion.Models
 {
-    public abstract class EntityBase
+    public abstract class EntityBase : IEquatable<EntityBase>
     {
         public int Id { get; set; }
 
         public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj is not EntityBase other || (GetType() != other.GetType()))
-            {
-                return false;
-            }
-
-            return (Id != 0) && (Id == other.Id);
+            return Equals(obj as EntityBase);
         }
 
         [SuppressMessage(
@@ -27,7 +17,28 @@ namespace LoreCompanion.Models
             Justification = "Id is not modified after entity is persisted")]
         public override int GetHashCode()
         {
-            return HashCode.Combine(GetType(), Id);
+            return Id;
+        }
+
+        /// <inheritdoc/>
+        public bool Equals(EntityBase? other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (GetType() != other.GetType())
+            {
+                return false;
+            }
+
+            return (Id != 0) && (Id == other.Id);
         }
     }
 }
