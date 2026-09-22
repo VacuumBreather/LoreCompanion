@@ -4,10 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 namespace LoreCompanion.Models
 {
     [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
-    public class Item
+    public class Item : EntityBase
     {
-        public int Id { get; set; }
-
         [MaxLength(128)]
         public string Name { get; set; } = "";
 

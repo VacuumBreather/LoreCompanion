@@ -4,10 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 namespace LoreCompanion.Models
 {
     [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
-    public class DatabaseRelease
+    public class DatabaseRelease : EntityBase
     {
-        public int Id { get; set; }
-
         public Version Version { get; set; } = new();
 
         public DateTimeOffset PublishedAt { get; set; }
