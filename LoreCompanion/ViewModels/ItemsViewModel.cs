@@ -55,6 +55,13 @@ namespace LoreCompanion.ViewModels
             get;
             private set
             {
+                if ((value == EditMode.Edit) && !AppHelper.IsAdminMode)
+                {
+                    Logger.Error("Cannot edit item in non-admin mode");
+
+                    return;
+                }
+
                 if (!Set(ref field, value))
                 {
                     return;
@@ -67,7 +74,7 @@ namespace LoreCompanion.ViewModels
 
         public bool CanEditCurrent => SelectedItem is not null && (EditMode == EditMode.ReadOnly);
 
-        public bool CanSaveCurrent => SelectedItem is not null && (EditMode == EditMode.Editable);
+        public bool CanSaveCurrent => SelectedItem is not null && (EditMode == EditMode.Edit);
 
         [PublicAPI]
         public BindableCollection<Item> Items { get; } = [];
@@ -87,7 +94,7 @@ namespace LoreCompanion.ViewModels
                 NotifyOfPropertyChange(nameof(CanEditCurrent));
                 NotifyOfPropertyChange(nameof(CanSaveCurrent));
 
-                if ((EditMode != EditMode.Editable) || previousItem is null)
+                if ((EditMode != EditMode.Edit) || previousItem is null)
                 {
                     return;
                 }
@@ -108,6 +115,13 @@ namespace LoreCompanion.ViewModels
         [PublicAPI]
         public Task CreateNewAsync()
         {
+            if (!AppHelper.IsAdminMode)
+            {
+                Logger.Error("Cannot create item in non-admin mode");
+
+                return Task.CompletedTask;
+            }
+
             var newItem = new Item { Name = "New Item", Description = "Item Description" };
             Items.Add(newItem);
             SelectedItem = newItem;
@@ -115,7 +129,7 @@ namespace LoreCompanion.ViewModels
             Logger.Debug("New item created");
 
             // Immediately switch to editable mode for the new item
-            EditMode = EditMode.Editable;
+            EditMode = EditMode.Edit;
 
             return Task.CompletedTask;
         }
@@ -123,6 +137,13 @@ namespace LoreCompanion.ViewModels
         [PublicAPI]
         public async Task DeleteAsync(Item item)
         {
+            if (!AppHelper.IsAdminMode)
+            {
+                Logger.Error("Cannot delete item in non-admin mode");
+
+                return;
+            }
+
             var dialogResult = await _dialogService.ShowQueryDialogAsync(
                                    "Delete item",
                                    $"Are you sure you want to delete this item?\n\n'{item.Name}'",
@@ -195,15 +216,29 @@ namespace LoreCompanion.ViewModels
         [PublicAPI]
         public void EditCurrentAsync()
         {
+            if (!AppHelper.IsAdminMode)
+            {
+                Logger.Error("Cannot edit item in non-admin mode");
+
+                return;
+            }
+
             if (SelectedItem is not null)
             {
-                EditMode = EditMode.Editable;
+                EditMode = EditMode.Edit;
             }
         }
 
         [PublicAPI]
         public async Task SaveCurrentAsync()
         {
+            if (!AppHelper.IsAdminMode)
+            {
+                Logger.Error("Cannot save item in non-admin mode");
+
+                return;
+            }
+
             if (SelectedItem is not null)
             {
                 EditMode = EditMode.ReadOnly;
@@ -231,7 +266,7 @@ namespace LoreCompanion.ViewModels
         {
             Logger.Debug("Deactivating...");
 
-            if ((EditMode == EditMode.Editable) && SelectedItem is not null)
+            if ((EditMode == EditMode.Edit) && SelectedItem is not null)
             {
                 try
                 {
@@ -385,6 +420,13 @@ namespace LoreCompanion.ViewModels
 
         private async Task SaveItemAsync(Item item)
         {
+            if (!AppHelper.IsAdminMode)
+            {
+                Logger.Error("Cannot save item in non-admin mode");
+
+                return;
+            }
+
             await _databaseLock.WaitAsync();
 
             try

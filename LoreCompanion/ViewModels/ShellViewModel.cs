@@ -132,6 +132,13 @@ namespace LoreCompanion.ViewModels
         [PublicAPI]
         public async Task PublishDatabaseAsync()
         {
+            if (!AppHelper.IsAdminMode)
+            {
+                Log.Error("Cannot publish database in non-admin mode");
+
+                return;
+            }
+
             var result = await _dialogService.ShowQueryDialogAsync(
                              "Publish Database",
                              "Are you sure you want to publish a new database version?",
