@@ -47,21 +47,34 @@ namespace LoreCompanion.Utilities
             }
         }
 
-        public Task<byte[]?> GetDataAsync(string dataUrl, CancellationToken token)
+        public async Task<byte[]?> GetDataAsync(string dataUrl, CancellationToken token)
         {
             if (string.IsNullOrWhiteSpace(dataUrl))
             {
-                return Task.FromResult<byte[]?>(null);
+                return null;
             }
 
-            // Return from memory cache if already loaded
+            // Fast path: return memory cache
             if (_memoryCache.TryGetValue(dataUrl, out byte[]? cachedData))
             {
-                return Task.FromResult(cachedData);
+                return cachedData;
             }
 
-            // Deduplicate concurrent loads for the exact same URL
-            return _inFlightRequests.GetOrAdd(dataUrl, url => LoadDataInternalAsync(url, token));
+            // Obtain or start the shared in-flight download task (tied to application lifetime)
+            var downloadTask = _inFlightRequests.GetOrAdd(
+                dataUrl,
+                url => LoadDataInternalAsync(url, _shutdownCts.Token));
+
+            try
+            {
+                // Await the shared task with the caller's specific CancellationToken
+                return await downloadTask.WaitAsync(token);
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested)
+            {
+                // Caller canceled their wait; the background download continues for others
+                return null;
+            }
         }
 
         public void Dispose()
@@ -153,9 +166,8 @@ namespace LoreCompanion.Utilities
                     }
                     catch (Exception e) when (!token.IsCancellationRequested)
                     {
-                        Logger.Error(e, "Error reading disk cache");
-
                         // If reading disk cache fails (e.g., file corruption), proceed to download
+                        Logger.Error(e, "Error reading disk cache for {Url}", targetUrl);
                     }
                 }
 
@@ -180,18 +192,19 @@ namespace LoreCompanion.Utilities
 
                 return data;
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) when (token.IsCancellationRequested)
             {
                 return null;
             }
             catch (Exception e)
             {
-                Logger.Error(e, "Error downloading data");
+                Logger.Error(e, "Error downloading data from {Url}", targetUrl);
 
                 return null;
             }
             finally
             {
+                // Always remove from in-flight requests once finished
                 _inFlightRequests.TryRemove(targetUrl, out var _);
             }
         }
