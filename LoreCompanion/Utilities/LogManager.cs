@@ -41,6 +41,7 @@ namespace LoreCompanion.Utilities
         {
             var result = services.AddSerilog((_, loggerConfiguration) => loggerConfiguration.Enrich.FromLogContext()
                                                  .MinimumLevel.Debug()
+#if DEBUG
                                                  .WriteTo
                                                  .Console(
                                                      theme: AnsiConsoleTheme.Sixteen,
@@ -62,6 +63,7 @@ namespace LoreCompanion.Utilities
                                                                            rollingInterval: RollingInterval.Day,
                                                                            outputTemplate:
                                                                            "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3}] {SourceContext} - {Message:lj}{NewLine}{Exception}")))
+#endif
                                                  .WriteTo.Logger(c => c.MinimumLevel.Fatal()
                                                                        .WriteTo.Async(a => a.File(
                                                                            Path.Combine(
