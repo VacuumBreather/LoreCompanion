@@ -153,6 +153,11 @@ namespace LoreCompanion.ViewModels
         {
             Logger.Information("Application initialized");
 
+            if (AppHelper.IsAdminMode)
+            {
+                Logger.Information("Admin mode detected!");
+            }
+
             if (_notificationService is IActivate activateNotifications)
             {
                 Logger.Debug("Activating notification service...");
