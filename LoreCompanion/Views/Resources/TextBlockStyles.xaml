@@ -19,7 +19,7 @@
     <!--  Style.TextBlock.Body  -->
     <Style x:Key="Style.TextBlock.Body" TargetType="{x:Type TextBlock}">
         <Setter Property="FontFamily" Value="{StaticResource FontFamily.Default}" />
-        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontSize" Value="18" />
     </Style>
 
     <!--  Style.TextBlock.Body.Small  -->
@@ -35,7 +35,7 @@
         x:Key="Style.TextBlock.Body.Large"
         BasedOn="{StaticResource Style.TextBlock.Body}"
         TargetType="{x:Type TextBlock}">
-        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontSize" Value="20" />
     </Style>
 
     <!--  Style.TextBlock.Body.Quote  -->

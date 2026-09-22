@@ -23,7 +23,7 @@
             <TextBlock
                 HorizontalAlignment="Center"
                 DockPanel.Dock="Top"
-                Style="{StaticResource Style.TextBlock.Heading}"
+                Style="{StaticResource Style.TextBlock.Heading.Large}"
                 Text="{Binding Title, Mode=OneWay}"
                 TextAlignment="Center" />
             <ProgressBar
@@ -108,6 +108,7 @@
                 Margin="0,20,0,30"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
+                Style="{StaticResource Style.TextBlock.Body.Large}"
                 Text="{Binding Content, Mode=OneWay}"
                 TextAlignment="Center" />
         </DockPanel>
@@ -196,7 +197,7 @@
         <Setter Property="MinHeight" Value="150" />
         <Setter Property="Border.CornerRadius" Value="10" />
         <Setter Property="Background" Value="{StaticResource Brush.Background.Panel}" />
-        <Setter Property="Padding" Value="40,20" />
+        <Setter Property="Padding" Value="80,40" />
         <Setter Property="BorderBrush" Value="{StaticResource Brush.Border}" />
         <Setter Property="BorderThickness" Value="2" />
         <Setter Property="Template" Value="{StaticResource ControlTemplate.DialogItem}" />
