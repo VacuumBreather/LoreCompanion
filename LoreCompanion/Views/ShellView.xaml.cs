@@ -4,13 +4,48 @@ using System.Windows.Input;
 namespace LoreCompanion.Views
 {
     /// <summary>Interaction logic for MainWindow.xaml</summary>
-    public partial class ShellView : Window
+    public partial class ShellView
     {
+        private const double BaseWidth = 1360;
+        private const double BaseHeight = 768;
+        private const double BaseMinWidth = 1024;
+        private const double BaseMinHeight = 600;
+
         private Point _dragStart;
 
         public ShellView()
         {
             InitializeComponent();
+            Loaded += OnWindowLoaded;
+        }
+
+        private void OnWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            var screenHeight = SystemParameters.PrimaryScreenHeight;
+
+            var scale = screenHeight switch
+            {
+                >= 2160 => 1.75,
+                >= 1440 => 1.35,
+                var _ => 1.0,
+            };
+
+            // Apply LayoutTransform to inner content
+            RootScaleTransform.ScaleX = scale;
+            RootScaleTransform.ScaleY = scale;
+
+            // Adjust Window Min dimensions
+            MinWidth = BaseMinWidth * scale;
+            MinHeight = BaseMinHeight * scale;
+
+            // Adjust Window dimensions clamped to WorkArea
+            var workArea = SystemParameters.WorkArea;
+            Width = Math.Min(BaseWidth * scale, workArea.Width);
+            Height = Math.Min(BaseHeight * scale, workArea.Height);
+
+            // Center on screen
+            Left = workArea.Left + ((workArea.Width - Width) / 2);
+            Top = workArea.Top + ((workArea.Height - Height) / 2);
         }
 
         private void OnWindowMinimize(object sender, RoutedEventArgs e)

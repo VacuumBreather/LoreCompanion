@@ -12,6 +12,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utilities="clr-namespace:LoreCompanion.Utilities"
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
+    x:Name="RootWindow"
     Title="MainWindow"
     Width="1360"
     Height="768"
@@ -23,6 +24,10 @@
     WindowStyle="None"
     mc:Ignorable="d">
     <DockPanel>
+        <!--  Root LayoutTransform scales fonts and icons cleanly  -->
+        <DockPanel.LayoutTransform>
+            <ScaleTransform x:Name="RootScaleTransform" ScaleX="1.0" ScaleY="1.0" />
+        </DockPanel.LayoutTransform>
         <!--  Header  -->
         <Border
             Background="{StaticResource Brush.Background.Secondary}"
