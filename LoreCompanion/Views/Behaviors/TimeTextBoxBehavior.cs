@@ -47,6 +47,8 @@ namespace LoreCompanion.Views.Behaviors
             AssociatedObject.PreviewTextInput += OnPreviewTextInput;
             AssociatedObject.SelectionChanged += OnSelectionChanged;
             AssociatedObject.LostFocus += OnLostFocus;
+            AssociatedObject.TextChanged += OnTextChanged;
+            CommandManager.AddPreviewExecutedHandler(AssociatedObject, OnPreviewExecuted);
             DataObject.AddPastingHandler(AssociatedObject, OnPaste);
         }
 
@@ -58,10 +60,35 @@ namespace LoreCompanion.Views.Behaviors
                 AssociatedObject.PreviewTextInput -= OnPreviewTextInput;
                 AssociatedObject.SelectionChanged -= OnSelectionChanged;
                 AssociatedObject.LostFocus -= OnLostFocus;
+                AssociatedObject.TextChanged -= OnTextChanged;
+                CommandManager.RemovePreviewExecutedHandler(AssociatedObject, OnPreviewExecuted);
                 DataObject.RemovePastingHandler(AssociatedObject, OnPaste);
             }
 
             base.OnDetaching();
+        }
+
+        private void OnPreviewExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (AssociatedObject is null || AssociatedObject.IsReadOnly)
+            {
+                return;
+            }
+
+            if (e.Command != ApplicationCommands.Cut)
+            {
+                return;
+            }
+
+            e.Handled = true;
+
+            if (AssociatedObject.SelectionLength <= 0)
+            {
+                return;
+            }
+
+            Clipboard.SetText(AssociatedObject.SelectedText);
+            HandleDelete();
         }
 
         private void OnLostFocus(object sender, RoutedEventArgs e)
@@ -77,9 +104,27 @@ namespace LoreCompanion.Views.Behaviors
             }
         }
 
+        private void OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (AssociatedObject is null || _isUpdating)
+            {
+                return;
+            }
+
+            // If an undo operation restored an irregular string, re-normalize it
+            if (!TryParseTime(AssociatedObject.Text, out var _))
+            {
+                UpdateTextFromValue(Value);
+            }
+            else
+            {
+                SyncValueProperty();
+            }
+        }
+
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (AssociatedObject is null)
+            if (AssociatedObject is null || AssociatedObject.IsReadOnly)
             {
                 return;
             }
@@ -133,7 +178,9 @@ namespace LoreCompanion.Views.Behaviors
 
             try
             {
-                AssociatedObject.SelectionStart += 1;
+                // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+                var maxLen = AssociatedObject.Text?.Length ?? 0;
+                AssociatedObject.SelectionStart = Math.Min(AssociatedObject.SelectionStart + 1, maxLen);
             }
             finally
             {
@@ -143,6 +190,11 @@ namespace LoreCompanion.Views.Behaviors
 
         private void OnPreviewTextInput(object sender, TextCompositionEventArgs e)
         {
+            if (AssociatedObject is null || AssociatedObject.IsReadOnly)
+            {
+                return;
+            }
+
             e.Handled = true;
 
             if (string.IsNullOrEmpty(e.Text))
@@ -155,6 +207,14 @@ namespace LoreCompanion.Views.Behaviors
 
         private void OnPaste(object sender, DataObjectPastingEventArgs e)
         {
+            if (AssociatedObject is null || AssociatedObject.IsReadOnly)
+            {
+                e.CancelCommand();
+                e.Handled = true;
+
+                return;
+            }
+
             e.CancelCommand();
             e.Handled = true;
 
@@ -183,7 +243,7 @@ namespace LoreCompanion.Views.Behaviors
         {
             time = time.Clamp(MinTimeSpan, MaxTimeSpan);
 
-            var totalHours = (int)time.TotalHours;
+            var totalHours = (time.Days * 24) + time.Hours;
             var minutes = time.Minutes;
             var seconds = time.Seconds;
 
@@ -221,7 +281,7 @@ namespace LoreCompanion.Views.Behaviors
                 return false;
             }
 
-            timeSpan = new TimeSpan(hours, minutes, seconds);
+            timeSpan = new TimeSpan(hours / 24, hours % 24, minutes, seconds);
 
             return true;
         }
@@ -540,7 +600,9 @@ namespace LoreCompanion.Views.Behaviors
                     m = Math.Clamp(parsedM, 0, 59);
                 }
 
-                if (int.TryParse(parts[1], out var parsedS))
+                var secPart = parts[1].Trim().Split('.')[0];
+
+                if (int.TryParse(secPart, out var parsedS))
                 {
                     s = Math.Clamp(parsedS, 0, 59);
                 }
@@ -557,9 +619,14 @@ namespace LoreCompanion.Views.Behaviors
                     m = Math.Clamp(parsedM, 0, 59);
                 }
 
-                if ((parts.Length > 2) && int.TryParse(parts[2], out var parsedS))
+                if (parts.Length > 2)
                 {
-                    s = Math.Clamp(parsedS, 0, 59);
+                    var secPart = parts[2].Trim().Split('.')[0];
+
+                    if (int.TryParse(secPart, out var parsedS))
+                    {
+                        s = Math.Clamp(parsedS, 0, 59);
+                    }
                 }
             }
 
