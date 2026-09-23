@@ -71,6 +71,7 @@ namespace LoreCompanion.Models
             _backup = new Item
             {
                 Name = Name,
+                ImageUrl = ImageUrl,
                 Description = Description,
                 Type = Type,
                 Location = Location,
@@ -89,6 +90,7 @@ namespace LoreCompanion.Models
             }
 
             Name = _backup!.Name;
+            ImageUrl = _backup.ImageUrl;
             Description = _backup.Description;
             Type = _backup.Type;
             Location = _backup.Location;
