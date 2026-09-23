@@ -21,6 +21,9 @@
     AllowsTransparency="True"
     Background="{StaticResource Brush.Background}"
     Foreground="{StaticResource Brush.Foreground}"
+    KeyboardNavigation.ControlTabNavigation="None"
+    KeyboardNavigation.DirectionalNavigation="None"
+    KeyboardNavigation.TabNavigation="None"
     WindowStyle="None"
     mc:Ignorable="d">
     <DockPanel>
