@@ -25,6 +25,7 @@ namespace LoreCompanion.ViewModels
         private bool _databaseRefreshNeeded = true;
         private int _busyCount;
         private Task? _loadingTask;
+        private CancellationTokenSource? _loadingCts;
 
         protected MasterDetailSectionScreen(
             string section,
@@ -247,7 +248,7 @@ namespace LoreCompanion.ViewModels
             return Task.CompletedTask;
         }
 
-        protected override Task OnActivatedAsync(CancellationToken cancellationToken)
+        protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             Logger.Debug("Activated");
 
@@ -266,15 +267,29 @@ namespace LoreCompanion.ViewModels
 
             if (_databaseRefreshNeeded)
             {
-                _loadingTask = Task.Run(() => LoadItemsProgressivelyAsync(cancellationToken), cancellationToken);
+                if (_loadingCts is not null)
+                {
+                    await _loadingCts.CancelAsync();
+                    _loadingCts.Dispose();
+                }
+
+                _loadingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                _loadingTask = Task.Run(() => LoadItemsProgressivelyAsync(_loadingCts.Token), _loadingCts.Token);
             }
 
-            return base.OnActivatedAsync(cancellationToken);
+            await base.OnActivatedAsync(cancellationToken);
         }
 
         protected override async Task OnDeactivateAsync(bool close, CancellationToken cancellationToken)
         {
             Logger.Debug("Deactivating...");
+
+            if (_loadingCts is not null)
+            {
+                await _loadingCts.CancelAsync();
+                _loadingCts.Dispose();
+                _loadingCts = null;
+            }
 
             _subscription?.Dispose();
             _subscription = null;
