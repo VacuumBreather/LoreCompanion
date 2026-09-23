@@ -7,4 +7,12 @@
         BottomRight="5"
         TopLeft="5"
         TopRight="5" />
+
+    <!--  CornerRadius.Controls  -->
+    <CornerRadius
+        x:Key="CornerRadius.ComboBox.Open"
+        BottomLeft="0"
+        BottomRight="0"
+        TopLeft="5"
+        TopRight="5" />
 </ResourceDictionary>
