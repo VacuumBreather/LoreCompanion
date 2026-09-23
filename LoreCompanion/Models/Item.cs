@@ -16,12 +16,44 @@ namespace LoreCompanion.Models
             set => Set(ref field, value);
         } = "";
 
+        [MaxLength(512)]
+        public string ImageUrl
+        {
+            get;
+            set => Set(ref field, value);
+        } = "";
+
         [MaxLength(2048)]
         public string Description
         {
             get;
             set => Set(ref field, value);
         } = "";
+
+        public ItemType Type
+        {
+            get;
+            set => Set(ref field, value);
+        }
+
+        [MaxLength(256)]
+        public string Location
+        {
+            get;
+            set => Set(ref field, value);
+        } = "";
+
+        public Episode? Episode
+        {
+            get;
+            set => Set(ref field, value);
+        }
+
+        public TimeSpan Timestamp
+        {
+            get;
+            set => Set(ref field, value);
+        }
 
         /// <inheritdoc/>
         public override string ToString()
@@ -36,7 +68,16 @@ namespace LoreCompanion.Models
                 return;
             }
 
-            _backup = new Item { Name = Name, Description = Description };
+            _backup = new Item
+            {
+                Name = Name,
+                Description = Description,
+                Type = Type,
+                Location = Location,
+                Episode = Episode,
+                Timestamp = Timestamp,
+            };
+
             _inEdit = true;
         }
 
@@ -49,6 +90,10 @@ namespace LoreCompanion.Models
 
             Name = _backup!.Name;
             Description = _backup.Description;
+            Type = _backup.Type;
+            Location = _backup.Location;
+            Episode = _backup.Episode;
+            Timestamp = _backup.Timestamp;
             _backup = null;
             _inEdit = false;
         }

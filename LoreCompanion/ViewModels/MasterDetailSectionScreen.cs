@@ -249,6 +249,11 @@ namespace LoreCompanion.ViewModels
             return Task.CompletedTask;
         }
 
+        protected virtual IQueryable<TEntity> GetAllItemsQuery(LoreDbContext context)
+        {
+            return context.Set<TEntity>();
+        }
+
         protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             Logger.Debug("Activated");
@@ -377,10 +382,10 @@ namespace LoreCompanion.ViewModels
                 var buffer = new List<TEntity>(BatchSize);
 
                 // Stream items asynchronously from the database
-                await foreach (var entity in context.Set<TEntity>()
-                                                    .AsNoTracking()
-                                                    .AsAsyncEnumerable()
-                                                    .WithCancellation(cancellationToken))
+                await foreach (var entity in GetAllItemsQuery(context)
+                                             .AsNoTracking()
+                                             .AsAsyncEnumerable()
+                                             .WithCancellation(cancellationToken))
                 {
                     buffer.Add(entity);
 

@@ -10,6 +10,12 @@ namespace LoreCompanion.Models
 
         public DbSet<DatabaseRelease> DatabaseReleases => Set<DatabaseRelease>();
 
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            base.ConfigureConventions(configurationBuilder);
+            configurationBuilder.Properties<TimeSpan>().HaveConversion<TimeSpanToSecondsConverter>();
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -17,6 +23,8 @@ namespace LoreCompanion.Models
             modelBuilder.Entity<DatabaseRelease>()
                         .Property(x => x.Version)
                         .HasConversion(v => v.ToString(), v => Version.Parse(v));
+
+            modelBuilder.Entity<Item>().HasOne(x => x.Episode).WithMany().OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

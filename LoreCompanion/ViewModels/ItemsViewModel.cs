@@ -21,13 +21,18 @@ namespace LoreCompanion.ViewModels
     {
         protected override Item CreateEntityInstance()
         {
-            return new Item { Name = "New Item", Description = "Item Description" };
+            return new Item { Name = "New Item" };
         }
 
         protected override bool FilterEntity(Item entity, string searchText)
         {
             return entity.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
                    entity.Description.Contains(searchText, StringComparison.OrdinalIgnoreCase);
+        }
+
+        protected override IQueryable<Item> GetAllItemsQuery(LoreDbContext context)
+        {
+            return context.Items.Include(x => x.Episode);
         }
     }
 }

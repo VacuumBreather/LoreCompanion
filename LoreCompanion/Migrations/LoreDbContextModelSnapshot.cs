@@ -71,14 +71,45 @@ namespace LoreCompanion.Migrations
                         .HasMaxLength(2048)
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("EpisodeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("EpisodeId");
+
                     b.ToTable("Items");
+                });
+
+            modelBuilder.Entity("LoreCompanion.Models.Item", b =>
+                {
+                    b.HasOne("LoreCompanion.Models.Episode", "Episode")
+                        .WithMany()
+                        .HasForeignKey("EpisodeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Episode");
                 });
 #pragma warning restore 612, 618
         }

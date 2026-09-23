@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoreCompanion.Migrations
 {
     [DbContext(typeof(LoreDbContext))]
-    [Migration("20260921203332_AddDatabaseReleaseTable")]
-    partial class AddDatabaseReleaseTable
+    [Migration("20260923202733_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,6 +42,27 @@ namespace LoreCompanion.Migrations
                     b.ToTable("DatabaseReleases");
                 });
 
+            modelBuilder.Entity("LoreCompanion.Models.Episode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VideoKey")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Episodes");
+                });
+
             modelBuilder.Entity("LoreCompanion.Models.Item", b =>
                 {
                     b.Property<int>("Id")
@@ -53,14 +74,40 @@ namespace LoreCompanion.Migrations
                         .HasMaxLength(2048)
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("EpisodeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("EpisodeId");
+
                     b.ToTable("Items");
+                });
+
+            modelBuilder.Entity("LoreCompanion.Models.Item", b =>
+                {
+                    b.HasOne("LoreCompanion.Models.Episode", "Episode")
+                        .WithMany()
+                        .HasForeignKey("EpisodeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Episode");
                 });
 #pragma warning restore 612, 618
         }
