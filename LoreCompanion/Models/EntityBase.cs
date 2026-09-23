@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace LoreCompanion.Models
 {
-    public abstract class EntityBase : INotifyPropertyChanged, IEditableObject, IEquatable<EntityBase>
+    public abstract class EntityBase : INotifyPropertyChanged, IEditableObject
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -21,41 +21,6 @@ namespace LoreCompanion.Models
             Execute.OnUIThread(() => OnPropertyChanged(new PropertyChangedEventArgs(propertyName)));
         }
 
-        public override bool Equals(object? obj)
-        {
-            return Equals(obj as EntityBase);
-        }
-
-        [SuppressMessage(
-            "ReSharper",
-            "NonReadonlyMemberInGetHashCode",
-            Justification = "Id is not modified after entity is persisted")]
-        public override int GetHashCode()
-        {
-            return Id;
-        }
-
-        /// <inheritdoc/>
-        public bool Equals(EntityBase? other)
-        {
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            if (other is null)
-            {
-                return false;
-            }
-
-            if (GetType() != other.GetType())
-            {
-                return false;
-            }
-
-            return (Id != 0) && (Id == other.Id);
-        }
-
         /// <inheritdoc/>
         public abstract void BeginEdit();
 
@@ -65,7 +30,7 @@ namespace LoreCompanion.Models
         /// <inheritdoc/>
         public abstract void EndEdit();
 
-        protected virtual bool Set<T>(ref T oldValue, T newValue, [CallerMemberName] string? propertyName = null)
+        protected bool Set<T>(ref T oldValue, T newValue, [CallerMemberName] string? propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(oldValue, newValue))
             {
