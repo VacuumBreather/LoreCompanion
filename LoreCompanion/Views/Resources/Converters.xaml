@@ -15,9 +15,22 @@
         FalseVisibility="Hidden"
         TrueVisibility="Visible" />
 
+    <!--  Converter.IsEqual  -->
+    <converters:IsEqualConverter x:Key="Converter.IsEqual" />
+
     <!--  Converter.NullToCollapsed  -->
     <converters:IsNullToVisibilityConverter x:Key="Converter.NullToCollapsed" />
 
     <!--  Converter.BoolInversion  -->
     <converters:BoolInversionConverter x:Key="Converter.BoolInversion" />
+
+    <!--  Converter.IsEqualToVisible  -->
+    <converters:ChainConverter x:Key="Converter.IsEqualToVisible">
+        <converters:IsEqualConverter />
+        <converters:BoolToVisibilityConverter />
+    </converters:ChainConverter>
+
+    <!--  Converter.Multi.BooleanAndToVisibility  -->
+    <converters:BooleanAndToVisibilityMultiConverter x:Key="Converter.Multi.BooleanAndToVisibility" />
+
 </ResourceDictionary>
