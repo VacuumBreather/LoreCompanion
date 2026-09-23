@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 namespace LoreCompanion.Models
 {
     [PublicAPI]
-    public class Item : EntityBase, INamed
+    public class Item : EntityBase, INamed, IEpisodeReferencing
     {
         private Item? _backup;
         private bool _inEdit;

@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using JetBrains.Annotations;
+using LoreCompanion.Extensions;
 using LoreCompanion.Models;
 using LoreCompanion.ViewModels.Dialogs;
 using LoreCompanion.ViewModels.Notifications;
@@ -21,10 +22,7 @@ namespace LoreCompanion.ViewModels
     {
         protected override Episode CreateEntityInstance()
         {
-            var max = Items.Select(item => item.Name.Replace("Episode", "").Trim())
-                           .Select(name => int.TryParse(name, out var number) ? number : 0)
-                           .DefaultIfEmpty(0)
-                           .Max();
+            var max = Items.Select(item => item.GetEpisodeNumber()).DefaultIfEmpty(0).Max();
 
             return new Episode { Name = $"Episode {max + 1}" };
         }
