@@ -475,8 +475,11 @@ namespace LoreCompanion.ViewModels
         {
             Execute.OnUIThread(() =>
             {
-                var oldIndex = Items.IndexOf(entity);
                 var wasSelectedItem = ReferenceEquals(SelectedItem, entity);
+
+                // Capture view list before removal
+                var currentViewList = ItemsView.Cast<TEntity>().ToList();
+                var viewIndex = currentViewList.IndexOf(entity);
 
                 Items.Remove(entity);
                 Logger.Debug("{EntityName} '{Entity}' removed from UI collection", entity.GetType().Name, entity);
@@ -487,14 +490,18 @@ namespace LoreCompanion.ViewModels
                 }
 
                 TEntity? newSelectedItem = null;
+                var remainingView = ItemsView.Cast<TEntity>().ToList();
 
-                if (Items.Count > oldIndex)
+                if (remainingView.Count > 0)
                 {
-                    newSelectedItem = Items[oldIndex];
-                }
-                else if ((oldIndex > 0) && (Items.Count > oldIndex - 1))
-                {
-                    newSelectedItem = Items[oldIndex - 1];
+                    if ((viewIndex >= 0) && (viewIndex < remainingView.Count))
+                    {
+                        newSelectedItem = remainingView[viewIndex];
+                    }
+                    else
+                    {
+                        newSelectedItem = remainingView[^1];
+                    }
                 }
 
                 SelectedItem = newSelectedItem;
