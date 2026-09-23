@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Data;
 using Caliburn.Micro;
 using JetBrains.Annotations;
@@ -476,35 +477,50 @@ namespace LoreCompanion.ViewModels
             Execute.OnUIThread(() =>
             {
                 var wasSelectedItem = ReferenceEquals(SelectedItem, entity);
+                TEntity? nextSelection = null;
 
-                // Capture view list before removal
-                var currentViewList = ItemsView.Cast<TEntity>().ToList();
-                var viewIndex = currentViewList.IndexOf(entity);
+                if (wasSelectedItem)
+                {
+                    TEntity? previous = null;
+                    var found = false;
+
+                    foreach (var item in ItemsView)
+                    {
+                        if (item is not TEntity current)
+                        {
+                            continue;
+                        }
+
+                        if (found)
+                        {
+                            nextSelection = current; // First item after the removed entity
+
+                            break;
+                        }
+
+                        if (ReferenceEquals(current, entity))
+                        {
+                            found = true;
+                        }
+                        else
+                        {
+                            previous = current; // Last item before the removed entity
+                        }
+                    }
+
+                    // If there is no item after, fall back to the item before
+                    nextSelection ??= previous;
+                }
+
+                Debug.Assert(!ReferenceEquals(nextSelection, entity));
 
                 Items.Remove(entity);
                 Logger.Debug("{EntityName} '{Entity}' removed from UI collection", entity.GetType().Name, entity);
 
-                if (!wasSelectedItem)
+                if (wasSelectedItem)
                 {
-                    return;
+                    SelectedItem = nextSelection;
                 }
-
-                TEntity? newSelectedItem = null;
-                var remainingView = ItemsView.Cast<TEntity>().ToList();
-
-                if (remainingView.Count > 0)
-                {
-                    if ((viewIndex >= 0) && (viewIndex < remainingView.Count))
-                    {
-                        newSelectedItem = remainingView[viewIndex];
-                    }
-                    else
-                    {
-                        newSelectedItem = remainingView[^1];
-                    }
-                }
-
-                SelectedItem = newSelectedItem;
             });
         }
 
