@@ -19,7 +19,7 @@
     mc:Ignorable="d">
 
     <controls:BusyDecorator IsBusy="{Binding IsBusy, Mode=OneWay}">
-        <Grid ColumnDefinitions="4*, 5*">
+        <Grid ColumnDefinitions="*, *">
             <Border
                 Grid.Column="0"
                 BorderBrush="{StaticResource Brush.Border.Primary}"

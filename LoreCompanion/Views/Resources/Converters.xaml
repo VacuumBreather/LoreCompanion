@@ -36,4 +36,7 @@
     <!--  Converter.VideoKeyToThumbnailUrl  -->
     <converters:VideoKeyToThumbnailUrlConverter x:Key="Converter.VideoKeyToThumbnailUrl" />
 
+    <!--  Converter.VideoKeyToMetadataUrl  -->
+    <converters:VideoKeyToMetadataUrlConverter x:Key="Converter.VideoKeyToMetadataUrl" />
+
 </ResourceDictionary>

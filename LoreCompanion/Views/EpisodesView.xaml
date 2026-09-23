@@ -2,7 +2,8 @@
     x:Class="LoreCompanion.Views.EpisodesView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:converters="clr-namespace:LoreCompanion.Views.Converters"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:behaviors="clr-namespace:LoreCompanion.Views.Behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
     xmlns:local="clr-namespace:LoreCompanion.Views"
@@ -17,9 +18,18 @@
     <UserControl.Resources>
         <!--  DataTemplate.Episode.Master  -->
         <DataTemplate x:Key="DataTemplate.Episode.Master" DataType="{x:Type models:Episode}">
-            <StackPanel>
-                <TextBlock Text="{Binding Name}" />
-            </StackPanel>
+            <DockPanel>
+                <Image Margin="0,5" Stretch="Uniform">
+                    <b:Interaction.Behaviors>
+                        <behaviors:LoadCachedImageBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToThumbnailUrl}}" />
+                    </b:Interaction.Behaviors>
+                </Image>
+                <TextBlock
+                    Margin="20,0,0,0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource Style.TextBlock.Body.Large}"
+                    Text="{Binding Name}" />
+            </DockPanel>
         </DataTemplate>
 
         <!--  DataTemplate.Episode.Detail  -->
@@ -35,18 +45,28 @@
                         DockPanel.Dock="Top"
                         Style="{StaticResource Style.TextBlock.Heading.Large}" />
                     <TextBlock
-                        Margin="40,0,0,0"
+                        Margin="0,15,0,0"
                         VerticalAlignment="Top"
-                        helpers:HighlightHelper.Text="{Binding VideoKey, Converter={converters:QuoteConverter}}"
                         DockPanel.Dock="Top"
-                        TextWrapping="Wrap" />
+                        TextTrimming="CharacterEllipsis"
+                        TextWrapping="NoWrap">
+                        <b:Interaction.Behaviors>
+                            <behaviors:LoadCachedVideoTitleBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToMetadataUrl}}" />
+                        </b:Interaction.Behaviors>
+                    </TextBlock>
                     <Border
-                        MaxWidth="256"
+                        MaxWidth="320"
+                        Margin="0,20,0,0"
+                        HorizontalAlignment="Left"
                         VerticalAlignment="Top"
                         BorderBrush="{StaticResource Brush.Border.Primary}"
                         BorderThickness="2"
                         DockPanel.Dock="Top">
-                        <Image helpers:ImageHelper.ImageUrl="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToThumbnailUrl}}" Stretch="Uniform" />
+                        <Image Stretch="Uniform">
+                            <b:Interaction.Behaviors>
+                                <behaviors:LoadCachedImageBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToThumbnailUrl}}" />
+                            </b:Interaction.Behaviors>
+                        </Image>
                     </Border>
                 </DockPanel>
 
