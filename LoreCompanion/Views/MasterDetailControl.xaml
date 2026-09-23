@@ -55,7 +55,10 @@
                 </DockPanel>
             </Border>
 
-            <DockPanel Grid.Column="1" Margin="20">
+            <DockPanel
+                Grid.Column="1"
+                Margin="20"
+                Visibility="{Binding SelectedItem, Converter={StaticResource Converter.NullToCollapsed}}">
                 <Button
                     Margin="5"
                     HorizontalAlignment="Right"
@@ -113,10 +116,7 @@
                         </MultiBinding>
                     </Button.Visibility>
                 </Button>
-                <ContentControl
-                    Content="{Binding SelectedItem}"
-                    ContentTemplate="{Binding DetailTemplate, ElementName=Root}"
-                    Visibility="{Binding SelectedItem, Converter={StaticResource Converter.NullToCollapsed}}" />
+                <ContentControl Content="{Binding SelectedItem}" ContentTemplate="{Binding DetailTemplate, ElementName=Root}" />
             </DockPanel>
         </Grid>
     </controls:BusyDecorator>

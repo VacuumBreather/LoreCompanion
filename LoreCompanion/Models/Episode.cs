@@ -4,9 +4,9 @@ using JetBrains.Annotations;
 namespace LoreCompanion.Models
 {
     [PublicAPI]
-    public class Item : EntityBase, INamed
+    public class Episode : EntityBase, INamed
     {
-        private Item? _backup;
+        private Episode? _backup;
         private bool _inEdit;
 
         [MaxLength(128)]
@@ -16,8 +16,8 @@ namespace LoreCompanion.Models
             set => Set(ref field, value);
         } = "";
 
-        [MaxLength(2048)]
-        public string Description
+        [MaxLength(11)]
+        public string VideoKey
         {
             get;
             set => Set(ref field, value);
@@ -26,7 +26,7 @@ namespace LoreCompanion.Models
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{Name} ({Id})";
+            return $"{Name}";
         }
 
         public override void BeginEdit()
@@ -36,7 +36,7 @@ namespace LoreCompanion.Models
                 return;
             }
 
-            _backup = new Item { Name = Name, Description = Description };
+            _backup = new Episode { Name = Name, VideoKey = VideoKey };
             _inEdit = true;
         }
 
@@ -48,7 +48,7 @@ namespace LoreCompanion.Models
             }
 
             Name = _backup!.Name;
-            Description = _backup.Description;
+            VideoKey = _backup.VideoKey;
             _backup = null;
             _inEdit = false;
         }

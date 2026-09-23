@@ -33,4 +33,7 @@
     <!--  Converter.Multi.BooleanAndToVisibility  -->
     <converters:BooleanAndToVisibilityMultiConverter x:Key="Converter.Multi.BooleanAndToVisibility" />
 
+    <!--  Converter.VideoKeyToThumbnailUrl  -->
+    <converters:VideoKeyToThumbnailUrlConverter x:Key="Converter.VideoKeyToThumbnailUrl" />
+
 </ResourceDictionary>

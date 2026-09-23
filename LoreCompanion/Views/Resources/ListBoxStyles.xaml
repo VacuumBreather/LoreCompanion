@@ -155,7 +155,7 @@
         <helpers:TypeIconMapping Icon="{x:Static icon:PackIconMaterialDesignKind.Home}" Type="{x:Type viewModels:DashboardViewModel}" />
         <helpers:TypeIconMapping Icon="{x:Static icon:PackIconMaterialDesignKind.Person}" Type="{x:Type viewModels:CharactersViewModel}" />
         <helpers:TypeIconMapping Icon="{x:Static icon:PackIconRPGAwesomeKind.Broadsword}" Type="{x:Type viewModels:ItemsViewModel}" />
-        <helpers:TypeIconMapping Icon="{x:Static icon:PackIconMaterialDesignKind.VideoLibrary}" Type="{x:Type viewModels:EpisodesViewMode}" />
+        <helpers:TypeIconMapping Icon="{x:Static icon:PackIconMaterialDesignKind.VideoLibrary}" Type="{x:Type viewModels:EpisodesViewModel}" />
     </converters:NavigationIconConverter>
 
     <!--  ItemTemplate.ListBox.Navigation  -->

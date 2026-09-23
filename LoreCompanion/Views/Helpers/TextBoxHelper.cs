@@ -5,11 +5,27 @@ namespace LoreCompanion.Views.Helpers
 {
     public static class TextBoxHelper
     {
+        public static readonly DependencyProperty HeaderProperty = DependencyProperty.RegisterAttached(
+            DependencyPropertyNameHelper.GetName(nameof(HeaderProperty)),
+            typeof(string),
+            typeof(TextBoxHelper),
+            new PropertyMetadata(default(string)));
+
         public static readonly DependencyProperty IsClearButtonProperty = DependencyProperty.RegisterAttached(
             DependencyPropertyNameHelper.GetName(nameof(IsClearButtonProperty)),
             typeof(bool),
             typeof(TextBoxHelper),
             new PropertyMetadata(false, OnIsClearButtonChanged));
+
+        public static void SetHeader(DependencyObject element, string value)
+        {
+            element.SetValue(HeaderProperty, value);
+        }
+
+        public static string GetHeader(DependencyObject element)
+        {
+            return (string)element.GetValue(HeaderProperty);
+        }
 
         public static void SetIsClearButton(Button button, bool value)
         {

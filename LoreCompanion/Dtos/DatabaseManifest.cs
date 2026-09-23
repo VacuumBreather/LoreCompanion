@@ -4,18 +4,13 @@ using JetBrains.Annotations;
 namespace LoreCompanion.Dtos
 {
     [PublicAPI]
-    public record DatabaseManifest
-    {
-        [JsonPropertyName("version")]
-        public Version? Version { get; set; }
-
-        [JsonPropertyName("sha256")]
-        public string? Sha256 { get; set; }
-
-        [JsonPropertyName("required_app_version")]
-        public Version? RequiredAppVersion { get; set; }
-
-        [JsonPropertyName("downloadUrl")]
-        public Uri? DownloadUrl { get; set; }
-    }
+    public sealed record DatabaseManifest(
+        [property: JsonPropertyName("version")]
+        Version? Version,
+        [property: JsonPropertyName("sha256")]
+        string? Sha256,
+        [property: JsonPropertyName("required_app_version")]
+        Version? RequiredAppVersion,
+        [property: JsonPropertyName("downloadUrl")]
+        Uri? DownloadUrl);
 }

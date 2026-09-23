@@ -6,6 +6,8 @@ namespace LoreCompanion.Models
     {
         public DbSet<Item> Items => Set<Item>();
 
+        public DbSet<Episode> Episodes => Set<Episode>();
+
         public DbSet<DatabaseRelease> DatabaseReleases => Set<DatabaseRelease>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

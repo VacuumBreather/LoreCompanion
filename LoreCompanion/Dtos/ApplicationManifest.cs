@@ -4,12 +4,9 @@ using JetBrains.Annotations;
 namespace LoreCompanion.Dtos
 {
     [PublicAPI]
-    public record ApplicationManifest
-    {
-        [JsonPropertyName("version")]
-        public Version? Version { get; set; }
-
-        [JsonPropertyName("url")]
-        public Uri? Url { get; set; }
-    }
+    public sealed record ApplicationManifest(
+        [property: JsonPropertyName("version")]
+        Version? Version,
+        [property: JsonPropertyName("url")]
+        Uri? Url);
 }
