@@ -254,6 +254,15 @@ namespace LoreCompanion.ViewModels
             return context.Set<TEntity>();
         }
 
+        protected virtual void ClearAdditional()
+        {
+        }
+
+        protected virtual Task UpdateAdditionalAsync(LoreDbContext context, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
         protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             Logger.Debug("Activated");
@@ -280,6 +289,7 @@ namespace LoreCompanion.ViewModels
                 }
 
                 _loadingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
                 _loadingTask = Task.Run(() => LoadItemsProgressivelyAsync(_loadingCts.Token), _loadingCts.Token);
             }
 
@@ -376,6 +386,7 @@ namespace LoreCompanion.ViewModels
                 {
                     SelectedItem = null;
                     Items.Clear();
+                    ClearAdditional();
                 });
 
                 const int BatchSize = 25;
@@ -403,12 +414,24 @@ namespace LoreCompanion.ViewModels
                     UpdateItemsAndSelectFirst(buffer);
                 }
 
+                await UpdateAdditionalAsync(context, cancellationToken);
+
                 _databaseRefreshNeeded = false;
                 Logger.Debug("Items loaded");
             }
             catch (OperationCanceledException e)
             {
                 Logger.Debug(e, "Loading task cancelled");
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Error loading items");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database error",
+                    $"Could not load items.\n{e.Message}",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
             }
             finally
             {

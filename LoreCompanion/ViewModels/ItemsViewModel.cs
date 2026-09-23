@@ -19,6 +19,10 @@ namespace LoreCompanion.ViewModels
         notificationService,
         eventAggregator)
     {
+        public BindableCollection<Episode> Episodes { get; } = new();
+
+        public IReadOnlyList<ItemType> ItemTypes { get; } = Enum.GetValues<ItemType>();
+
         protected override Item CreateEntityInstance()
         {
             return new Item { Name = "New Item" };
@@ -33,6 +37,31 @@ namespace LoreCompanion.ViewModels
         protected override IQueryable<Item> GetAllItemsQuery(LoreDbContext context)
         {
             return context.Items.Include(x => x.Episode);
+        }
+
+        protected override void ClearAdditional()
+        {
+            Episodes.Clear();
+        }
+
+        protected override async Task UpdateAdditionalAsync(LoreDbContext context, CancellationToken cancellationToken)
+        {
+            try
+            {
+                Episodes.IsNotifying = false;
+
+                await foreach (var episode in context.Episodes.AsNoTracking()
+                                                     .AsAsyncEnumerable()
+                                                     .WithCancellation(cancellationToken))
+                {
+                    Episodes.Add(episode);
+                }
+            }
+            finally
+            {
+                Episodes.Refresh();
+                Episodes.IsNotifying = true;
+            }
         }
     }
 }
