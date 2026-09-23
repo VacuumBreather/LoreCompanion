@@ -6,7 +6,15 @@ namespace LoreCompanion.ViewModels
     {
         protected SectionScreen(string section)
         {
+            DisplayName = GetType().Name.Replace("ViewModel", "");
             Section = section;
+        }
+
+        /// <inheritdoc/>
+        public sealed override string DisplayName
+        {
+            get => base.DisplayName;
+            set => base.DisplayName = value;
         }
 
         public string Section { get; }

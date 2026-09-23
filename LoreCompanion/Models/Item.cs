@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace LoreCompanion.Models
 {
     [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
-    public class Item : EntityBase
+    public class Item : EntityBase, INamed
     {
         private Item? _backup;
         private bool _inEdit;
