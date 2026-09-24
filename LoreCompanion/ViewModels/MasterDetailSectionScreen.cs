@@ -438,11 +438,11 @@ namespace LoreCompanion.ViewModels
 
                 if (_databaseRefreshNeeded)
                 {
-                    _databaseRefreshNeeded = false;
-
                     await Task.WhenAll(
                         LoadEntitiesInternalAsync(cancellationToken),
                         NotifyOfLoadingEntities(true, cancellationToken));
+
+                    _databaseRefreshNeeded = false;
                 }
                 else
                 {

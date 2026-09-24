@@ -153,6 +153,7 @@
     <!--  Converter.NavigationIcon  -->
     <converters:NavigationIconConverter x:Key="Converter.NavigationIcon">
         <helpers:TypeIconMapping Icon="{x:Static icon:PackIconMaterialDesignKind.Home}" Type="{x:Type viewModels:DashboardViewModel}" />
+        <helpers:TypeIconMapping Icon="{x:Static icon:PackIconRPGAwesomeKind.Book}" Type="{x:Type viewModels:ArchiveViewModel}" />
         <helpers:TypeIconMapping Icon="{x:Static icon:PackIconMaterialDesignKind.Chat}" Type="{x:Type viewModels:DialogsViewModel}" />
         <helpers:TypeIconMapping Icon="{x:Static icon:PackIconMaterialDesignKind.Person}" Type="{x:Type viewModels:CharactersViewModel}" />
         <helpers:TypeIconMapping Icon="{x:Static icon:PackIconRPGAwesomeKind.Broadsword}" Type="{x:Type viewModels:ItemsViewModel}" />

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Windows;
@@ -11,6 +12,7 @@ using LoreCompanion.Dtos;
 using LoreCompanion.Extensions;
 using LoreCompanion.Models;
 using LoreCompanion.Utilities;
+using LoreCompanion.ViewModels.Attributes;
 using LoreCompanion.ViewModels.Dialogs;
 using LoreCompanion.ViewModels.Events;
 using LoreCompanion.ViewModels.Notifications;
@@ -49,11 +51,24 @@ namespace LoreCompanion.ViewModels
             _notificationService = notificationService;
             _eventAggregator = eventAggregator;
 
+            Items.AddRange(sections);
+            _dashboard = Items.First(item => item.GetType().GetCustomAttribute<DashboardAttribute>() != null);
+
             ItemsView = (ListCollectionView)CollectionViewSource.GetDefaultView(Items);
             ItemsView.GroupDescriptions!.Add(new PropertyGroupDescription(nameof(SectionScreen.Section)));
 
             ItemsView.CustomSort = Comparer<SectionScreen>.Create((a, b) =>
             {
+                if (ReferenceEquals(_dashboard, a))
+                {
+                    return -1;
+                }
+
+                if (ReferenceEquals(_dashboard, b))
+                {
+                    return 1;
+                }
+
                 var result = NavigationSection.Order.IndexOf(a.Section)
                                               .CompareTo(NavigationSection.Order.IndexOf(b.Section));
 
@@ -64,11 +79,6 @@ namespace LoreCompanion.ViewModels
 
                 return string.Compare(a.DisplayName, b.DisplayName, StringComparison.Ordinal);
             });
-
-            Items.AddRange(sections);
-
-            var firstGroup = (CollectionViewGroup)ItemsView.Groups!.First();
-            _dashboard = (SectionScreen)firstGroup.Items.First();
         }
 
         public Version CurrentDatabaseVersion

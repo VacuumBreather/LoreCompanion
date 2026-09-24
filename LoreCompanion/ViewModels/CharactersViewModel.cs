@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace LoreCompanion.ViewModels
 {
     [UsedImplicitly]
-    public class CharactersViewModel(
+    public sealed class CharactersViewModel(
         IDbContextFactory<LoreDbContext> dbContextFactory,
         IDialogService dialogService,
         INotificationService notificationService,
