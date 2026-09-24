@@ -50,8 +50,8 @@ namespace LoreCompanion.ViewModels
             }
             finally
             {
-                Episodes.Refresh();
                 Episodes.IsNotifying = true;
+                Episodes.Refresh();
             }
         }
     }

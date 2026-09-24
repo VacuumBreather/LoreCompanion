@@ -276,6 +276,20 @@
         </Setter>
     </Style>
 
+    <!--  Style.Button.Play  -->
+    <Style
+        x:Key="Style.Button.Play"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterial Kind="PlayCircle" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!--  Style.Button.TextBox.Clear  -->
     <Style
         x:Key="Style.Button.TextBox.Clear"

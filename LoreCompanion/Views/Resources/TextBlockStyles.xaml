@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="Brushes.xaml" />
+        <ResourceDictionary Source="SeparatorStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
     <!--  FontFamily.Default  -->

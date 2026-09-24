@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:behaviors="clr-namespace:LoreCompanion.Views.Behaviors"
+    xmlns:cm="http://caliburnmicro.com"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
     xmlns:local="clr-namespace:LoreCompanion.Views"
@@ -34,7 +35,7 @@
 
         <!--  DataTemplate.Episode.Detail  -->
         <DataTemplate x:Key="DataTemplate.Episode.Detail" DataType="{x:Type models:Episode}">
-            <Grid>
+            <Grid cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
                 <!--  ReadOnly Template  -->
                 <DockPanel Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.ReadOnly}}">
                     <TextBlock
@@ -68,6 +69,15 @@
                             </b:Interaction.Behaviors>
                         </Image>
                     </Border>
+                    <Button
+                        Width="100"
+                        Height="67"
+                        Margin="0,20,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        cm:Message.Attach="PlayVideo($dataContext)"
+                        DockPanel.Dock="Top"
+                        Style="{StaticResource Style.Button.Play}" />
                 </DockPanel>
 
                 <!--  Edit Template  -->

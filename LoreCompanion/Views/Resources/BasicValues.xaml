@@ -15,4 +15,7 @@
         BottomRight="0"
         TopLeft="5"
         TopRight="5" />
+
+    <!--  Image.Placeholder  -->
+    <BitmapImage x:Key="Image.Placeholder" UriSource="pack://application:,,,/LoreCompanion;component/Views/Resources/Images/Placeholder.png" />
 </ResourceDictionary>

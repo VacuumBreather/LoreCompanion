@@ -50,6 +50,8 @@
         <Resource Include="Views\Resources\Images\NavigationLandscape.png" />
         <None Remove="Views\Resources\Fonts\CormorantGaramond-Italic-VariableFont.ttf" />
         <Resource Include="Views\Resources\Fonts\CormorantGaramond-Italic-VariableFont.ttf" />
+        <None Remove="Views\Resources\Images\Placeholder.png" />
+        <Resource Include="Views\Resources\Images\Placeholder.png" />
     </ItemGroup>
 
     <!-- NuGet packages -->

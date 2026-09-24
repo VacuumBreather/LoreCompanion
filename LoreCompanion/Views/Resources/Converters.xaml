@@ -39,4 +39,7 @@
     <!--  Converter.VideoKeyToMetadataUrl  -->
     <converters:VideoKeyToMetadataUrlConverter x:Key="Converter.VideoKeyToMetadataUrl" />
 
+    <!--  Converter.ItemTypeToIcon  -->
+    <converters:ItemTypeToIconConverter x:Key="Converter.ItemTypeToIcon" />
+
 </ResourceDictionary>

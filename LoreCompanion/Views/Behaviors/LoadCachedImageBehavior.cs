@@ -8,8 +8,14 @@ namespace LoreCompanion.Views.Behaviors
 {
     public class LoadCachedImageBehavior : LoadCachedDataBehavior<ImageSource>
     {
+        private static BitmapImage? _placeholder;
+
+        private static BitmapImage Placeholder => _placeholder ??= CreatePlaceholder();
+
         protected override void SetDataProperty(DependencyObject element, ImageSource? source)
         {
+            source ??= Placeholder;
+
             if (element is Image image)
             {
                 image.Source = source;
@@ -44,6 +50,11 @@ namespace LoreCompanion.Views.Behaviors
 
                 return null;
             }
+        }
+
+        private static BitmapImage CreatePlaceholder()
+        {
+            return (BitmapImage)Application.Current.FindResource("Image.Placeholder")!;
         }
     }
 }

@@ -1,6 +1,8 @@
-﻿using Caliburn.Micro;
+﻿using System.Diagnostics;
+using Caliburn.Micro;
 using JetBrains.Annotations;
 using LoreCompanion.Models;
+using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
 using LoreCompanion.ViewModels.Notifications;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +20,22 @@ namespace LoreCompanion.ViewModels
         notificationService,
         eventAggregator)
     {
-        public IReadOnlyList<ItemType> ItemTypes { get; } = Enum.GetValues<ItemType>();
+        public void PlayVideo(Item item)
+        {
+            if (item.Episode is null)
+            {
+                return;
+            }
+
+            Logger.Debug("Playing video for item: {Item}", item.Name);
+
+            var videoUrl = string.Format(
+                YouTubeHelper.VideoUrlFormatStringWithTime,
+                item.Episode.VideoKey,
+                item.Timestamp.TotalSeconds);
+
+            Process.Start(new ProcessStartInfo { FileName = videoUrl, UseShellExecute = true });
+        }
 
         protected override Item CreateEntityInstance()
         {

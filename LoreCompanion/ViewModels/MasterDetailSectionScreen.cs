@@ -28,6 +28,8 @@ namespace LoreCompanion.ViewModels
         private Task? _loadingTask;
         private CancellationTokenSource? _loadingCts;
 
+        private ILogger? _logger;
+
         protected MasterDetailSectionScreen(
             string section,
             IDbContextFactory<LoreDbContext> dbContextFactory,
@@ -40,8 +42,6 @@ namespace LoreCompanion.ViewModels
             _dialogService = dialogService;
             _notificationService = notificationService;
             eventAggregator.SubscribeOnPublishedThread(this);
-
-            Logger = LogManager.GetLogger(GetType());
 
             ItemsView = CollectionViewSource.GetDefaultView(Items);
             ItemsView.Filter = OnFilter;
@@ -102,7 +102,7 @@ namespace LoreCompanion.ViewModels
 
         public bool IsBusy => _busyCount > 0;
 
-        protected ILogger Logger { get; }
+        protected ILogger Logger => _logger ??= LogManager.GetLogger(GetType());
 
         [PublicAPI]
         public Task CreateNewAsync()
@@ -217,6 +217,19 @@ namespace LoreCompanion.ViewModels
                         entity);
 
                     await using var context = await _dbContextFactory.CreateDbContextAsync();
+
+                    var canDelete = await CanDeleteAsync(context, entity);
+
+                    if (!canDelete)
+                    {
+                        _ = _notificationService.ShowNotificationAsync(
+                            "Deletion failed",
+                            $"Deleting {entity.GetType().Name.ToLower()} '{entity.Name}' not possible.\n\nIt is referenced by other entries.",
+                            NotificationType.Error);
+
+                        return;
+                    }
+
                     context.Set<TEntity>().Remove(entity);
                     await context.SaveChangesAsync();
                 }
@@ -247,6 +260,11 @@ namespace LoreCompanion.ViewModels
             _databaseRefreshNeeded = true;
 
             return Task.CompletedTask;
+        }
+
+        protected virtual Task<bool> CanDeleteAsync(LoreDbContext context, TEntity entity)
+        {
+            return Task.FromResult(true);
         }
 
         protected virtual IQueryable<TEntity> GetAllItemsQuery(LoreDbContext context)
