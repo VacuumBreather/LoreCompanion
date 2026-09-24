@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LoreCompanion.ViewModels
 {
-    public abstract class
-        MasterDetailWithEpisodeLocationCharacterSectionScreen<TEntity> : MasterDetailWithEpisodeSectionScreen<TEntity>,
-                                                                         IHandle<EntityUpdatedEvent<Character>>
+    public abstract class MasterDetailWithEpisodeLocationCharacterSectionScreen<TEntity> :
+        MasterDetailWithEpisodeLocationSectionScreen<TEntity>,
+        IHandle<EntityUpdatedEvent<Character>>
         where TEntity : EntityBase, ICharacterReferencing, IEpisodeReferencing, ILocationReferencing, IEditableObject,
         new()
     {
