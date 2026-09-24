@@ -16,7 +16,6 @@
                                      IsDesignTimeCreatable=False}"
     d:DesignHeight="300"
     d:DesignWidth="300"
-    Background="{StaticResource Brush.Background}"
     mc:Ignorable="d">
     <UserControl.Resources>
         <!--  DataTemplate.Location.Master  -->
