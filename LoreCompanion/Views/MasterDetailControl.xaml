@@ -63,6 +63,7 @@
                         Background="Transparent"
                         BorderThickness="0"
                         ItemTemplate="{Binding ItemTemplate, ElementName=Root}"
+                        ItemTemplateSelector="{Binding ItemTemplateSelector, ElementName=Root}"
                         ItemsSource="{Binding ItemsView}"
                         SelectedItem="{Binding SelectedItem}" />
                 </DockPanel>
@@ -129,7 +130,10 @@
                         </MultiBinding>
                     </Button.Visibility>
                 </Button>
-                <ContentControl Content="{Binding SelectedItem}" ContentTemplate="{Binding DetailTemplate, ElementName=Root}" />
+                <ContentControl
+                    Content="{Binding SelectedItem}"
+                    ContentTemplate="{Binding DetailTemplate, ElementName=Root}"
+                    ContentTemplateSelector="{Binding DetailTemplateSelector, ElementName=Root}" />
             </DockPanel>
         </Grid>
     </controls:BusyDecorator>

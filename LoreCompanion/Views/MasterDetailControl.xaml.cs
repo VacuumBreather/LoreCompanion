@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels;
 
@@ -11,6 +12,11 @@ namespace LoreCompanion.Views
             typeof(DataTemplate),
             typeof(MasterDetailControl));
 
+        public static readonly DependencyProperty ItemTemplateSelectorProperty = DependencyProperty.Register(
+            nameof(ItemTemplateSelector),
+            typeof(DataTemplateSelector),
+            typeof(MasterDetailControl));
+
         public static readonly DependencyProperty ReadOnlyDetailTemplateProperty = DependencyProperty.Register(
             nameof(ReadOnlyDetailTemplate),
             typeof(DataTemplate),
@@ -19,6 +25,11 @@ namespace LoreCompanion.Views
         public static readonly DependencyProperty EditDetailTemplateProperty = DependencyProperty.Register(
             nameof(EditDetailTemplate),
             typeof(DataTemplate),
+            typeof(MasterDetailControl));
+
+        public static readonly DependencyProperty DetailTemplateSelectorProperty = DependencyProperty.Register(
+            nameof(DetailTemplateSelector),
+            typeof(DataTemplateSelector),
             typeof(MasterDetailControl));
 
         private static readonly DependencyProperty DetailTemplateProperty = DependencyProperty.Register(
@@ -45,6 +56,12 @@ namespace LoreCompanion.Views
             set => SetValue(ItemTemplateProperty, value);
         }
 
+        public DataTemplateSelector? ItemTemplateSelector
+        {
+            get => (DataTemplateSelector?)GetValue(ItemTemplateSelectorProperty);
+            set => SetValue(ItemTemplateSelectorProperty, value);
+        }
+
         public DataTemplate? ReadOnlyDetailTemplate
         {
             get => (DataTemplate?)GetValue(ReadOnlyDetailTemplateProperty);
@@ -61,6 +78,12 @@ namespace LoreCompanion.Views
         {
             get => (EditMode)GetValue(EditModeProperty);
             set => SetValue(EditModeProperty, value);
+        }
+
+        public DataTemplateSelector? DetailTemplateSelector
+        {
+            get => (DataTemplateSelector?)GetValue(DetailTemplateSelectorProperty);
+            set => SetValue(DetailTemplateSelectorProperty, value);
         }
 
         private DataTemplate? DetailTemplate
