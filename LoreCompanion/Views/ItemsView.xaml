@@ -23,10 +23,10 @@
         <!--  DataTemplate.Item.Master  -->
         <DataTemplate x:Key="DataTemplate.Item.Master" DataType="{x:Type models:Item}">
             <DockPanel>
-                <DockPanel Width="64" DockPanel.Dock="Left">
+                <DockPanel Width="{StaticResource Width.Image.MasterTemplate}" DockPanel.Dock="Left">
                     <Image
                         Margin="0,5"
-                        HorizontalAlignment="Left"
+                        HorizontalAlignment="Center"
                         RenderOptions.BitmapScalingMode="Fant"
                         Source="{StaticResource Image.Placeholder}"
                         Stretch="Uniform">

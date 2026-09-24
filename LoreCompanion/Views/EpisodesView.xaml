@@ -7,6 +7,7 @@
     xmlns:cm="http://caliburnmicro.com"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:local="clr-namespace:LoreCompanion.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:LoreCompanion.Models"
@@ -20,15 +21,26 @@
         <!--  DataTemplate.Episode.Master  -->
         <DataTemplate x:Key="DataTemplate.Episode.Master" DataType="{x:Type models:Episode}">
             <DockPanel>
-                <Image
-                    Margin="0,5"
-                    RenderOptions.BitmapScalingMode="Fant"
-                    Source="{StaticResource Image.Placeholder}"
-                    Stretch="Uniform">
-                    <b:Interaction.Behaviors>
-                        <behaviors:LoadCachedImageBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToThumbnailUrl}}" />
-                    </b:Interaction.Behaviors>
-                </Image>
+                <DockPanel Width="{StaticResource Width.Image.MasterTemplate}" DockPanel.Dock="Left">
+                    <Image
+                        Margin="0,5"
+                        HorizontalAlignment="Center"
+                        RenderOptions.BitmapScalingMode="Fant"
+                        Source="{StaticResource Image.Placeholder}"
+                        Stretch="Uniform">
+                        <b:Interaction.Behaviors>
+                            <behaviors:LoadCachedImageBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToThumbnailUrl}}" />
+                        </b:Interaction.Behaviors>
+                    </Image>
+                </DockPanel>
+                <iconPacks:PackIconMaterialDesign
+                    Width="20"
+                    Height="20"
+                    Margin="20,0,0,0"
+                    VerticalAlignment="Center"
+                    DockPanel.Dock="Left"
+                    Foreground="{StaticResource Brush.Foreground.Primary}"
+                    Kind="LiveTv" />
                 <TextBlock
                     Margin="20,0,0,0"
                     VerticalAlignment="Center"
@@ -59,32 +71,34 @@
                             <behaviors:LoadCachedVideoTitleBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToMetadataUrl}}" />
                         </b:Interaction.Behaviors>
                     </TextBlock>
-                    <Border
-                        MaxWidth="320"
-                        Margin="0,20,0,0"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        BorderBrush="{StaticResource Brush.Border.Primary}"
-                        BorderThickness="2"
-                        DockPanel.Dock="Top">
-                        <Image
-                            RenderOptions.BitmapScalingMode="HighQuality"
-                            Source="{StaticResource Image.Placeholder}"
-                            Stretch="Uniform">
-                            <b:Interaction.Behaviors>
-                                <behaviors:LoadCachedImageBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToThumbnailUrl}}" />
-                            </b:Interaction.Behaviors>
-                        </Image>
-                    </Border>
-                    <Button
-                        Width="100"
-                        Height="67"
-                        Margin="0,20,0,0"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        cm:Message.Attach="PlayVideo($dataContext)"
-                        DockPanel.Dock="Top"
-                        Style="{StaticResource Style.Button.Play}" />
+                    <DockPanel HorizontalAlignment="Left" DockPanel.Dock="Top">
+                        <Border
+                            MaxWidth="320"
+                            Margin="0,20,0,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            BorderBrush="{StaticResource Brush.Border.Primary}"
+                            BorderThickness="2"
+                            DockPanel.Dock="Top">
+                            <Image
+                                RenderOptions.BitmapScalingMode="HighQuality"
+                                Source="{StaticResource Image.Placeholder}"
+                                Stretch="Uniform">
+                                <b:Interaction.Behaviors>
+                                    <behaviors:LoadCachedImageBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToThumbnailUrl}}" />
+                                </b:Interaction.Behaviors>
+                            </Image>
+                        </Border>
+                        <Button
+                            Width="100"
+                            Height="67"
+                            Margin="0,20,0,0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Top"
+                            cm:Message.Attach="PlayVideo($dataContext)"
+                            DockPanel.Dock="Top"
+                            Style="{StaticResource Style.Button.Play}" />
+                    </DockPanel>
                 </DockPanel>
 
                 <!--  Edit Template  -->
