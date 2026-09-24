@@ -2,22 +2,15 @@
     x:Class="LoreCompanion.Views.LocationsView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:behaviors="clr-namespace:LoreCompanion.Views.Behaviors"
-    xmlns:cm="http://caliburnmicro.com"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
-    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:local="clr-namespace:LoreCompanion.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="clr-namespace:LoreCompanion.Models"
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
     d:DataContext="{d:DesignInstance viewModels:LocationsViewModel,
                                      IsDesignTimeCreatable=False}"
     d:DesignHeight="300"
     d:DesignWidth="300"
     mc:Ignorable="d">
-    <UserControl.Resources />
 
     <local:MasterDetailControl DetailTemplate="{StaticResource DataTemplate.Location.Detail}" ItemTemplate="{StaticResource DataTemplate.Location.Master}" />
 
