@@ -3,6 +3,7 @@ using System;
 using LoreCompanion.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoreCompanion.Migrations
 {
     [DbContext(typeof(LoreDbContext))]
-    partial class LoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260924040224_ChangeItemLocationToForeignKey")]
+    partial class ChangeItemLocationToForeignKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
@@ -140,8 +143,7 @@ namespace LoreCompanion.Migrations
 
                     b.HasOne("LoreCompanion.Models.Location", "Location")
                         .WithMany()
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("LocationId");
 
                     b.Navigation("Episode");
 

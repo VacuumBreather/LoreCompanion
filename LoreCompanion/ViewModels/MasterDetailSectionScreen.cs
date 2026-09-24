@@ -17,18 +17,14 @@ namespace LoreCompanion.ViewModels
     public abstract class MasterDetailSectionScreen<TEntity> : SectionScreen, IHandle<DatabaseUpdatedEvent>
         where TEntity : EntityBase, INamed, IEditableObject, new()
     {
-        private readonly IDbContextFactory<LoreDbContext> _dbContextFactory;
         private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
-        private readonly SemaphoreSlim _databaseLock = new(1, 1);
 
         private IDisposable? _subscription;
         private bool _databaseRefreshNeeded = true;
         private int _busyCount;
         private Task? _loadingTask;
         private CancellationTokenSource? _loadingCts;
-
-        private ILogger? _logger;
 
         protected MasterDetailSectionScreen(
             string section,
@@ -38,10 +34,11 @@ namespace LoreCompanion.ViewModels
             IEventAggregator eventAggregator)
             : base(section)
         {
-            _dbContextFactory = dbContextFactory;
+            DbContextFactory = dbContextFactory;
             _dialogService = dialogService;
             _notificationService = notificationService;
-            eventAggregator.SubscribeOnPublishedThread(this);
+            EventAggregator = eventAggregator;
+            EventAggregator.SubscribeOnPublishedThread(this);
 
             ItemsView = (ListCollectionView)CollectionViewSource.GetDefaultView(Items);
             ItemsView.Filter = OnFilter;
@@ -103,7 +100,13 @@ namespace LoreCompanion.ViewModels
 
         public bool IsBusy => _busyCount > 0;
 
-        protected ILogger Logger => _logger ??= LogManager.GetLogger(GetType());
+        protected IDbContextFactory<LoreDbContext> DbContextFactory { get; }
+
+        protected SemaphoreSlim DatabaseLock { get; } = new(1, 1);
+
+        protected IEventAggregator EventAggregator { get; }
+
+        protected ILogger Logger => field ??= LogManager.GetLogger(GetType());
 
         [PublicAPI]
         public Task CreateNewAsync()
@@ -201,7 +204,7 @@ namespace LoreCompanion.ViewModels
                 return;
             }
 
-            await _databaseLock.WaitAsync();
+            await DatabaseLock.WaitAsync();
 
             try
             {
@@ -217,7 +220,7 @@ namespace LoreCompanion.ViewModels
                         entity.GetType().Name.ToLower(),
                         entity);
 
-                    await using var context = await _dbContextFactory.CreateDbContextAsync();
+                    await using var context = await DbContextFactory.CreateDbContextAsync();
 
                     var canDelete = await CanDeleteAsync(context, entity);
 
@@ -237,6 +240,8 @@ namespace LoreCompanion.ViewModels
 
                 RemoveItemAndUpdateSelection(entity);
 
+                await OnEntityDeletedAsync(entity);
+
                 _ = _notificationService.ShowNotificationAsync(
                     $"{entity.GetType().Name} deleted",
                     $"{entity.GetType().Name} '{entity.Name}' was deleted successfully.");
@@ -252,7 +257,7 @@ namespace LoreCompanion.ViewModels
             }
             finally
             {
-                _databaseLock.Release();
+                DatabaseLock.Release();
             }
         }
 
@@ -282,17 +287,80 @@ namespace LoreCompanion.ViewModels
         {
         }
 
-        protected virtual Task UpdateAdditionalAsync(LoreDbContext context, CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
         protected virtual Task BeforeSaveAsync(TEntity entity, LoreDbContext context)
         {
             return Task.CompletedTask;
         }
 
         protected virtual Task AfterSaveAsync(TEntity entity, LoreDbContext context)
+        {
+            return Task.CompletedTask;
+        }
+
+        protected virtual Task OnEntitySavedAsync(TEntity entity)
+        {
+            return Task.CompletedTask;
+        }
+
+        protected virtual Task OnEntityDeletedAsync(TEntity entity)
+        {
+            return Task.CompletedTask;
+        }
+
+        protected virtual async Task PerformDataLoadAsync(CancellationToken cancellationToken)
+        {
+            if (_databaseRefreshNeeded)
+            {
+                await LoadAllDataAsync(cancellationToken);
+                _databaseRefreshNeeded = false;
+            }
+        }
+
+        protected virtual async Task LoadAllDataAsync(CancellationToken cancellationToken)
+        {
+            using var busy = SetBusy();
+
+            await Task.Yield();
+
+            try
+            {
+                Logger.Debug("Loading items...");
+
+                await DatabaseLock.WaitAsync(cancellationToken);
+
+                Execute.OnUIThread(() =>
+                {
+                    SelectedItem = null;
+                    Items.Clear();
+                    ClearAdditional();
+                });
+
+                // Load main items and additional collections concurrently
+                await Task.WhenAll(LoadMainItemsSteamAsync(cancellationToken), LoadAdditionalAsync(cancellationToken));
+
+                Logger.Debug("Items and auxiliary data loaded");
+            }
+            catch (OperationCanceledException e)
+            {
+                Logger.Debug(e, "Loading task cancelled");
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Error loading items");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database error",
+                    $"Could not load items.\n{e.Message}",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+            }
+            finally
+            {
+                DatabaseLock.Release();
+            }
+        }
+
+        protected virtual Task LoadAdditionalAsync(CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }
@@ -314,18 +382,14 @@ namespace LoreCompanion.ViewModels
                 ApplyFilterAndSyncSelection();
             }
 
-            if (_databaseRefreshNeeded)
+            if (_loadingCts is not null)
             {
-                if (_loadingCts is not null)
-                {
-                    await _loadingCts.CancelAsync();
-                    _loadingCts.Dispose();
-                }
-
-                _loadingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-
-                _loadingTask = Task.Run(() => LoadItemsProgressivelyAsync(_loadingCts.Token), _loadingCts.Token);
+                await _loadingCts.CancelAsync();
+                _loadingCts.Dispose();
             }
+
+            _loadingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            _loadingTask = Task.Run(() => PerformDataLoadAsync(_loadingCts.Token), _loadingCts.Token);
 
             await base.OnActivatedAsync(cancellationToken);
         }
@@ -365,8 +429,8 @@ namespace LoreCompanion.ViewModels
 
             try
             {
-                await _databaseLock.WaitAsync(cancellationToken);
-                _databaseLock.Release();
+                await DatabaseLock.WaitAsync(cancellationToken);
+                DatabaseLock.Release();
             }
             catch (OperationCanceledException e)
             {
@@ -403,73 +467,49 @@ namespace LoreCompanion.ViewModels
 
         protected abstract bool FilterEntity(TEntity entity, string searchText);
 
-        private async Task LoadItemsProgressivelyAsync(CancellationToken cancellationToken)
+        protected ActionDisposable SetBusy()
         {
-            using var busy = SetBusy();
-
-            await Task.Yield();
-
-            try
+            if (Interlocked.Increment(ref _busyCount) == 1)
             {
-                Logger.Debug("Loading items...");
+                NotifyOfPropertyChange(nameof(IsBusy));
+            }
 
-                await _databaseLock.WaitAsync(cancellationToken);
-                await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
-
-                Execute.OnUIThread(() =>
+            return new ActionDisposable(() =>
+            {
+                if (Interlocked.Decrement(ref _busyCount) == 0)
                 {
-                    SelectedItem = null;
-                    Items.Clear();
-                    ClearAdditional();
-                });
-
-                const int BatchSize = 25;
-                var buffer = new List<TEntity>(BatchSize);
-
-                // Stream items asynchronously from the database
-                await foreach (var entity in GetAllItemsQuery(context)
-                                             .AsNoTracking()
-                                             .AsAsyncEnumerable()
-                                             .WithCancellation(cancellationToken))
-                {
-                    buffer.Add(entity);
-
-                    if (buffer.Count >= BatchSize)
-                    {
-                        UpdateItemsAndSelectFirst(buffer);
-
-                        // Yield to let the WPF Dispatcher render the newly added items
-                        await Task.Yield();
-                    }
+                    NotifyOfPropertyChange(nameof(IsBusy));
                 }
+            });
+        }
 
-                if (buffer.Count > 0)
+        private async Task LoadMainItemsSteamAsync(CancellationToken cancellationToken)
+        {
+            await using var context = await DbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            const int BatchSize = 25;
+            var buffer = new List<TEntity>(BatchSize);
+
+            // Stream items asynchronously from the database
+            await foreach (var entity in GetAllItemsQuery(context)
+                                         .AsNoTracking()
+                                         .AsAsyncEnumerable()
+                                         .WithCancellation(cancellationToken))
+            {
+                buffer.Add(entity);
+
+                if (buffer.Count >= BatchSize)
                 {
                     UpdateItemsAndSelectFirst(buffer);
+
+                    // Yield to let the WPF Dispatcher render the newly added items
+                    await Task.Yield();
                 }
-
-                await UpdateAdditionalAsync(context, cancellationToken);
-
-                _databaseRefreshNeeded = false;
-                Logger.Debug("Items loaded");
             }
-            catch (OperationCanceledException e)
-            {
-                Logger.Debug(e, "Loading task cancelled");
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Error loading items");
 
-                _ = _notificationService.ShowNotificationAsync(
-                    "Database error",
-                    $"Could not load items.\n{e.Message}",
-                    NotificationType.Error,
-                    cancellationToken: CancellationToken.None);
-            }
-            finally
+            if (buffer.Count > 0)
             {
-                _databaseLock.Release();
+                UpdateItemsAndSelectFirst(buffer);
             }
         }
 
@@ -482,12 +522,12 @@ namespace LoreCompanion.ViewModels
                 return;
             }
 
-            await _databaseLock.WaitAsync();
+            await DatabaseLock.WaitAsync();
 
             try
             {
                 Logger.Debug("Saving {EntityName} '{Entity}' to database...", entity.GetType().Name.ToLower(), entity);
-                await using var context = await _dbContextFactory.CreateDbContextAsync();
+                await using var context = await DbContextFactory.CreateDbContextAsync();
 
                 await BeforeSaveAsync(entity, context);
 
@@ -505,6 +545,8 @@ namespace LoreCompanion.ViewModels
                 await context.SaveChangesAsync();
 
                 await AfterSaveAsync(entity, context);
+
+                await OnEntitySavedAsync(entity);
 
                 entity.EndEdit();
                 ItemsView.Refresh();
@@ -535,7 +577,7 @@ namespace LoreCompanion.ViewModels
             }
             finally
             {
-                _databaseLock.Release();
+                DatabaseLock.Release();
             }
         }
 
@@ -622,22 +664,6 @@ namespace LoreCompanion.ViewModels
             }
 
             return FilterEntity(entity, SearchText);
-        }
-
-        private ActionDisposable SetBusy()
-        {
-            if (Interlocked.Increment(ref _busyCount) == 1)
-            {
-                NotifyOfPropertyChange(nameof(IsBusy));
-            }
-
-            return new ActionDisposable(() =>
-            {
-                if (Interlocked.Decrement(ref _busyCount) == 0)
-                {
-                    NotifyOfPropertyChange(nameof(IsBusy));
-                }
-            });
         }
     }
 }

@@ -23,9 +23,34 @@ namespace LoreCompanion.ViewModels
             return new Location { Name = "New Location" };
         }
 
+        protected override async Task OnEntitySavedAsync(Location entity)
+        {
+            await EventAggregator.PublishOnUIThreadAsync(new LocationsUpdatedEvent());
+        }
+
+        protected override async Task OnEntityDeletedAsync(Location entity)
+        {
+            await EventAggregator.PublishOnUIThreadAsync(new LocationsUpdatedEvent());
+        }
+
         protected override bool FilterEntity(Location entity, string searchText)
         {
             return entity.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase);
+        }
+
+        protected override async Task<bool> CanDeleteAsync(LoreDbContext context, Location entity)
+        {
+            try
+            {
+                var usedInItems =
+                    await context.Items.AnyAsync(i => (i.LocationId != null) && (i.LocationId == entity.Id));
+
+                return !usedInItems;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

@@ -28,6 +28,7 @@ namespace LoreCompanion.Models
 
             modelBuilder.Entity<Location>().HasOne(x => x.Episode).WithMany().OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Item>().HasOne(x => x.Episode).WithMany().OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Item>().HasOne(x => x.Location).WithMany().OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

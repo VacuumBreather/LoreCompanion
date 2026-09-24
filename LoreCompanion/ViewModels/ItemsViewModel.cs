@@ -12,7 +12,7 @@ namespace LoreCompanion.ViewModels
         IDbContextFactory<LoreDbContext> dbContextFactory,
         IDialogService dialogService,
         INotificationService notificationService,
-        IEventAggregator eventAggregator) : MasterDetailWithEpisodeSectionScreen<Item>(
+        IEventAggregator eventAggregator) : MasterDetailWithEpisodeLocationSectionScreen<Item>(
         dbContextFactory,
         dialogService,
         notificationService,

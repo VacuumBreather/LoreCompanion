@@ -26,7 +26,7 @@ namespace LoreCompanion.Models
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{Name}";
+            return Name;
         }
 
         public override void BeginEdit()

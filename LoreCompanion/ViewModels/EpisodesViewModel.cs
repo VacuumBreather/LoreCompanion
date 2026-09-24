@@ -42,6 +42,16 @@ namespace LoreCompanion.ViewModels
             return new Episode { Name = $"Episode {max + 1}" };
         }
 
+        protected override async Task OnEntitySavedAsync(Episode entity)
+        {
+            await EventAggregator.PublishOnUIThreadAsync(new EpisodesUpdatedEvent());
+        }
+
+        protected override async Task OnEntityDeletedAsync(Episode entity)
+        {
+            await EventAggregator.PublishOnUIThreadAsync(new EpisodesUpdatedEvent());
+        }
+
         protected override bool FilterEntity(Episode entity, string searchText)
         {
             return entity.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase);
@@ -51,10 +61,18 @@ namespace LoreCompanion.ViewModels
         {
             try
             {
-                var episodeInUse =
-                    await context.Items.AnyAsync(i => (i.Episode != null) && (i.Episode.Id == entity.Id));
+                var usedInItems =
+                    await context.Items.AnyAsync(i => (i.EpisodeId != null) && (i.EpisodeId == entity.Id));
 
-                return !episodeInUse;
+                if (usedInItems)
+                {
+                    return false;
+                }
+
+                var usedInLocations =
+                    await context.Locations.AnyAsync(i => (i.EpisodeId != null) && (i.EpisodeId == entity.Id));
+
+                return !usedInLocations;
             }
             catch
             {

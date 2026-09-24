@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 namespace LoreCompanion.Models
 {
     [PublicAPI]
-    public class Item : EntityBase, INamed, IEpisodeReferencing
+    public class Item : EntityBase, INamed, IEpisodeReferencing, ILocationReferencing
     {
         private Item? _backup;
         private bool _inEdit;
@@ -37,12 +37,29 @@ namespace LoreCompanion.Models
             set => Set(ref field, value);
         }
 
-        [MaxLength(256)]
-        public string Location
+        [ForeignKey(nameof(Location))]
+        public int? LocationId
+        {
+            get;
+            set
+            {
+                if (!Set(ref field, value))
+                {
+                    return;
+                }
+
+                if (Location?.Id != value)
+                {
+                    Location = null;
+                }
+            }
+        }
+
+        public Location? Location
         {
             get;
             set => Set(ref field, value);
-        } = "";
+        }
 
         [ForeignKey(nameof(Episode))]
         public int? EpisodeId
@@ -77,7 +94,7 @@ namespace LoreCompanion.Models
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{Name} ({Id})";
+            return Name;
         }
 
         public override void BeginEdit()
@@ -93,6 +110,7 @@ namespace LoreCompanion.Models
                 ImageUrl = ImageUrl,
                 Description = Description,
                 Type = Type,
+                LocationId = LocationId,
                 Location = Location,
                 EpisodeId = EpisodeId,
                 Episode = Episode,
@@ -113,6 +131,7 @@ namespace LoreCompanion.Models
             ImageUrl = _backup.ImageUrl;
             Description = _backup.Description;
             Type = _backup.Type;
+            LocationId = _backup.LocationId;
             Location = _backup.Location;
             EpisodeId = _backup.EpisodeId;
             Episode = _backup.Episode;
