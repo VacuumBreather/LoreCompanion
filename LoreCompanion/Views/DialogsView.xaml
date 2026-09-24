@@ -69,7 +69,7 @@
                             MaxWidth="200"
                             DockPanel.Dock="Left"
                             Style="{StaticResource Style.TextBlock.Body.Quote.Small}"
-                            Text="{Binding Content, Converter={converters:QuoteConverter}}"
+                            Text="{Binding Content}"
                             TextTrimming="WordEllipsis" />
                     </DockPanel>
                 </DockPanel>
@@ -109,26 +109,26 @@
                                 </b:Interaction.Behaviors>
                             </Image>
                         </Border>
-                        <ScrollViewer
-                            Grid.Column="1"
-                            MinHeight="128"
-                            MaxHeight="{Binding ActualHeight, ElementName=ImageBorder}"
-                            Margin="20,0,0,0"
-                            Padding="0,0,5,0"
-                            VerticalScrollBarVisibility="Auto">
-                            <TextBlock
-                                helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
-                                helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
-                                helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                                helpers:HighlightHelper.Text="{Binding Content, Converter={converters:QuoteConverter}}"
-                                Style="{StaticResource Style.TextBlock.Body.Quote}"
-                                TextWrapping="Wrap" />
-                        </ScrollViewer>
                     </Grid>
-                    <Separator
-                        Margin="0,50,0,40"
+                    <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
+                    <ScrollViewer
+                        Height="150"
+                        MinHeight="150"
+                        MaxHeight="150"
+                        Margin="20,0,0,0"
+                        Padding="0,0,5,0"
                         VerticalAlignment="Top"
-                        DockPanel.Dock="Top" />
+                        DockPanel.Dock="Top"
+                        VerticalScrollBarVisibility="Auto">
+                        <TextBlock
+                            helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
+                            helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
+                            helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                            helpers:HighlightHelper.Text="{Binding Content, Converter={converters:QuoteConverter}}"
+                            Style="{StaticResource Style.TextBlock.Body.Quote}"
+                            TextWrapping="Wrap" />
+                    </ScrollViewer>
+                    <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
                     <Grid
                         VerticalAlignment="Top"
                         ColumnDefinitions="200 *"
@@ -139,7 +139,7 @@
                             Grid.Column="0"
                             VerticalAlignment="Center"
                             Style="{StaticResource Style.TextBlock.Heading}"
-                            Text="Context" />
+                            Text="Heard when" />
                         <TextBlock
                             Grid.Row="0"
                             Grid.Column="1"

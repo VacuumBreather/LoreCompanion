@@ -5,7 +5,7 @@
 
     <Style x:Key="{x:Type Separator}" TargetType="{x:Type Separator}">
         <Setter Property="Background" Value="{StaticResource Brush.Border.Primary}" />
-        <Setter Property="Margin" Value="0,40,0,40" />
+        <Setter Property="Margin" Value="0,25,0,15" />
         <Setter Property="Focusable" Value="false" />
         <Setter Property="Template">
             <Setter.Value>

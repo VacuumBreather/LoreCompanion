@@ -69,7 +69,7 @@
         <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
         <Setter Property="BorderBrush" Value="{StaticResource Brush.Border.Primary}" />
         <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
         <Setter Property="ScrollViewer.CanContentScroll" Value="true" />
         <Setter Property="ScrollViewer.PanningMode" Value="Both" />
@@ -153,6 +153,7 @@
     <!--  Converter.NavigationIcon  -->
     <converters:NavigationIconConverter x:Key="Converter.NavigationIcon">
         <helpers:TypeIconMapping Icon="{x:Static icon:PackIconMaterialDesignKind.Home}" Type="{x:Type viewModels:DashboardViewModel}" />
+        <helpers:TypeIconMapping Icon="{x:Static icon:PackIconMaterialDesignKind.Chat}" Type="{x:Type viewModels:DialogsViewModel}" />
         <helpers:TypeIconMapping Icon="{x:Static icon:PackIconMaterialDesignKind.Person}" Type="{x:Type viewModels:CharactersViewModel}" />
         <helpers:TypeIconMapping Icon="{x:Static icon:PackIconRPGAwesomeKind.Broadsword}" Type="{x:Type viewModels:ItemsViewModel}" />
         <helpers:TypeIconMapping Icon="{x:Static icon:PackIconRPGAwesomeKind.Tower}" Type="{x:Type viewModels:LocationsViewModel}" />

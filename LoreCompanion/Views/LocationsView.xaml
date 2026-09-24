@@ -79,10 +79,7 @@
                             </Image>
                         </Border>
                     </UniformGrid>
-                    <Separator
-                        Margin="0,50,0,40"
-                        VerticalAlignment="Top"
-                        DockPanel.Dock="Top" />
+                    <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
                     <Grid
                         VerticalAlignment="Top"
                         ColumnDefinitions="200 *"
