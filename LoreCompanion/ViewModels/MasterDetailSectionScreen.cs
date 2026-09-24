@@ -482,7 +482,7 @@ namespace LoreCompanion.ViewModels
 
                     if (buffer.Count >= BatchSize)
                     {
-                        UpdateItemsAndSelectFirst(buffer);
+                        UpdateItems(buffer);
 
                         // Yield to let the WPF Dispatcher render the newly added items
                         await Task.Yield();
@@ -491,9 +491,11 @@ namespace LoreCompanion.ViewModels
 
                 if (buffer.Count > 0)
                 {
-                    UpdateItemsAndSelectFirst(buffer);
+                    UpdateItems(buffer);
                 }
             }
+
+            Execute.OnUIThread(() => { SelectedItem = ItemsView.Cast<TEntity>().FirstOrDefault(); });
 
             Logger.Debug("Items and auxiliary data loaded");
         }
@@ -628,16 +630,12 @@ namespace LoreCompanion.ViewModels
             }
         }
 
-        private void UpdateItemsAndSelectFirst(List<TEntity> buffer)
+        private void UpdateItems(List<TEntity> buffer)
         {
             var chunk = buffer.ToArray();
             buffer.Clear();
 
-            Execute.OnUIThread(() =>
-            {
-                Items.AddRange(chunk);
-                SelectedItem ??= chunk.FirstOrDefault();
-            });
+            Execute.OnUIThread(() => { Items.AddRange(chunk); });
         }
 
         private bool OnFilter(object obj)
