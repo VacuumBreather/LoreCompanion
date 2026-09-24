@@ -27,11 +27,17 @@ namespace LoreCompanion.Models
                         .Property(x => x.Version)
                         .HasConversion(v => v.ToString(), v => Version.Parse(v));
 
-            modelBuilder.Entity<Location>().HasOne(x => x.Episode).WithMany().OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Episode>().HasIndex(x => x.Name).IsUnique();
+            modelBuilder.Entity<Episode>().HasIndex(x => x.VideoKey).IsUnique();
+
+            modelBuilder.Entity<Location>().HasIndex(x => x.Name).IsUnique();
             modelBuilder.Entity<Location>().Property(x => x.Name).UseCollation(DatabaseHelper.NoCaseCollation);
+            modelBuilder.Entity<Location>().HasOne(x => x.Episode).WithMany().OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Item>().HasIndex(x => x.Name).IsUnique();
+            modelBuilder.Entity<Item>().Property(x => x.Name).UseCollation(DatabaseHelper.NoCaseCollation);
             modelBuilder.Entity<Item>().HasOne(x => x.Episode).WithMany().OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Item>().HasOne(x => x.Location).WithMany().OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<Item>().Property(x => x.Name).UseCollation(DatabaseHelper.NoCaseCollation);
         }
     }
 }
