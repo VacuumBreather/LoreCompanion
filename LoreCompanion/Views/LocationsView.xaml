@@ -82,14 +82,14 @@
                     <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
                     <Grid
                         VerticalAlignment="Top"
-                        ColumnDefinitions="200 *"
+                        ColumnDefinitions="Auto 20 *"
                         DockPanel.Dock="Top">
                         <TextBlock
                             Grid.Column="0"
                             VerticalAlignment="Center"
                             Style="{StaticResource Style.TextBlock.Heading}"
-                            Text="Discovery" />
-                        <DockPanel Grid.Column="1">
+                            Text="Video" />
+                        <DockPanel Grid.Column="2">
                             <Button
                                 VerticalAlignment="Center"
                                 cm:Message.Attach="PlayVideo($dataContext)"
@@ -104,6 +104,7 @@
                                 Margin="10,0,0,0"
                                 VerticalAlignment="Center"
                                 DockPanel.Dock="Left"
+                                Style="{StaticResource Style.TextBlock.Body.Small}"
                                 Text="{Binding Timestamp, StringFormat='\\(hh\\:mm\\:ss\\)'}" />
                         </DockPanel>
                     </Grid>

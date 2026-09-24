@@ -88,7 +88,7 @@
                     <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
                     <Grid
                         VerticalAlignment="Top"
-                        ColumnDefinitions="200 *"
+                        ColumnDefinitions="Auto 20 *"
                         DockPanel.Dock="Top"
                         RowDefinitions="50 50">
                         <TextBlock
@@ -96,10 +96,10 @@
                             Grid.Column="0"
                             VerticalAlignment="Center"
                             Style="{StaticResource Style.TextBlock.Heading}"
-                            Text="Encountered in" />
+                            Text="First meeting" />
                         <TextBlock
                             Grid.Row="0"
-                            Grid.Column="1"
+                            Grid.Column="2"
                             VerticalAlignment="Center"
                             Text="{Binding Location.Name, FallbackValue='Unknown'}" />
                         <TextBlock
@@ -107,8 +107,8 @@
                             Grid.Column="0"
                             VerticalAlignment="Center"
                             Style="{StaticResource Style.TextBlock.Heading}"
-                            Text="Discovery" />
-                        <DockPanel Grid.Row="1" Grid.Column="1">
+                            Text="Video" />
+                        <DockPanel Grid.Row="1" Grid.Column="2">
                             <Button
                                 VerticalAlignment="Center"
                                 cm:Message.Attach="PlayVideo($dataContext)"
@@ -123,6 +123,7 @@
                                 Margin="10,0,0,0"
                                 VerticalAlignment="Center"
                                 DockPanel.Dock="Left"
+                                Style="{StaticResource Style.TextBlock.Body.Small}"
                                 Text="{Binding Timestamp, StringFormat='\\(hh\\:mm\\:ss\\)'}" />
                         </DockPanel>
                     </Grid>

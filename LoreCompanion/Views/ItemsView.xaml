@@ -102,8 +102,7 @@
                         </Border>
                         <ScrollViewer
                             Grid.Column="1"
-                            MinHeight="128"
-                            MaxHeight="{Binding ActualHeight, ElementName=ImageBorder}"
+                            MinHeight="220"
                             Margin="20,0,0,0"
                             Padding="0,0,5,0"
                             VerticalScrollBarVisibility="Auto">
@@ -119,8 +118,7 @@
                     <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
                     <Grid
                         VerticalAlignment="Top"
-                        ColumnDefinitions="200 *"
-                        DockPanel.Dock="Top"
+                        ColumnDefinitions="Auto 20 *"
                         RowDefinitions="50 50 50">
                         <TextBlock
                             Grid.Row="0"
@@ -130,7 +128,7 @@
                             Text="Type" />
                         <TextBlock
                             Grid.Row="0"
-                            Grid.Column="1"
+                            Grid.Column="2"
                             VerticalAlignment="Center"
                             Text="{Binding Type}" />
                         <TextBlock
@@ -141,7 +139,7 @@
                             Text="Found in" />
                         <TextBlock
                             Grid.Row="1"
-                            Grid.Column="1"
+                            Grid.Column="2"
                             VerticalAlignment="Center"
                             Text="{Binding Location.Name, FallbackValue='Unknown'}" />
                         <TextBlock
@@ -149,8 +147,8 @@
                             Grid.Column="0"
                             VerticalAlignment="Center"
                             Style="{StaticResource Style.TextBlock.Heading}"
-                            Text="Discovery" />
-                        <DockPanel Grid.Row="2" Grid.Column="1">
+                            Text="Video" />
+                        <DockPanel Grid.Row="2" Grid.Column="2">
                             <Button
                                 VerticalAlignment="Center"
                                 cm:Message.Attach="PlayVideo($dataContext)"
@@ -165,6 +163,7 @@
                                 Margin="10,0,0,0"
                                 VerticalAlignment="Center"
                                 DockPanel.Dock="Left"
+                                Style="{StaticResource Style.TextBlock.Body.Small}"
                                 Text="{Binding Timestamp, StringFormat='\\(hh\\:mm\\:ss\\)'}" />
                         </DockPanel>
                     </Grid>

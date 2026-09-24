@@ -30,6 +30,8 @@ namespace LoreCompanion.Views
                 var _ => 1.0,
             };
 
+            //scale = 1.75;
+
             // Apply LayoutTransform to inner content
             RootScaleTransform.ScaleX = scale;
             RootScaleTransform.ScaleY = scale;

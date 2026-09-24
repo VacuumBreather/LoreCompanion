@@ -78,7 +78,7 @@
 
         <!--  DataTemplate.Dialog.Detail  -->
         <DataTemplate x:Key="DataTemplate.Dialog.Detail" DataType="{x:Type models:Dialog}">
-            <Grid cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
+            <Grid cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" RowDefinitions="*">
                 <!--  ReadOnly Template  -->
                 <DockPanel Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.ReadOnly}}">
                     <TextBlock
@@ -111,28 +111,10 @@
                         </Border>
                     </Grid>
                     <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
-                    <ScrollViewer
-                        Height="150"
-                        MinHeight="150"
-                        MaxHeight="150"
-                        Margin="20,0,0,0"
-                        Padding="0,0,5,0"
-                        VerticalAlignment="Top"
-                        DockPanel.Dock="Top"
-                        VerticalScrollBarVisibility="Auto">
-                        <TextBlock
-                            helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
-                            helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
-                            helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                            helpers:HighlightHelper.Text="{Binding Content, Converter={converters:QuoteConverter}}"
-                            Style="{StaticResource Style.TextBlock.Body.Quote}"
-                            TextWrapping="Wrap" />
-                    </ScrollViewer>
-                    <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
                     <Grid
                         VerticalAlignment="Top"
-                        ColumnDefinitions="200 *"
-                        DockPanel.Dock="Top"
+                        ColumnDefinitions="Auto 20 *"
+                        DockPanel.Dock="Bottom"
                         RowDefinitions="50 50 50">
                         <TextBlock
                             Grid.Row="0"
@@ -142,7 +124,7 @@
                             Text="Heard when" />
                         <TextBlock
                             Grid.Row="0"
-                            Grid.Column="1"
+                            Grid.Column="2"
                             VerticalAlignment="Center"
                             Text="{Binding Context}" />
                         <TextBlock
@@ -153,7 +135,7 @@
                             Text="Heard in" />
                         <TextBlock
                             Grid.Row="1"
-                            Grid.Column="1"
+                            Grid.Column="2"
                             VerticalAlignment="Center"
                             Text="{Binding Location.Name, FallbackValue='Unknown'}" />
                         <TextBlock
@@ -161,8 +143,8 @@
                             Grid.Column="0"
                             VerticalAlignment="Center"
                             Style="{StaticResource Style.TextBlock.Heading}"
-                            Text="Discovery" />
-                        <DockPanel Grid.Row="2" Grid.Column="1">
+                            Text="Video" />
+                        <DockPanel Grid.Row="2" Grid.Column="2">
                             <Button
                                 VerticalAlignment="Center"
                                 cm:Message.Attach="PlayVideo($dataContext)"
@@ -177,9 +159,25 @@
                                 Margin="10,0,0,0"
                                 VerticalAlignment="Center"
                                 DockPanel.Dock="Left"
+                                Style="{StaticResource Style.TextBlock.Body.Small}"
                                 Text="{Binding Timestamp, StringFormat='\\(hh\\:mm\\:ss\\)'}" />
                         </DockPanel>
                     </Grid>
+                    <Separator VerticalAlignment="Top" DockPanel.Dock="Bottom" />
+                    <ScrollViewer
+                        MinHeight="50"
+                        Margin="20,0,0,0"
+                        Padding="0,0,5,0"
+                        VerticalAlignment="Top"
+                        VerticalScrollBarVisibility="Auto">
+                        <TextBlock
+                            helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
+                            helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
+                            helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                            helpers:HighlightHelper.Text="{Binding Content, Converter={converters:QuoteConverter}}"
+                            Style="{StaticResource Style.TextBlock.Body.Quote}"
+                            TextWrapping="Wrap" />
+                    </ScrollViewer>
                 </DockPanel>
 
                 <!--  Edit Template  -->
