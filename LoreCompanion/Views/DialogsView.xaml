@@ -10,7 +10,6 @@
     xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:local="clr-namespace:LoreCompanion.Views"
-    xmlns:markupExtensions="clr-namespace:LoreCompanion.Views.MarkupExtensions"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:LoreCompanion.Models"
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
@@ -86,7 +85,7 @@
                         helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
                         helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
                         helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                        helpers:HighlightHelper.Text="{Binding Name}"
+                        helpers:HighlightHelper.Text="{Binding Character.Name, FallbackValue=''}"
                         DockPanel.Dock="Top"
                         Style="{StaticResource Style.TextBlock.Heading.Large}" />
                     <Grid
@@ -106,7 +105,7 @@
                                 Source="{StaticResource Image.Placeholder}"
                                 Stretch="Uniform">
                                 <b:Interaction.Behaviors>
-                                    <behaviors:LoadCachedImageBehavior Url="{Binding ImageUrl}" />
+                                    <behaviors:LoadCachedImageBehavior Url="{Binding Character.ImageUrl, FallbackValue=''}" />
                                 </b:Interaction.Behaviors>
                             </Image>
                         </Border>
@@ -121,7 +120,7 @@
                                 helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
                                 helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
                                 helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                                helpers:HighlightHelper.Text="{Binding Description, Converter={converters:QuoteConverter}}"
+                                helpers:HighlightHelper.Text="{Binding Content, Converter={converters:QuoteConverter}}"
                                 Style="{StaticResource Style.TextBlock.Body.Quote}"
                                 TextWrapping="Wrap" />
                         </ScrollViewer>
@@ -140,18 +139,18 @@
                             Grid.Column="0"
                             VerticalAlignment="Center"
                             Style="{StaticResource Style.TextBlock.Heading}"
-                            Text="Type" />
+                            Text="Context" />
                         <TextBlock
                             Grid.Row="0"
                             Grid.Column="1"
                             VerticalAlignment="Center"
-                            Text="{Binding Type}" />
+                            Text="{Binding Context}" />
                         <TextBlock
                             Grid.Row="1"
                             Grid.Column="0"
                             VerticalAlignment="Center"
                             Style="{StaticResource Style.TextBlock.Heading}"
-                            Text="Found in" />
+                            Text="Heard in" />
                         <TextBlock
                             Grid.Row="1"
                             Grid.Column="1"
@@ -187,19 +186,11 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.Edit}}">
                     <DockPanel>
                         <TextBox
-                            helpers:TextBoxHelper.Header="Name"
+                            helpers:TextBoxHelper.Header="Context"
                             DockPanel.Dock="Top"
                             MaxLength="128"
                             Style="{StaticResource Style.TextBox.Header}"
-                            Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                            TextWrapping="NoWrap" />
-                        <TextBox
-                            Margin="0,10"
-                            helpers:TextBoxHelper.Header="Image Url"
-                            DockPanel.Dock="Top"
-                            MaxLength="512"
-                            Style="{StaticResource Style.TextBox.Header}"
-                            Text="{Binding ImageUrl, UpdateSourceTrigger=PropertyChanged}"
+                            Text="{Binding Context, UpdateSourceTrigger=PropertyChanged}"
                             TextWrapping="NoWrap" />
                         <TextBox
                             Margin="0,10"
@@ -207,14 +198,17 @@
                             DockPanel.Dock="Top"
                             MaxLength="2048"
                             Style="{StaticResource Style.TextBox.Header}"
-                            Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" />
+                            Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}" />
                         <ComboBox
                             Margin="0,10"
                             VerticalAlignment="Top"
-                            helpers:ComboBoxHelper.Header="Type"
+                            helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
+                            helpers:ComboBoxHelper.Header="Character"
+                            DisplayMemberPath="Name"
                             DockPanel.Dock="Top"
-                            ItemsSource="{markupExtensions:ItemTypes}"
-                            SelectedItem="{Binding Type}"
+                            ItemsSource="{Binding DataContext.Characters, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                            SelectedValue="{Binding CharacterId}"
+                            SelectedValuePath="Id"
                             Style="{StaticResource Style.ComboBox.Header}" />
                         <ComboBox
                             Margin="0,10"
