@@ -9,7 +9,11 @@ namespace LoreCompanion.Models
 
         public DbSet<Location> Locations => Set<Location>();
 
+        public DbSet<Character> Characters => Set<Character>();
+
         public DbSet<Item> Items => Set<Item>();
+
+        public DbSet<Dialog> Dialogs => Set<Dialog>();
 
         public DbSet<DatabaseRelease> DatabaseReleases => Set<DatabaseRelease>();
 
