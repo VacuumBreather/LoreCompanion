@@ -5,11 +5,13 @@
     xmlns:behaviors="clr-namespace:LoreCompanion.Views.Behaviors"
     xmlns:cm="http://caliburnmicro.com"
     xmlns:converters="clr-namespace:LoreCompanion.Views.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:me="clr-namespace:LoreCompanion.Views.MarkupExtensions"
     xmlns:models="clr-namespace:LoreCompanion.Models"
-    xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels">
+    mc:Ignorable="d">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="DialogStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
@@ -47,78 +49,77 @@
         </DockPanel>
     </DataTemplate>
 
-    <!--  DataTemplate.Episode.Detail  -->
-    <DataTemplate x:Key="DataTemplate.Episode.Detail" DataType="{x:Type models:Episode}">
-        <Grid cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
-            <!--  ReadOnly Template  -->
-            <DockPanel Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.ReadOnly}}">
-                <TextBlock
-                    helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
-                    helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
-                    helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                    helpers:HighlightHelper.Text="{Binding Number, StringFormat='Episode {0}'}"
-                    DockPanel.Dock="Top"
-                    Style="{StaticResource Style.TextBlock.Heading.Large}" />
-                <TextBlock
-                    Margin="0,15,0,0"
+    <!--  DataTemplate.Episode.Detail.ReadOnly  -->
+    <DataTemplate x:Key="DataTemplate.Episode.Detail.ReadOnly" DataType="{x:Type models:Episode}">
+        <DockPanel cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
+            <TextBlock
+                helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
+                helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
+                helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                helpers:HighlightHelper.Text="{Binding Number, StringFormat='Episode {0}'}"
+                DockPanel.Dock="Top"
+                Style="{StaticResource Style.TextBlock.Heading.Large}" />
+            <TextBlock
+                Margin="0,15,0,0"
+                VerticalAlignment="Top"
+                DockPanel.Dock="Top"
+                TextTrimming="CharacterEllipsis"
+                TextWrapping="NoWrap">
+                <b:Interaction.Behaviors>
+                    <behaviors:LoadCachedVideoTitleBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToMetadataUrl}}" />
+                </b:Interaction.Behaviors>
+            </TextBlock>
+            <DockPanel HorizontalAlignment="Left" DockPanel.Dock="Top">
+                <Border
+                    MaxWidth="320"
+                    Margin="0,20,0,0"
+                    HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    DockPanel.Dock="Top"
-                    TextTrimming="CharacterEllipsis"
-                    TextWrapping="NoWrap">
-                    <b:Interaction.Behaviors>
-                        <behaviors:LoadCachedVideoTitleBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToMetadataUrl}}" />
-                    </b:Interaction.Behaviors>
-                </TextBlock>
-                <DockPanel HorizontalAlignment="Left" DockPanel.Dock="Top">
-                    <Border
-                        MaxWidth="320"
-                        Margin="0,20,0,0"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        BorderBrush="{StaticResource Brush.Border.Primary}"
-                        BorderThickness="2"
-                        DockPanel.Dock="Top">
-                        <Image
-                            RenderOptions.BitmapScalingMode="HighQuality"
-                            Source="{StaticResource Image.Placeholder}"
-                            Stretch="Uniform">
-                            <b:Interaction.Behaviors>
-                                <behaviors:LoadCachedImageBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToThumbnailUrl}}" />
-                            </b:Interaction.Behaviors>
-                        </Image>
-                    </Border>
-                    <Button
-                        Width="100"
-                        Height="67"
-                        Margin="0,20,0,0"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Top"
-                        cm:Message.Attach="PlayVideo($dataContext)"
-                        DockPanel.Dock="Top"
-                        Style="{StaticResource Style.Button.Play}" />
-                </DockPanel>
-            </DockPanel>
-
-            <!--  Edit Template  -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.Edit}}">
-                <DockPanel>
-                    <TextBox
-                        helpers:TextBoxHelper.Header="Number"
-                        DockPanel.Dock="Top"
-                        Style="{StaticResource Style.TextBox.Header}">
+                    BorderBrush="{StaticResource Brush.Border.Primary}"
+                    BorderThickness="2"
+                    DockPanel.Dock="Top">
+                    <Image
+                        RenderOptions.BitmapScalingMode="HighQuality"
+                        Source="{StaticResource Image.Placeholder}"
+                        Stretch="Uniform">
                         <b:Interaction.Behaviors>
-                            <behaviors:IntegerTextBoxBehavior Value="{Binding Number, UpdateSourceTrigger=PropertyChanged}" />
+                            <behaviors:LoadCachedImageBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToThumbnailUrl}}" />
                         </b:Interaction.Behaviors>
-                    </TextBox>
-                    <TextBox
-                        helpers:TextBoxHelper.Header="Video Key"
-                        DockPanel.Dock="Top"
-                        MaxLength="11"
-                        Style="{StaticResource Style.TextBox.Header}"
-                        Text="{Binding VideoKey, UpdateSourceTrigger=PropertyChanged}" />
-                </DockPanel>
-            </ScrollViewer>
-        </Grid>
+                    </Image>
+                </Border>
+                <Button
+                    Width="100"
+                    Height="67"
+                    Margin="0,20,0,0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    cm:Message.Attach="PlayVideo($dataContext)"
+                    DockPanel.Dock="Top"
+                    Style="{StaticResource Style.Button.Play}" />
+            </DockPanel>
+        </DockPanel>
+    </DataTemplate>
+
+    <!--  DataTemplate.Episode.Detail.Edit  -->
+    <DataTemplate x:Key="DataTemplate.Episode.Detail.Edit" DataType="{x:Type models:Episode}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <DockPanel>
+                <TextBox
+                    helpers:TextBoxHelper.Header="Number"
+                    DockPanel.Dock="Top"
+                    Style="{StaticResource Style.TextBox.Header}">
+                    <b:Interaction.Behaviors>
+                        <behaviors:IntegerTextBoxBehavior Value="{Binding Number, UpdateSourceTrigger=PropertyChanged}" />
+                    </b:Interaction.Behaviors>
+                </TextBox>
+                <TextBox
+                    helpers:TextBoxHelper.Header="Video Key"
+                    DockPanel.Dock="Top"
+                    MaxLength="11"
+                    Style="{StaticResource Style.TextBox.Header}"
+                    Text="{Binding VideoKey, UpdateSourceTrigger=PropertyChanged}" />
+            </DockPanel>
+        </ScrollViewer>
     </DataTemplate>
 
     <!--  Location Templates  -->
@@ -155,109 +156,108 @@
         </DockPanel>
     </DataTemplate>
 
-    <!--  DataTemplate.Location.Detail  -->
-    <DataTemplate x:Key="DataTemplate.Location.Detail" DataType="{x:Type models:Location}">
-        <Grid cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
-            <!--  ReadOnly Template  -->
-            <DockPanel Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.ReadOnly}}">
-                <TextBlock
-                    helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
-                    helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
-                    helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                    helpers:HighlightHelper.Text="{Binding Name}"
-                    DockPanel.Dock="Top"
-                    Style="{StaticResource Style.TextBlock.Heading.Large}" />
-                <UniformGrid
-                    Margin="0,20,0,0"
-                    Columns="2"
-                    DockPanel.Dock="Top">
-                    <Border
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        BorderBrush="{StaticResource Brush.Border.Primary}"
-                        BorderThickness="2">
-                        <Image
-                            RenderOptions.BitmapScalingMode="HighQuality"
-                            Source="{StaticResource Image.Placeholder}"
-                            Stretch="Uniform">
-                            <b:Interaction.Behaviors>
-                                <behaviors:LoadCachedImageBehavior Url="{Binding ImageUrl}" />
-                            </b:Interaction.Behaviors>
-                        </Image>
-                    </Border>
-                </UniformGrid>
-                <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
-                <Grid
+    <!--  DataTemplate.Location.Detail.ReadOnly  -->
+    <DataTemplate x:Key="DataTemplate.Location.Detail.ReadOnly" DataType="{x:Type models:Location}">
+        <DockPanel cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
+            <TextBlock
+                helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
+                helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
+                helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                helpers:HighlightHelper.Text="{Binding Name}"
+                DockPanel.Dock="Top"
+                Style="{StaticResource Style.TextBlock.Heading.Large}" />
+            <UniformGrid
+                Margin="0,20,0,0"
+                Columns="2"
+                DockPanel.Dock="Top">
+                <Border
+                    HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    ColumnDefinitions="150 20 *"
-                    DockPanel.Dock="Top">
-                    <TextBlock
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource Style.TextBlock.Heading}"
-                        Text="Video" />
-                    <DockPanel Grid.Column="2">
-                        <Button
-                            VerticalAlignment="Center"
-                            cm:Message.Attach="PlayVideo($dataContext)"
-                            DockPanel.Dock="Left"
-                            Style="{StaticResource Style.Button.Play}" />
-                        <TextBlock
-                            Margin="10,0,0,0"
-                            VerticalAlignment="Center"
-                            DockPanel.Dock="Left"
-                            Text="{Binding Episode.Number, StringFormat='Episode {0}', FallbackValue=''}" />
-                        <TextBlock
-                            Margin="10,0,0,0"
-                            VerticalAlignment="Center"
-                            DockPanel.Dock="Left"
-                            Style="{StaticResource Style.TextBlock.Body.Small}"
-                            Text="{Binding Timestamp, StringFormat='\\(hh\\:mm\\:ss\\)'}" />
-                    </DockPanel>
-                </Grid>
-            </DockPanel>
-
-            <!--  Edit Template  -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.Edit}}">
-                <DockPanel>
-                    <TextBox
-                        helpers:TextBoxHelper.Header="Name"
-                        DockPanel.Dock="Top"
-                        MaxLength="128"
-                        Style="{StaticResource Style.TextBox.Header}"
-                        Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                        TextWrapping="NoWrap" />
-                    <TextBox
-                        Margin="0,10"
-                        helpers:TextBoxHelper.Header="Image Url"
-                        DockPanel.Dock="Top"
-                        MaxLength="512"
-                        Style="{StaticResource Style.TextBox.Header}"
-                        Text="{Binding ImageUrl, UpdateSourceTrigger=PropertyChanged}"
-                        TextWrapping="NoWrap" />
-                    <ComboBox
-                        Margin="0,10"
-                        VerticalAlignment="Top"
-                        helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
-                        helpers:ComboBoxHelper.Header="Episode"
-                        DisplayMemberPath="Name"
-                        DockPanel.Dock="Top"
-                        ItemsSource="{Binding DataContext.Episodes, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                        SelectedValue="{Binding EpisodeId}"
-                        SelectedValuePath="Id"
-                        Style="{StaticResource Style.ComboBox.Header}" />
-                    <TextBox
-                        Margin="0,10"
-                        helpers:TextBoxHelper.Header="Timestamp"
-                        DockPanel.Dock="Top"
-                        Style="{StaticResource Style.TextBox.Header}">
+                    BorderBrush="{StaticResource Brush.Border.Primary}"
+                    BorderThickness="2">
+                    <Image
+                        RenderOptions.BitmapScalingMode="HighQuality"
+                        Source="{StaticResource Image.Placeholder}"
+                        Stretch="Uniform">
                         <b:Interaction.Behaviors>
-                            <behaviors:TimeTextBoxBehavior Value="{Binding Timestamp, UpdateSourceTrigger=PropertyChanged}" />
+                            <behaviors:LoadCachedImageBehavior Url="{Binding ImageUrl}" />
                         </b:Interaction.Behaviors>
-                    </TextBox>
+                    </Image>
+                </Border>
+            </UniformGrid>
+            <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
+            <Grid
+                VerticalAlignment="Top"
+                ColumnDefinitions="150 20 *"
+                DockPanel.Dock="Top">
+                <TextBlock
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource Style.TextBlock.Heading}"
+                    Text="Video" />
+                <DockPanel Grid.Column="2">
+                    <Button
+                        VerticalAlignment="Center"
+                        cm:Message.Attach="PlayVideo($dataContext)"
+                        DockPanel.Dock="Left"
+                        Style="{StaticResource Style.Button.Play}" />
+                    <TextBlock
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Left"
+                        Text="{Binding Episode.Number, StringFormat='Episode {0}', FallbackValue=''}" />
+                    <TextBlock
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Left"
+                        Style="{StaticResource Style.TextBlock.Body.Small}"
+                        Text="{Binding Timestamp, StringFormat='\\(hh\\:mm\\:ss\\)'}" />
                 </DockPanel>
-            </ScrollViewer>
-        </Grid>
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+
+    <!--  DataTemplate.Location.Detail.Edit  -->
+    <DataTemplate x:Key="DataTemplate.Location.Detail.Edit" DataType="{x:Type models:Location}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <DockPanel>
+                <TextBox
+                    helpers:TextBoxHelper.Header="Name"
+                    DockPanel.Dock="Top"
+                    MaxLength="128"
+                    Style="{StaticResource Style.TextBox.Header}"
+                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="NoWrap" />
+                <TextBox
+                    Margin="0,10"
+                    helpers:TextBoxHelper.Header="Image Url"
+                    DockPanel.Dock="Top"
+                    MaxLength="512"
+                    Style="{StaticResource Style.TextBox.Header}"
+                    Text="{Binding ImageUrl, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="NoWrap" />
+                <ComboBox
+                    Margin="0,10"
+                    VerticalAlignment="Top"
+                    helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
+                    helpers:ComboBoxHelper.Header="Episode"
+                    DisplayMemberPath="Name"
+                    DockPanel.Dock="Top"
+                    ItemsSource="{Binding DataContext.Episodes, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                    SelectedValue="{Binding EpisodeId}"
+                    SelectedValuePath="Id"
+                    Style="{StaticResource Style.ComboBox.Header}" />
+                <TextBox
+                    Margin="0,10"
+                    helpers:TextBoxHelper.Header="Timestamp"
+                    DockPanel.Dock="Top"
+                    Style="{StaticResource Style.TextBox.Header}">
+                    <b:Interaction.Behaviors>
+                        <behaviors:TimeTextBoxBehavior Value="{Binding Timestamp, UpdateSourceTrigger=PropertyChanged}" />
+                    </b:Interaction.Behaviors>
+                </TextBox>
+            </DockPanel>
+        </ScrollViewer>
     </DataTemplate>
 
     <!--  Item Templates  -->
@@ -309,174 +309,174 @@
         </DockPanel>
     </DataTemplate>
 
-    <!--  DataTemplate.Item.Detail  -->
-    <DataTemplate x:Key="DataTemplate.Item.Detail" DataType="{x:Type models:Item}">
-        <UniformGrid cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
-            <!--  ReadOnly Template  -->
-            <DockPanel Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.ReadOnly}}">
-                <TextBlock
-                    helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
-                    helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
-                    helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                    helpers:HighlightHelper.Text="{Binding Name}"
-                    DockPanel.Dock="Top"
-                    Style="{StaticResource Style.TextBlock.Heading.Large}" />
-                <Grid
-                    MaxHeight="250"
-                    Margin="0,20,0,0"
-                    ColumnDefinitions="200 *"
-                    DockPanel.Dock="Top">
-                    <Border
-                        Grid.Column="0"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        BorderBrush="{StaticResource Brush.Border.Primary}"
-                        BorderThickness="2">
-                        <Image
-                            RenderOptions.BitmapScalingMode="HighQuality"
-                            Source="{StaticResource Image.Placeholder}"
-                            Stretch="Uniform">
-                            <b:Interaction.Behaviors>
-                                <behaviors:LoadCachedImageBehavior Url="{Binding ImageUrl}" />
-                            </b:Interaction.Behaviors>
-                        </Image>
-                    </Border>
-                    <ScrollViewer
-                        Grid.Column="1"
-                        MinHeight="220"
-                        Margin="20,0,0,0"
-                        Padding="0,0,5,0"
-                        VerticalScrollBarVisibility="Auto">
-                        <TextBlock
-                            helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
-                            helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
-                            helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                            helpers:HighlightHelper.Text="{Binding Description, Converter={converters:QuoteConverter}}"
-                            Style="{StaticResource Style.TextBlock.Body.Quote}"
-                            TextWrapping="Wrap" />
-                    </ScrollViewer>
-                </Grid>
-                <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
-                <Grid
+    <!--  DataTemplate.Item.Detail.ReadOnly  -->
+    <DataTemplate x:Key="DataTemplate.Item.Detail.ReadOnly" DataType="{x:Type models:Item}">
+        <!--  ReadOnly Template  -->
+        <DockPanel cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
+            <TextBlock
+                helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
+                helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
+                helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                helpers:HighlightHelper.Text="{Binding Name}"
+                DockPanel.Dock="Top"
+                Style="{StaticResource Style.TextBlock.Heading.Large}" />
+            <Grid
+                MaxHeight="250"
+                Margin="0,20,0,0"
+                ColumnDefinitions="200 *"
+                DockPanel.Dock="Top">
+                <Border
+                    Grid.Column="0"
+                    HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    ColumnDefinitions="150 20 *"
-                    RowDefinitions="50 50 50">
-                    <TextBlock
-                        Grid.Row="0"
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource Style.TextBlock.Heading}"
-                        Text="Type" />
-                    <TextBlock
-                        Grid.Row="0"
-                        Grid.Column="2"
-                        VerticalAlignment="Center"
-                        Text="{Binding Type}" />
-                    <TextBlock
-                        Grid.Row="1"
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource Style.TextBlock.Heading}"
-                        Text="Found in" />
-                    <TextBlock
-                        Grid.Row="1"
-                        Grid.Column="2"
-                        VerticalAlignment="Center"
-                        Text="{Binding Location.Name, FallbackValue='Unknown'}" />
-                    <TextBlock
-                        Grid.Row="2"
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource Style.TextBlock.Heading}"
-                        Text="Video" />
-                    <DockPanel Grid.Row="2" Grid.Column="2">
-                        <Button
-                            VerticalAlignment="Center"
-                            cm:Message.Attach="PlayVideo($dataContext)"
-                            DockPanel.Dock="Left"
-                            Style="{StaticResource Style.Button.Play}" />
-                        <TextBlock
-                            Margin="10,0,0,0"
-                            VerticalAlignment="Center"
-                            DockPanel.Dock="Left"
-                            Text="{Binding Episode.Number, StringFormat='Episode {0}', FallbackValue=''}" />
-                        <TextBlock
-                            Margin="10,0,0,0"
-                            VerticalAlignment="Center"
-                            DockPanel.Dock="Left"
-                            Style="{StaticResource Style.TextBlock.Body.Small}"
-                            Text="{Binding Timestamp, StringFormat='\\(hh\\:mm\\:ss\\)'}" />
-                    </DockPanel>
-                </Grid>
-            </DockPanel>
-
-            <!--  Edit Template  -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.Edit}}">
-                <DockPanel>
-                    <TextBox
-                        helpers:TextBoxHelper.Header="Name"
-                        DockPanel.Dock="Top"
-                        MaxLength="128"
-                        Style="{StaticResource Style.TextBox.Header}"
-                        Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                        TextWrapping="NoWrap" />
-                    <TextBox
-                        Margin="0,10"
-                        helpers:TextBoxHelper.Header="Image Url"
-                        DockPanel.Dock="Top"
-                        MaxLength="512"
-                        Style="{StaticResource Style.TextBox.Header}"
-                        Text="{Binding ImageUrl, UpdateSourceTrigger=PropertyChanged}"
-                        TextWrapping="NoWrap" />
-                    <TextBox
-                        Margin="0,10"
-                        helpers:TextBoxHelper.Header="Description"
-                        DockPanel.Dock="Top"
-                        MaxLength="2048"
-                        Style="{StaticResource Style.TextBox.Header}"
-                        Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" />
-                    <ComboBox
-                        Margin="0,10"
-                        VerticalAlignment="Top"
-                        helpers:ComboBoxHelper.Header="Type"
-                        DockPanel.Dock="Top"
-                        ItemsSource="{me:ItemTypes}"
-                        SelectedItem="{Binding Type}"
-                        Style="{StaticResource Style.ComboBox.Header}" />
-                    <ComboBox
-                        Margin="0,10"
-                        VerticalAlignment="Top"
-                        helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
-                        helpers:ComboBoxHelper.Header="Location"
-                        DisplayMemberPath="Name"
-                        DockPanel.Dock="Top"
-                        ItemsSource="{Binding DataContext.Locations, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                        SelectedValue="{Binding LocationId}"
-                        SelectedValuePath="Id"
-                        Style="{StaticResource Style.ComboBox.Header}" />
-                    <ComboBox
-                        Margin="0,10"
-                        VerticalAlignment="Top"
-                        helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
-                        helpers:ComboBoxHelper.Header="Episode"
-                        DisplayMemberPath="Name"
-                        DockPanel.Dock="Top"
-                        ItemsSource="{Binding DataContext.Episodes, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                        SelectedValue="{Binding EpisodeId}"
-                        SelectedValuePath="Id"
-                        Style="{StaticResource Style.ComboBox.Header}" />
-                    <TextBox
-                        Margin="0,10"
-                        helpers:TextBoxHelper.Header="Timestamp"
-                        DockPanel.Dock="Top"
-                        Style="{StaticResource Style.TextBox.Header}">
+                    BorderBrush="{StaticResource Brush.Border.Primary}"
+                    BorderThickness="2">
+                    <Image
+                        RenderOptions.BitmapScalingMode="HighQuality"
+                        Source="{StaticResource Image.Placeholder}"
+                        Stretch="Uniform">
                         <b:Interaction.Behaviors>
-                            <behaviors:TimeTextBoxBehavior Value="{Binding Timestamp, UpdateSourceTrigger=PropertyChanged}" />
+                            <behaviors:LoadCachedImageBehavior Url="{Binding ImageUrl}" />
                         </b:Interaction.Behaviors>
-                    </TextBox>
+                    </Image>
+                </Border>
+                <ScrollViewer
+                    Grid.Column="1"
+                    MinHeight="220"
+                    Margin="20,0,0,0"
+                    Padding="0,0,5,0"
+                    VerticalScrollBarVisibility="Auto">
+                    <TextBlock
+                        helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
+                        helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
+                        helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                        helpers:HighlightHelper.Text="{Binding Description, Converter={converters:QuoteConverter}}"
+                        Style="{StaticResource Style.TextBlock.Body.Quote}"
+                        TextWrapping="Wrap" />
+                </ScrollViewer>
+            </Grid>
+            <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
+            <Grid
+                VerticalAlignment="Top"
+                ColumnDefinitions="150 20 *"
+                RowDefinitions="50 50 50">
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource Style.TextBlock.Heading}"
+                    Text="Type" />
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    Text="{Binding Type}" />
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource Style.TextBlock.Heading}"
+                    Text="Found in" />
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    Text="{Binding Location.Name, FallbackValue='Unknown'}" />
+                <TextBlock
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource Style.TextBlock.Heading}"
+                    Text="Video" />
+                <DockPanel Grid.Row="2" Grid.Column="2">
+                    <Button
+                        VerticalAlignment="Center"
+                        cm:Message.Attach="PlayVideo($dataContext)"
+                        DockPanel.Dock="Left"
+                        Style="{StaticResource Style.Button.Play}" />
+                    <TextBlock
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Left"
+                        Text="{Binding Episode.Number, StringFormat='Episode {0}', FallbackValue=''}" />
+                    <TextBlock
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Left"
+                        Style="{StaticResource Style.TextBlock.Body.Small}"
+                        Text="{Binding Timestamp, StringFormat='\\(hh\\:mm\\:ss\\)'}" />
                 </DockPanel>
-            </ScrollViewer>
-        </UniformGrid>
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+
+    <!--  DataTemplate.Item.Detail.Edit  -->
+    <DataTemplate x:Key="DataTemplate.Item.Detail.Edit" DataType="{x:Type models:Item}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <DockPanel>
+                <TextBox
+                    helpers:TextBoxHelper.Header="Name"
+                    DockPanel.Dock="Top"
+                    MaxLength="128"
+                    Style="{StaticResource Style.TextBox.Header}"
+                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="NoWrap" />
+                <TextBox
+                    Margin="0,10"
+                    helpers:TextBoxHelper.Header="Image Url"
+                    DockPanel.Dock="Top"
+                    MaxLength="512"
+                    Style="{StaticResource Style.TextBox.Header}"
+                    Text="{Binding ImageUrl, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="NoWrap" />
+                <TextBox
+                    Margin="0,10"
+                    helpers:TextBoxHelper.Header="Description"
+                    DockPanel.Dock="Top"
+                    MaxLength="2048"
+                    Style="{StaticResource Style.TextBox.Header}"
+                    Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" />
+                <ComboBox
+                    Margin="0,10"
+                    VerticalAlignment="Top"
+                    helpers:ComboBoxHelper.Header="Type"
+                    DockPanel.Dock="Top"
+                    ItemsSource="{me:ItemTypes}"
+                    SelectedItem="{Binding Type}"
+                    Style="{StaticResource Style.ComboBox.Header}" />
+                <ComboBox
+                    Margin="0,10"
+                    VerticalAlignment="Top"
+                    helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
+                    helpers:ComboBoxHelper.Header="Location"
+                    DisplayMemberPath="Name"
+                    DockPanel.Dock="Top"
+                    ItemsSource="{Binding DataContext.Locations, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                    SelectedValue="{Binding LocationId}"
+                    SelectedValuePath="Id"
+                    Style="{StaticResource Style.ComboBox.Header}" />
+                <ComboBox
+                    Margin="0,10"
+                    VerticalAlignment="Top"
+                    helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
+                    helpers:ComboBoxHelper.Header="Episode"
+                    DisplayMemberPath="Name"
+                    DockPanel.Dock="Top"
+                    ItemsSource="{Binding DataContext.Episodes, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                    SelectedValue="{Binding EpisodeId}"
+                    SelectedValuePath="Id"
+                    Style="{StaticResource Style.ComboBox.Header}" />
+                <TextBox
+                    Margin="0,10"
+                    helpers:TextBoxHelper.Header="Timestamp"
+                    DockPanel.Dock="Top"
+                    Style="{StaticResource Style.TextBox.Header}">
+                    <b:Interaction.Behaviors>
+                        <behaviors:TimeTextBoxBehavior Value="{Binding Timestamp, UpdateSourceTrigger=PropertyChanged}" />
+                    </b:Interaction.Behaviors>
+                </TextBox>
+            </DockPanel>
+        </ScrollViewer>
     </DataTemplate>
 
     <!--  Character Templates  -->
@@ -519,131 +519,131 @@
         </DockPanel>
     </DataTemplate>
 
-    <!--  DataTemplate.Character.Detail  -->
-    <DataTemplate x:Key="DataTemplate.Character.Detail" DataType="{x:Type models:Character}">
-        <Grid cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
-            <!--  ReadOnly Template  -->
-            <DockPanel Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.ReadOnly}}">
-                <TextBlock
-                    helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
-                    helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
-                    helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                    helpers:HighlightHelper.Text="{Binding Name}"
-                    DockPanel.Dock="Top"
-                    Style="{StaticResource Style.TextBlock.Heading.Large}" />
-                <UniformGrid Columns="2" DockPanel.Dock="Top">
-                    <Border
-                        Margin="0,20,0,0"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        BorderBrush="{StaticResource Brush.Border.Primary}"
-                        BorderThickness="2">
-                        <Image
-                            RenderOptions.BitmapScalingMode="HighQuality"
-                            Source="{StaticResource Image.Placeholder}"
-                            Stretch="Uniform">
-                            <b:Interaction.Behaviors>
-                                <behaviors:LoadCachedImageBehavior Url="{Binding ImageUrl}" />
-                            </b:Interaction.Behaviors>
-                        </Image>
-                    </Border>
-                </UniformGrid>
-                <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
-                <Grid
+    <!--  DataTemplate.Character.Detail.ReadOnly  -->
+    <DataTemplate x:Key="DataTemplate.Character.Detail.ReadOnly" DataType="{x:Type models:Character}">
+        <!--  ReadOnly Template  -->
+        <DockPanel cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
+            <TextBlock
+                helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
+                helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
+                helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                helpers:HighlightHelper.Text="{Binding Name}"
+                DockPanel.Dock="Top"
+                Style="{StaticResource Style.TextBlock.Heading.Large}" />
+            <UniformGrid Columns="2" DockPanel.Dock="Top">
+                <Border
+                    Margin="0,20,0,0"
+                    HorizontalAlignment="Left"
                     VerticalAlignment="Top"
-                    ColumnDefinitions="150 20 *"
-                    DockPanel.Dock="Top"
-                    RowDefinitions="50 50">
-                    <TextBlock
-                        Grid.Row="0"
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource Style.TextBlock.Heading}"
-                        Text="First meeting" />
-                    <TextBlock
-                        Grid.Row="0"
-                        Grid.Column="2"
-                        VerticalAlignment="Center"
-                        Text="{Binding Location.Name, FallbackValue='Unknown'}" />
-                    <TextBlock
-                        Grid.Row="1"
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource Style.TextBlock.Heading}"
-                        Text="Video" />
-                    <DockPanel Grid.Row="1" Grid.Column="2">
-                        <Button
-                            VerticalAlignment="Center"
-                            cm:Message.Attach="PlayVideo($dataContext)"
-                            DockPanel.Dock="Left"
-                            Style="{StaticResource Style.Button.Play}" />
-                        <TextBlock
-                            Margin="10,0,0,0"
-                            VerticalAlignment="Center"
-                            DockPanel.Dock="Left"
-                            Text="{Binding Episode.Number, StringFormat='Episode {0}', FallbackValue=''}" />
-                        <TextBlock
-                            Margin="10,0,0,0"
-                            VerticalAlignment="Center"
-                            DockPanel.Dock="Left"
-                            Style="{StaticResource Style.TextBlock.Body.Small}"
-                            Text="{Binding Timestamp, StringFormat='\\(hh\\:mm\\:ss\\)'}" />
-                    </DockPanel>
-                </Grid>
-            </DockPanel>
-
-            <!--  Edit Template  -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.Edit}}">
-                <DockPanel>
-                    <TextBox
-                        helpers:TextBoxHelper.Header="Name"
-                        DockPanel.Dock="Top"
-                        MaxLength="128"
-                        Style="{StaticResource Style.TextBox.Header}"
-                        Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                        TextWrapping="NoWrap" />
-                    <TextBox
-                        Margin="0,10"
-                        helpers:TextBoxHelper.Header="Image Url"
-                        DockPanel.Dock="Top"
-                        MaxLength="512"
-                        Style="{StaticResource Style.TextBox.Header}"
-                        Text="{Binding ImageUrl, UpdateSourceTrigger=PropertyChanged}"
-                        TextWrapping="NoWrap" />
-                    <ComboBox
-                        Margin="0,10"
-                        VerticalAlignment="Top"
-                        helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
-                        helpers:ComboBoxHelper.Header="Location"
-                        DisplayMemberPath="Name"
-                        DockPanel.Dock="Top"
-                        ItemsSource="{Binding DataContext.Locations, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                        SelectedValue="{Binding LocationId}"
-                        SelectedValuePath="Id"
-                        Style="{StaticResource Style.ComboBox.Header}" />
-                    <ComboBox
-                        Margin="0,10"
-                        VerticalAlignment="Top"
-                        helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
-                        helpers:ComboBoxHelper.Header="Episode"
-                        DisplayMemberPath="Name"
-                        DockPanel.Dock="Top"
-                        ItemsSource="{Binding DataContext.Episodes, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                        SelectedValue="{Binding EpisodeId}"
-                        SelectedValuePath="Id"
-                        Style="{StaticResource Style.ComboBox.Header}" />
-                    <TextBox
-                        Margin="0,10"
-                        helpers:TextBoxHelper.Header="Timestamp"
-                        DockPanel.Dock="Top"
-                        Style="{StaticResource Style.TextBox.Header}">
+                    BorderBrush="{StaticResource Brush.Border.Primary}"
+                    BorderThickness="2">
+                    <Image
+                        RenderOptions.BitmapScalingMode="HighQuality"
+                        Source="{StaticResource Image.Placeholder}"
+                        Stretch="Uniform">
                         <b:Interaction.Behaviors>
-                            <behaviors:TimeTextBoxBehavior Value="{Binding Timestamp, UpdateSourceTrigger=PropertyChanged}" />
+                            <behaviors:LoadCachedImageBehavior Url="{Binding ImageUrl}" />
                         </b:Interaction.Behaviors>
-                    </TextBox>
+                    </Image>
+                </Border>
+            </UniformGrid>
+            <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
+            <Grid
+                VerticalAlignment="Top"
+                ColumnDefinitions="150 20 *"
+                DockPanel.Dock="Top"
+                RowDefinitions="50 50">
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource Style.TextBlock.Heading}"
+                    Text="First meeting" />
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    Text="{Binding Location.Name, FallbackValue='Unknown'}" />
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource Style.TextBlock.Heading}"
+                    Text="Video" />
+                <DockPanel Grid.Row="1" Grid.Column="2">
+                    <Button
+                        VerticalAlignment="Center"
+                        cm:Message.Attach="PlayVideo($dataContext)"
+                        DockPanel.Dock="Left"
+                        Style="{StaticResource Style.Button.Play}" />
+                    <TextBlock
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Left"
+                        Text="{Binding Episode.Number, StringFormat='Episode {0}', FallbackValue=''}" />
+                    <TextBlock
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Left"
+                        Style="{StaticResource Style.TextBlock.Body.Small}"
+                        Text="{Binding Timestamp, StringFormat='\\(hh\\:mm\\:ss\\)'}" />
                 </DockPanel>
-            </ScrollViewer>
-        </Grid>
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+
+    <!--  DataTemplate.Character.Detail.Edit  -->
+    <DataTemplate x:Key="DataTemplate.Character.Detail.Edit" DataType="{x:Type models:Character}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <DockPanel>
+                <TextBox
+                    helpers:TextBoxHelper.Header="Name"
+                    DockPanel.Dock="Top"
+                    MaxLength="128"
+                    Style="{StaticResource Style.TextBox.Header}"
+                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="NoWrap" />
+                <TextBox
+                    Margin="0,10"
+                    helpers:TextBoxHelper.Header="Image Url"
+                    DockPanel.Dock="Top"
+                    MaxLength="512"
+                    Style="{StaticResource Style.TextBox.Header}"
+                    Text="{Binding ImageUrl, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="NoWrap" />
+                <ComboBox
+                    Margin="0,10"
+                    VerticalAlignment="Top"
+                    helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
+                    helpers:ComboBoxHelper.Header="Location"
+                    DisplayMemberPath="Name"
+                    DockPanel.Dock="Top"
+                    ItemsSource="{Binding DataContext.Locations, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                    SelectedValue="{Binding LocationId}"
+                    SelectedValuePath="Id"
+                    Style="{StaticResource Style.ComboBox.Header}" />
+                <ComboBox
+                    Margin="0,10"
+                    VerticalAlignment="Top"
+                    helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
+                    helpers:ComboBoxHelper.Header="Episode"
+                    DisplayMemberPath="Name"
+                    DockPanel.Dock="Top"
+                    ItemsSource="{Binding DataContext.Episodes, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                    SelectedValue="{Binding EpisodeId}"
+                    SelectedValuePath="Id"
+                    Style="{StaticResource Style.ComboBox.Header}" />
+                <TextBox
+                    Margin="0,10"
+                    helpers:TextBoxHelper.Header="Timestamp"
+                    DockPanel.Dock="Top"
+                    Style="{StaticResource Style.TextBox.Header}">
+                    <b:Interaction.Behaviors>
+                        <behaviors:TimeTextBoxBehavior Value="{Binding Timestamp, UpdateSourceTrigger=PropertyChanged}" />
+                    </b:Interaction.Behaviors>
+                </TextBox>
+            </DockPanel>
+        </ScrollViewer>
     </DataTemplate>
 
     <!--  Dialog Templates  -->
@@ -705,170 +705,170 @@
         </DockPanel>
     </DataTemplate>
 
-    <!--  DataTemplate.Dialog.Detail  -->
-    <DataTemplate x:Key="DataTemplate.Dialog.Detail" DataType="{x:Type models:Dialog}">
-        <UniformGrid cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
-            <!--  ReadOnly Template  -->
-            <DockPanel VerticalAlignment="Top" Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.ReadOnly}}">
+    <!--  DataTemplate.Dialog.Detail.ReadOnly  -->
+    <DataTemplate x:Key="DataTemplate.Dialog.Detail.ReadOnly" DataType="{x:Type models:Dialog}">
+        <!--  ReadOnly Template  -->
+        <DockPanel VerticalAlignment="Top" cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
+            <TextBlock
+                helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
+                helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
+                helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                helpers:HighlightHelper.Text="{Binding Character.Name, FallbackValue=''}"
+                DockPanel.Dock="Top"
+                Style="{StaticResource Style.TextBlock.Heading.Large}" />
+            <UniformGrid
+                Margin="0,20,0,0"
+                Columns="2"
+                DockPanel.Dock="Top">
+                <Border
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    BorderBrush="{StaticResource Brush.Border.Primary}"
+                    BorderThickness="2">
+                    <Image
+                        RenderOptions.BitmapScalingMode="HighQuality"
+                        Source="{StaticResource Image.Placeholder}"
+                        Stretch="Uniform">
+                        <b:Interaction.Behaviors>
+                            <behaviors:LoadCachedImageBehavior Url="{Binding Character.ImageUrl, FallbackValue=''}" />
+                        </b:Interaction.Behaviors>
+                    </Image>
+                </Border>
+            </UniformGrid>
+            <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
+            <Grid
+                VerticalAlignment="Top"
+                ColumnDefinitions="150 20 *"
+                DockPanel.Dock="Bottom"
+                RowDefinitions="50 50 50">
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource Style.TextBlock.Heading}"
+                    Text="Heard when" />
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    Text="{Binding Context}" />
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource Style.TextBlock.Heading}"
+                    Text="Heard in" />
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    Text="{Binding Location.Name, FallbackValue='Unknown'}" />
+                <TextBlock
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource Style.TextBlock.Heading}"
+                    Text="Video" />
+                <DockPanel Grid.Row="2" Grid.Column="2">
+                    <Button
+                        VerticalAlignment="Center"
+                        cm:Message.Attach="PlayVideo($dataContext)"
+                        DockPanel.Dock="Left"
+                        Style="{StaticResource Style.Button.Play}" />
+                    <TextBlock
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Left"
+                        Text="{Binding Episode.Number, StringFormat='Episode {0}', FallbackValue=''}" />
+                    <TextBlock
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Left"
+                        Style="{StaticResource Style.TextBlock.Body.Small}"
+                        Text="{Binding Timestamp, StringFormat='\\(hh\\:mm\\:ss\\)'}" />
+                </DockPanel>
+            </Grid>
+            <Separator VerticalAlignment="Top" DockPanel.Dock="Bottom" />
+            <ScrollViewer
+                MinHeight="50"
+                MaxHeight="300"
+                Margin="20,0,0,0"
+                Padding="0,0,5,0"
+                VerticalAlignment="Top"
+                VerticalScrollBarVisibility="Auto">
                 <TextBlock
                     helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
                     helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
                     helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                    helpers:HighlightHelper.Text="{Binding Character.Name, FallbackValue=''}"
-                    DockPanel.Dock="Top"
-                    Style="{StaticResource Style.TextBlock.Heading.Large}" />
-                <UniformGrid
-                    Margin="0,20,0,0"
-                    Columns="2"
-                    DockPanel.Dock="Top">
-                    <Border
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        BorderBrush="{StaticResource Brush.Border.Primary}"
-                        BorderThickness="2">
-                        <Image
-                            RenderOptions.BitmapScalingMode="HighQuality"
-                            Source="{StaticResource Image.Placeholder}"
-                            Stretch="Uniform">
-                            <b:Interaction.Behaviors>
-                                <behaviors:LoadCachedImageBehavior Url="{Binding Character.ImageUrl, FallbackValue=''}" />
-                            </b:Interaction.Behaviors>
-                        </Image>
-                    </Border>
-                </UniformGrid>
-                <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
-                <Grid
-                    VerticalAlignment="Top"
-                    ColumnDefinitions="150 20 *"
-                    DockPanel.Dock="Bottom"
-                    RowDefinitions="50 50 50">
-                    <TextBlock
-                        Grid.Row="0"
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource Style.TextBlock.Heading}"
-                        Text="Heard when" />
-                    <TextBlock
-                        Grid.Row="0"
-                        Grid.Column="2"
-                        VerticalAlignment="Center"
-                        Text="{Binding Context}" />
-                    <TextBlock
-                        Grid.Row="1"
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource Style.TextBlock.Heading}"
-                        Text="Heard in" />
-                    <TextBlock
-                        Grid.Row="1"
-                        Grid.Column="2"
-                        VerticalAlignment="Center"
-                        Text="{Binding Location.Name, FallbackValue='Unknown'}" />
-                    <TextBlock
-                        Grid.Row="2"
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource Style.TextBlock.Heading}"
-                        Text="Video" />
-                    <DockPanel Grid.Row="2" Grid.Column="2">
-                        <Button
-                            VerticalAlignment="Center"
-                            cm:Message.Attach="PlayVideo($dataContext)"
-                            DockPanel.Dock="Left"
-                            Style="{StaticResource Style.Button.Play}" />
-                        <TextBlock
-                            Margin="10,0,0,0"
-                            VerticalAlignment="Center"
-                            DockPanel.Dock="Left"
-                            Text="{Binding Episode.Number, StringFormat='Episode {0}', FallbackValue=''}" />
-                        <TextBlock
-                            Margin="10,0,0,0"
-                            VerticalAlignment="Center"
-                            DockPanel.Dock="Left"
-                            Style="{StaticResource Style.TextBlock.Body.Small}"
-                            Text="{Binding Timestamp, StringFormat='\\(hh\\:mm\\:ss\\)'}" />
-                    </DockPanel>
-                </Grid>
-                <Separator VerticalAlignment="Top" DockPanel.Dock="Bottom" />
-                <ScrollViewer
-                    MinHeight="50"
-                    MaxHeight="300"
-                    Margin="20,0,0,0"
-                    Padding="0,0,5,0"
-                    VerticalAlignment="Top"
-                    VerticalScrollBarVisibility="Auto">
-                    <TextBlock
-                        helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
-                        helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
-                        helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                        helpers:HighlightHelper.Text="{Binding Content, Converter={converters:QuoteConverter}}"
-                        Style="{StaticResource Style.TextBlock.Body.Quote}"
-                        TextWrapping="Wrap" />
-                </ScrollViewer>
-            </DockPanel>
-
-            <!--  Edit Template  -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.Edit}}">
-                <DockPanel>
-                    <TextBox
-                        helpers:TextBoxHelper.Header="Context"
-                        DockPanel.Dock="Top"
-                        MaxLength="128"
-                        Style="{StaticResource Style.TextBox.Header}"
-                        Text="{Binding Context, UpdateSourceTrigger=PropertyChanged}"
-                        TextWrapping="NoWrap" />
-                    <TextBox
-                        Margin="0,10"
-                        helpers:TextBoxHelper.Header="Description"
-                        DockPanel.Dock="Top"
-                        MaxLength="2048"
-                        Style="{StaticResource Style.TextBox.Header}"
-                        Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}" />
-                    <ComboBox
-                        Margin="0,10"
-                        VerticalAlignment="Top"
-                        helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
-                        helpers:ComboBoxHelper.Header="Character"
-                        DisplayMemberPath="Name"
-                        DockPanel.Dock="Top"
-                        ItemsSource="{Binding DataContext.Characters, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                        SelectedValue="{Binding CharacterId}"
-                        SelectedValuePath="Id"
-                        Style="{StaticResource Style.ComboBox.Header}" />
-                    <ComboBox
-                        Margin="0,10"
-                        VerticalAlignment="Top"
-                        helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
-                        helpers:ComboBoxHelper.Header="Location"
-                        DisplayMemberPath="Name"
-                        DockPanel.Dock="Top"
-                        ItemsSource="{Binding DataContext.Locations, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                        SelectedValue="{Binding LocationId}"
-                        SelectedValuePath="Id"
-                        Style="{StaticResource Style.ComboBox.Header}" />
-                    <ComboBox
-                        Margin="0,10"
-                        VerticalAlignment="Top"
-                        helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
-                        helpers:ComboBoxHelper.Header="Episode"
-                        DisplayMemberPath="Name"
-                        DockPanel.Dock="Top"
-                        ItemsSource="{Binding DataContext.Episodes, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                        SelectedValue="{Binding EpisodeId}"
-                        SelectedValuePath="Id"
-                        Style="{StaticResource Style.ComboBox.Header}" />
-                    <TextBox
-                        Margin="0,10"
-                        helpers:TextBoxHelper.Header="Timestamp"
-                        DockPanel.Dock="Top"
-                        Style="{StaticResource Style.TextBox.Header}">
-                        <b:Interaction.Behaviors>
-                            <behaviors:TimeTextBoxBehavior Value="{Binding Timestamp, UpdateSourceTrigger=PropertyChanged}" />
-                        </b:Interaction.Behaviors>
-                    </TextBox>
-                </DockPanel>
+                    helpers:HighlightHelper.Text="{Binding Content, Converter={converters:QuoteConverter}}"
+                    Style="{StaticResource Style.TextBlock.Body.Quote}"
+                    TextWrapping="Wrap" />
             </ScrollViewer>
-        </UniformGrid>
+        </DockPanel>
+    </DataTemplate>
+
+    <!--  DataTemplate.Dialog.Detail.Edit  -->
+    <DataTemplate x:Key="DataTemplate.Dialog.Detail.Edit" DataType="{x:Type models:Dialog}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <DockPanel>
+                <TextBox
+                    helpers:TextBoxHelper.Header="Context"
+                    DockPanel.Dock="Top"
+                    MaxLength="128"
+                    Style="{StaticResource Style.TextBox.Header}"
+                    Text="{Binding Context, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="NoWrap" />
+                <TextBox
+                    Margin="0,10"
+                    helpers:TextBoxHelper.Header="Description"
+                    DockPanel.Dock="Top"
+                    MaxLength="2048"
+                    Style="{StaticResource Style.TextBox.Header}"
+                    Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}" />
+                <ComboBox
+                    Margin="0,10"
+                    VerticalAlignment="Top"
+                    helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
+                    helpers:ComboBoxHelper.Header="Character"
+                    DisplayMemberPath="Name"
+                    DockPanel.Dock="Top"
+                    ItemsSource="{Binding DataContext.Characters, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                    SelectedValue="{Binding CharacterId}"
+                    SelectedValuePath="Id"
+                    Style="{StaticResource Style.ComboBox.Header}" />
+                <ComboBox
+                    Margin="0,10"
+                    VerticalAlignment="Top"
+                    helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
+                    helpers:ComboBoxHelper.Header="Location"
+                    DisplayMemberPath="Name"
+                    DockPanel.Dock="Top"
+                    ItemsSource="{Binding DataContext.Locations, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                    SelectedValue="{Binding LocationId}"
+                    SelectedValuePath="Id"
+                    Style="{StaticResource Style.ComboBox.Header}" />
+                <ComboBox
+                    Margin="0,10"
+                    VerticalAlignment="Top"
+                    helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
+                    helpers:ComboBoxHelper.Header="Episode"
+                    DisplayMemberPath="Name"
+                    DockPanel.Dock="Top"
+                    ItemsSource="{Binding DataContext.Episodes, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                    SelectedValue="{Binding EpisodeId}"
+                    SelectedValuePath="Id"
+                    Style="{StaticResource Style.ComboBox.Header}" />
+                <TextBox
+                    Margin="0,10"
+                    helpers:TextBoxHelper.Header="Timestamp"
+                    DockPanel.Dock="Top"
+                    Style="{StaticResource Style.TextBox.Header}">
+                    <b:Interaction.Behaviors>
+                        <behaviors:TimeTextBoxBehavior Value="{Binding Timestamp, UpdateSourceTrigger=PropertyChanged}" />
+                    </b:Interaction.Behaviors>
+                </TextBox>
+            </DockPanel>
+        </ScrollViewer>
     </DataTemplate>
 
 </ResourceDictionary>

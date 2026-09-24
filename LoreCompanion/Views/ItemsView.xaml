@@ -11,7 +11,11 @@
     d:DesignHeight="300"
     d:DesignWidth="300"
     mc:Ignorable="d">
-    <UserControl.Resources />
 
-    <views:MasterDetailControl DetailTemplate="{StaticResource DataTemplate.Item.Detail}" ItemTemplate="{StaticResource DataTemplate.Item.Master}" />
+    <views:MasterDetailControl
+        EditDetailTemplate="{StaticResource DataTemplate.Item.Detail.Edit}"
+        EditMode="{Binding EditMode, Mode=OneWay}"
+        ItemTemplate="{StaticResource DataTemplate.Item.Master}"
+        ReadOnlyDetailTemplate="{StaticResource DataTemplate.Item.Detail.ReadOnly}" />
+
 </UserControl>
