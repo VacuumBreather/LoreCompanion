@@ -33,7 +33,7 @@
                     Margin="20,0,0,0"
                     VerticalAlignment="Center"
                     Style="{StaticResource Style.TextBlock.Body.Large}"
-                    Text="{Binding Name}" />
+                    Text="{Binding Number, StringFormat='Episode {0}'}" />
             </DockPanel>
         </DataTemplate>
 
@@ -46,7 +46,7 @@
                         helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
                         helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
                         helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                        helpers:HighlightHelper.Text="{Binding Name}"
+                        helpers:HighlightHelper.Text="{Binding Number, StringFormat='Episode {0}'}"
                         DockPanel.Dock="Top"
                         Style="{StaticResource Style.TextBlock.Heading.Large}" />
                     <TextBlock
@@ -91,11 +91,13 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.Edit}}">
                     <DockPanel>
                         <TextBox
-                            helpers:TextBoxHelper.Header="Name"
+                            helpers:TextBoxHelper.Header="Number"
                             DockPanel.Dock="Top"
-                            MaxLength="128"
-                            Style="{StaticResource Style.TextBox.Header}"
-                            Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                            Style="{StaticResource Style.TextBox.Header}">
+                            <b:Interaction.Behaviors>
+                                <behaviors:IntegerTextBoxBehavior Value="{Binding Number, UpdateSourceTrigger=PropertyChanged}" />
+                            </b:Interaction.Behaviors>
+                        </TextBox>
                         <TextBox
                             helpers:TextBoxHelper.Header="Video Key"
                             DockPanel.Dock="Top"

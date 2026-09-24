@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using Caliburn.Micro;
 using JetBrains.Annotations;
-using LoreCompanion.Extensions;
 using LoreCompanion.Models;
 using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
@@ -25,26 +24,26 @@ namespace LoreCompanion.ViewModels
         [UsedImplicitly]
         public void PlayVideo(Episode episode)
         {
-            Logger.Debug("Playing video for episode: {Episode}", episode.Name);
+            Logger.Debug("Playing video for episode '{EpisodeName}'", episode.ToString());
             var videoUrl = string.Format(YouTubeHelper.VideoUrlFormatString, episode.VideoKey);
             Process.Start(new ProcessStartInfo { FileName = videoUrl, UseShellExecute = true });
         }
 
         protected override int CompareEntities(Episode x, Episode y)
         {
-            return Comparer<int>.Default.Compare(x.GetEpisodeNumber(), y.GetEpisodeNumber());
+            return Comparer<int>.Default.Compare(x.Number, y.Number);
         }
 
         protected override Episode CreateEntityInstance()
         {
-            var max = Items.Select(item => item.GetEpisodeNumber()).DefaultIfEmpty(0).Max();
+            var max = Items.Select(ep => ep.Number).DefaultIfEmpty(0).Max();
 
-            return new Episode { Name = $"Episode {max + 1}" };
+            return new Episode { Number = max + 1 };
         }
 
         protected override bool FilterEntity(Episode entity, string searchText)
         {
-            return entity.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase);
+            return entity.ToString().Contains(searchText, StringComparison.OrdinalIgnoreCase);
         }
 
         protected override async Task<bool> CanDeleteAsync(LoreDbContext context, Episode entity)

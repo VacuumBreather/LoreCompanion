@@ -27,7 +27,10 @@ namespace LoreCompanion.Models
                         .Property(x => x.Version)
                         .HasConversion(v => v.ToString(), v => Version.Parse(v));
 
-            modelBuilder.Entity<Episode>().HasIndex(x => x.Name).IsUnique();
+            modelBuilder.Entity<Episode>()
+                        .ToTable(t => t.HasCheckConstraint("CK_Episodes_Number_Min", "\"Number\" >= 1"));
+
+            modelBuilder.Entity<Episode>().HasIndex(x => x.Number).IsUnique();
             modelBuilder.Entity<Episode>().HasIndex(x => x.VideoKey).IsUnique();
 
             modelBuilder.Entity<Location>().HasIndex(x => x.Name).IsUnique();

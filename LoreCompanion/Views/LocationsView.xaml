@@ -103,7 +103,7 @@
                                 Margin="10,0,0,0"
                                 VerticalAlignment="Center"
                                 DockPanel.Dock="Left"
-                                Text="{Binding Episode.Name, FallbackValue=''}" />
+                                Text="{Binding Episode.Number, StringFormat='Episode {0}', FallbackValue=''}" />
                             <TextBlock
                                 Margin="10,0,0,0"
                                 VerticalAlignment="Center"

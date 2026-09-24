@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using Caliburn.Micro;
 using JetBrains.Annotations;
-using LoreCompanion.Extensions;
 using LoreCompanion.Models;
 using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
@@ -79,9 +78,9 @@ namespace LoreCompanion.ViewModels
 
             await using var context = await DbContextFactory.CreateDbContextAsync(e.CancellationToken);
 
-            var episodes = await context.Episodes.AsNoTracking().ToListAsync(e.CancellationToken);
-
-            episodes.Sort((a, b) => a.GetEpisodeNumber().CompareTo(b.GetEpisodeNumber()));
+            var episodes = await context.Episodes.AsNoTracking()
+                                        .OrderBy(x => x.Number)
+                                        .ToListAsync(e.CancellationToken);
 
             Execute.OnUIThread(() =>
             {

@@ -16,7 +16,7 @@ using LogManager = LoreCompanion.Utilities.LogManager;
 namespace LoreCompanion.ViewModels
 {
     public abstract class MasterDetailSectionScreen<TEntity> : SectionScreen, IHandle<DatabaseUpdatedEvent>
-        where TEntity : EntityBase, INamed, IEditableObject, new()
+        where TEntity : EntityBase, IEditableObject, new()
     {
         private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
@@ -201,7 +201,7 @@ namespace LoreCompanion.ViewModels
 
             var dialogResult = await _dialogService.ShowQueryDialogAsync(
                                    $"Delete {entity.GetType().Name}",
-                                   $"Are you sure you want to delete this {entity.GetType().Name.ToLower()}?\n\n'{entity.Name}'",
+                                   $"Are you sure you want to delete this {entity.GetType().Name.ToLower()}?\n\n'{entity}'",
                                    DialogResults.YesNo,
                                    DialogResult.Yes);
 
@@ -234,7 +234,7 @@ namespace LoreCompanion.ViewModels
                     {
                         _ = _notificationService.ShowNotificationAsync(
                             "Deletion failed",
-                            $"Deleting {entity.GetType().Name.ToLower()} '{entity.Name}' not possible.\n\nIt is referenced by other entries.",
+                            $"Deleting {entity.GetType().Name.ToLower()} '{entity}' not possible.\n\nIt is referenced by other entries.",
                             NotificationType.Error);
 
                         return;
@@ -250,7 +250,7 @@ namespace LoreCompanion.ViewModels
 
                 _ = _notificationService.ShowNotificationAsync(
                     $"{entity.GetType().Name} deleted",
-                    $"{entity.GetType().Name} '{entity.Name}' was deleted successfully.");
+                    $"{entity.GetType().Name} '{entity}' was deleted successfully.");
             }
             catch (Exception e)
             {
@@ -258,7 +258,7 @@ namespace LoreCompanion.ViewModels
 
                 _ = _notificationService.ShowNotificationAsync(
                     "Deletion failed",
-                    $"Could not delete {entity.GetType().Name.ToLower()} '{entity.Name}'.\n{e.Message}",
+                    $"Could not delete {entity.GetType().Name.ToLower()} '{entity}'.\n{e.Message}",
                     NotificationType.Error);
             }
             finally
@@ -272,11 +272,6 @@ namespace LoreCompanion.ViewModels
             _databaseRefreshNeeded = true;
 
             return Task.CompletedTask;
-        }
-
-        protected virtual int CompareEntities(TEntity x, TEntity y)
-        {
-            return Comparer<string>.Default.Compare(x.Name, y.Name);
         }
 
         protected virtual Task<bool> CanDeleteAsync(LoreDbContext context, TEntity entity)
@@ -345,7 +340,7 @@ namespace LoreCompanion.ViewModels
 
                     _ = _notificationService.ShowNotificationAsync(
                         "Database error",
-                        $"Could not save {SelectedItem.GetType().Name.ToLower()} '{SelectedItem.Name}'.\n{e.Message}",
+                        $"Could not save {SelectedItem.GetType().Name.ToLower()} '{SelectedItem}'.\n{e.Message}",
                         NotificationType.Error,
                         cancellationToken: CancellationToken.None);
                 }
@@ -386,6 +381,8 @@ namespace LoreCompanion.ViewModels
 
             await base.OnDeactivateAsync(close, cancellationToken);
         }
+
+        protected abstract int CompareEntities(TEntity x, TEntity y);
 
         protected abstract TEntity CreateEntityInstance();
 
@@ -539,7 +536,7 @@ namespace LoreCompanion.ViewModels
 
                 _ = _notificationService.ShowNotificationAsync(
                     $"{entity.GetType().Name} saved",
-                    $"{entity.GetType().Name} '{entity.Name}' was saved successfully.");
+                    $"{entity.GetType().Name} '{entity}' was saved successfully.");
             }
             catch (Exception e)
             {
@@ -558,7 +555,7 @@ namespace LoreCompanion.ViewModels
 
                 _ = _notificationService.ShowNotificationAsync(
                     "Save failed",
-                    $"Could not save {entity.GetType().Name.ToLower()} '{entity.Name}'.\n{e.Message}",
+                    $"Could not save {entity.GetType().Name.ToLower()} '{entity}'.\n{e.Message}",
                     NotificationType.Error);
             }
             finally

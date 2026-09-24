@@ -3,6 +3,7 @@ using System;
 using LoreCompanion.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoreCompanion.Migrations
 {
     [DbContext(typeof(LoreDbContext))]
-    partial class LoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260924130347_AddEpisodeNumber")]
+    partial class AddEpisodeNumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
@@ -45,6 +48,11 @@ namespace LoreCompanion.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Number")
                         .HasColumnType("INTEGER");
 
@@ -55,16 +63,13 @@ namespace LoreCompanion.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Number")
+                    b.HasIndex("Name")
                         .IsUnique();
 
                     b.HasIndex("VideoKey")
                         .IsUnique();
 
-                    b.ToTable("Episodes", t =>
-                        {
-                            t.HasCheckConstraint("CK_Episodes_Number_Min", "\"Number\" >= 1");
-                        });
+                    b.ToTable("Episodes");
                 });
 
             modelBuilder.Entity("LoreCompanion.Models.Item", b =>
