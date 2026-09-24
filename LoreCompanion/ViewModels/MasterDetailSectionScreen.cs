@@ -473,6 +473,11 @@ namespace LoreCompanion.ViewModels
                 Logger.Debug("Saving {EntityName} '{Entity}' to database...", entity.GetType().Name.ToLower(), entity);
                 await using var context = await _dbContextFactory.CreateDbContextAsync();
 
+                if (entity is IEpisodeReferencing { Episode: not null } referencing)
+                {
+                    context.Attach(referencing.Episode);
+                }
+
                 if (entity.Id == 0)
                 {
                     // New entity: insert into database

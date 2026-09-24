@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using Caliburn.Micro;
 using JetBrains.Annotations;
 using LoreCompanion.Extensions;
 using LoreCompanion.Models;
+using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
 using LoreCompanion.ViewModels.Notifications;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +25,24 @@ namespace LoreCompanion.ViewModels
     {
         [UsedImplicitly]
         public BindableCollection<Episode> Episodes { get; } = new();
+
+        [UsedImplicitly]
+        public void PlayVideo(TEntity entity)
+        {
+            if (entity.Episode is null)
+            {
+                return;
+            }
+
+            Logger.Debug("Playing video for {EntityName}: {Location}", entity.GetType().Name.ToLower(), entity.Name);
+
+            var videoUrl = string.Format(
+                YouTubeHelper.VideoUrlFormatStringWithTime,
+                entity.Episode.VideoKey,
+                entity.Timestamp.TotalSeconds);
+
+            Process.Start(new ProcessStartInfo { FileName = videoUrl, UseShellExecute = true });
+        }
 
         protected override IQueryable<TEntity> GetAllItemsQuery(LoreDbContext context)
         {

@@ -4,9 +4,11 @@ namespace LoreCompanion.Models
 {
     public class LoreDbContext(DbContextOptions<LoreDbContext> options) : DbContext(options)
     {
-        public DbSet<Item> Items => Set<Item>();
-
         public DbSet<Episode> Episodes => Set<Episode>();
+
+        public DbSet<Location> Locations => Set<Location>();
+
+        public DbSet<Item> Items => Set<Item>();
 
         public DbSet<DatabaseRelease> DatabaseReleases => Set<DatabaseRelease>();
 
@@ -24,6 +26,7 @@ namespace LoreCompanion.Models
                         .Property(x => x.Version)
                         .HasConversion(v => v.ToString(), v => Version.Parse(v));
 
+            modelBuilder.Entity<Location>().HasOne(x => x.Episode).WithMany().OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Item>().HasOne(x => x.Episode).WithMany().OnDelete(DeleteBehavior.Restrict);
         }
     }

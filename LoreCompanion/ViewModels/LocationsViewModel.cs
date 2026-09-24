@@ -8,25 +8,24 @@ using Microsoft.EntityFrameworkCore;
 namespace LoreCompanion.ViewModels
 {
     [UsedImplicitly]
-    public class ItemsViewModel(
+    public class LocationsViewModel(
         IDbContextFactory<LoreDbContext> dbContextFactory,
         IDialogService dialogService,
         INotificationService notificationService,
-        IEventAggregator eventAggregator) : MasterDetailWithEpisodeSectionScreen<Item>(
+        IEventAggregator eventAggregator) : MasterDetailWithEpisodeSectionScreen<Location>(
         dbContextFactory,
         dialogService,
         notificationService,
         eventAggregator)
     {
-        protected override Item CreateEntityInstance()
+        protected override Location CreateEntityInstance()
         {
-            return new Item { Name = "New Item" };
+            return new Location { Name = "New Location" };
         }
 
-        protected override bool FilterEntity(Item entity, string searchText)
+        protected override bool FilterEntity(Location entity, string searchText)
         {
-            return entity.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                   entity.Description.Contains(searchText, StringComparison.OrdinalIgnoreCase);
+            return entity.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
