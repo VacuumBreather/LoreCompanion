@@ -5,6 +5,7 @@
     xmlns:cm="http://caliburnmicro.com"
     xmlns:controls="clr-namespace:LoreCompanion.Views.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:effects="clr-namespace:LoreCompanion.Views.Effects"
     xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:LoreCompanion.Models"
@@ -17,11 +18,23 @@
     d:DesignHeight="600"
     d:DesignWidth="800"
     mc:Ignorable="d">
+    <UserControl.Background>
+        <VisualBrush Stretch="UniformToFill">
+            <VisualBrush.Visual>
+                <Image Source="/LoreCompanion;component/Views/Resources/Images/Background.png">
+                    <Image.Effect>
+                        <effects:TintShaderEffect TintColor="{StaticResource Color.Background.5}" />
+                    </Image.Effect>
+                </Image>
+            </VisualBrush.Visual>
+        </VisualBrush>
+    </UserControl.Background>
 
     <controls:BusyDecorator IsBusy="{Binding IsBusy, Mode=OneWay}">
         <Grid ColumnDefinitions="*, *">
             <Border
                 Grid.Column="0"
+                Background="{StaticResource Brush.Background}"
                 BorderBrush="{StaticResource Brush.Border.Primary}"
                 BorderThickness="0,0,0.75,0">
                 <DockPanel Margin="20">

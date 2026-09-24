@@ -52,6 +52,8 @@
         <Resource Include="Views\Resources\Fonts\CormorantGaramond-Italic-VariableFont.ttf" />
         <None Remove="Views\Resources\Images\Placeholder.png" />
         <Resource Include="Views\Resources\Images\Placeholder.png" />
+        <None Remove="Views\Resources\Images\Background.png" />
+        <Resource Include="Views\Resources\Images\Background.png" />
     </ItemGroup>
 
     <!-- NuGet packages -->

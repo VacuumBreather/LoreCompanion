@@ -33,13 +33,23 @@
         </DockPanel.LayoutTransform>
         <!--  Header  -->
         <Border
-            Background="{StaticResource Brush.Background.Secondary}"
             BorderBrush="{StaticResource Brush.Border.Primary}"
             BorderThickness="0,0,0,1"
             DockPanel.Dock="Top"
             MouseDown="OnTitleBarMouseDown"
             MouseLeftButtonUp="OnTitleBarMouseLeftButtonUp"
             MouseMove="OnTitleBarMouseMove">
+            <Border.Background>
+                <VisualBrush Stretch="UniformToFill">
+                    <VisualBrush.Visual>
+                        <Image Source="/LoreCompanion;component/Views/Resources/Images/Background.png">
+                            <Image.Effect>
+                                <effects:TintShaderEffect TintColor="{StaticResource Color.Background.7}" />
+                            </Image.Effect>
+                        </Image>
+                    </VisualBrush.Visual>
+                </VisualBrush>
+            </Border.Background>
             <DockPanel>
                 <Image
                     Height="50"

@@ -9,6 +9,10 @@
     <Color x:Key="Color.Background.3">#FF05070A</Color>
     <Color x:Key="Color.Background.4">#FF060A0D</Color>
     <Color x:Key="Color.Background.5">#FF080D11</Color>
+    <Color x:Key="Color.Background.6">#FF0A0F14</Color>
+    <Color x:Key="Color.Background.7">#FF0B1217</Color>
+    <Color x:Key="Color.Background.8">#FF0D151B</Color>
+    <Color x:Key="Color.Background.9">#FF0F171E</Color>
     <Color x:Key="Color.Background.10">#FF101A22</Color>
     <Color x:Key="Color.Background.10.Transparent">#00101A22</Color>
     <Color x:Key="Color.Background.15">#FF192733</Color>
