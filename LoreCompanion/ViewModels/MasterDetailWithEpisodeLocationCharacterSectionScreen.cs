@@ -12,8 +12,8 @@ namespace LoreCompanion.ViewModels
     public abstract class
         MasterDetailWithEpisodeLocationCharacterSectionScreen<TEntity> : MasterDetailWithEpisodeSectionScreen<TEntity>,
                                                                          IHandle<EntityUpdatedEvent<Character>>
-        where TEntity : EntityBase, INamed, ICharacterReferencing, IEpisodeReferencing, ILocationReferencing,
-        IEditableObject, new()
+        where TEntity : EntityBase, ICharacterReferencing, IEpisodeReferencing, ILocationReferencing, IEditableObject,
+        new()
     {
         private bool _charactersRefreshNeeded = true;
 

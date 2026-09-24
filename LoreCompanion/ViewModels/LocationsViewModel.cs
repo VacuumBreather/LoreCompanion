@@ -37,10 +37,23 @@ namespace LoreCompanion.ViewModels
         {
             try
             {
-                var usedInItems =
-                    await context.Items.AnyAsync(i => (i.LocationId != null) && (i.LocationId == entity.Id));
+                var inUse = await context.Items.AnyAsync(i => (i.LocationId != null) && (i.LocationId == entity.Id));
 
-                return !usedInItems;
+                if (inUse)
+                {
+                    return false;
+                }
+
+                inUse = await context.Characters.AnyAsync(i => (i.LocationId != null) && (i.LocationId == entity.Id));
+
+                if (inUse)
+                {
+                    return false;
+                }
+
+                inUse = await context.Dialogs.AnyAsync(i => (i.LocationId != null) && (i.LocationId == entity.Id));
+
+                return !inUse;
             }
             catch
             {

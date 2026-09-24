@@ -32,5 +32,20 @@ namespace LoreCompanion.ViewModels
         {
             return entity.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase);
         }
+
+        protected override async Task<bool> CanDeleteAsync(LoreDbContext context, Character entity)
+        {
+            try
+            {
+                var inUse = await context.Dialogs.AnyAsync(i => (i.CharacterId != null) &&
+                                                                (i.CharacterId == entity.Id));
+
+                return !inUse;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

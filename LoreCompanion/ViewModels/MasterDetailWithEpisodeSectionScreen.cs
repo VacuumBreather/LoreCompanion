@@ -13,7 +13,7 @@ namespace LoreCompanion.ViewModels
 {
     public abstract class MasterDetailWithEpisodeSectionScreen<TEntity> : MasterDetailSectionScreen<TEntity>,
                                                                           IHandle<EntityUpdatedEvent<Episode>>
-        where TEntity : EntityBase, INamed, IEpisodeReferencing, IEditableObject, new()
+        where TEntity : EntityBase, IEpisodeReferencing, IEditableObject, new()
     {
         private bool _episodesRefreshNeeded = true;
 
@@ -45,7 +45,7 @@ namespace LoreCompanion.ViewModels
                 return;
             }
 
-            Logger.Debug("Playing video for {EntityName}: {Location}", entity.GetType().Name.ToLower(), entity.Name);
+            Logger.Debug("Playing video for {EntityName}: {Location}", entity.GetType().Name.ToLower(), entity);
 
             var videoUrl = string.Format(
                 YouTubeHelper.VideoUrlFormatStringWithTime,
