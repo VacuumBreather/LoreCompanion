@@ -46,6 +46,11 @@ namespace LoreCompanion.Models
             modelBuilder.Entity<Item>().Property(x => x.Name).UseCollation(DatabaseHelper.NoCaseCollation);
             modelBuilder.Entity<Item>().HasOne(x => x.Location).WithMany().OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Item>().HasOne(x => x.Episode).WithMany().OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Dialog>().Property(x => x.Context).UseCollation(DatabaseHelper.NoCaseCollation);
+            modelBuilder.Entity<Dialog>().HasOne(x => x.Character).WithMany().OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Dialog>().HasOne(x => x.Location).WithMany().OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Dialog>().HasOne(x => x.Episode).WithMany().OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
