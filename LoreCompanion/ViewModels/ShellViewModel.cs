@@ -12,6 +12,7 @@ using LoreCompanion.Extensions;
 using LoreCompanion.Models;
 using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
+using LoreCompanion.ViewModels.Events;
 using LoreCompanion.ViewModels.Notifications;
 using LoreCompanion.Views.Helpers;
 using Microsoft.Data.Sqlite;

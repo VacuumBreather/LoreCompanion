@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LoreCompanion.Views.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace LoreCompanion.Models
 {
@@ -27,8 +28,10 @@ namespace LoreCompanion.Models
                         .HasConversion(v => v.ToString(), v => Version.Parse(v));
 
             modelBuilder.Entity<Location>().HasOne(x => x.Episode).WithMany().OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Location>().Property(x => x.Name).UseCollation(DatabaseHelper.NoCaseCollation);
             modelBuilder.Entity<Item>().HasOne(x => x.Episode).WithMany().OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Item>().HasOne(x => x.Location).WithMany().OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Item>().Property(x => x.Name).UseCollation(DatabaseHelper.NoCaseCollation);
         }
     }
 }

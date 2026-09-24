@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using LoreCompanion.Models;
 using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
+using LoreCompanion.ViewModels.Events;
 using LoreCompanion.ViewModels.Notifications;
 using Microsoft.EntityFrameworkCore;
 using R3;
@@ -19,6 +20,7 @@ namespace LoreCompanion.ViewModels
     {
         private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
+        private readonly IEventAggregator _eventAggregator;
 
         private IDisposable? _subscription;
         private bool _databaseRefreshNeeded = true;
@@ -37,13 +39,19 @@ namespace LoreCompanion.ViewModels
             DbContextFactory = dbContextFactory;
             _dialogService = dialogService;
             _notificationService = notificationService;
-            EventAggregator = eventAggregator;
-            EventAggregator.SubscribeOnPublishedThread(this);
+            _eventAggregator = eventAggregator;
+            _eventAggregator.SubscribeOnPublishedThread(this);
 
             ItemsView = (ListCollectionView)CollectionViewSource.GetDefaultView(Items);
             ItemsView.Filter = OnFilter;
             ItemsView.CustomSort = Comparer<TEntity>.Create(CompareEntities);
         }
+
+        protected event AsyncEventHandler<LoadingEntitiesEventArgs> LoadingEntities = (_, _) => Task.CompletedTask;
+
+        protected event AsyncEventHandler<SaveEntityEventArgs<TEntity>> SavingEntity = (_, _) => Task.CompletedTask;
+
+        protected event AsyncEventHandler<SaveEntityEventArgs<TEntity>> SavedEntity = (_, _) => Task.CompletedTask;
 
         [UsedImplicitly]
         public BindableCollection<TEntity> Items { get; } = [];
@@ -103,8 +111,6 @@ namespace LoreCompanion.ViewModels
         protected IDbContextFactory<LoreDbContext> DbContextFactory { get; }
 
         protected SemaphoreSlim DatabaseLock { get; } = new(1, 1);
-
-        protected IEventAggregator EventAggregator { get; }
 
         protected ILogger Logger => field ??= LogManager.GetLogger(GetType());
 
@@ -240,7 +246,7 @@ namespace LoreCompanion.ViewModels
 
                 RemoveItemAndUpdateSelection(entity);
 
-                await OnEntityDeletedAsync(entity);
+                await _eventAggregator.PublishOnUIThreadAsync(new EntityUpdatedEvent<TEntity>());
 
                 _ = _notificationService.ShowNotificationAsync(
                     $"{entity.GetType().Name} deleted",
@@ -283,88 +289,6 @@ namespace LoreCompanion.ViewModels
             return context.Set<TEntity>();
         }
 
-        protected virtual void ClearAdditional()
-        {
-        }
-
-        protected virtual Task BeforeSaveAsync(TEntity entity, LoreDbContext context)
-        {
-            return Task.CompletedTask;
-        }
-
-        protected virtual Task AfterSaveAsync(TEntity entity, LoreDbContext context)
-        {
-            return Task.CompletedTask;
-        }
-
-        protected virtual Task OnEntitySavedAsync(TEntity entity)
-        {
-            return Task.CompletedTask;
-        }
-
-        protected virtual Task OnEntityDeletedAsync(TEntity entity)
-        {
-            return Task.CompletedTask;
-        }
-
-        protected virtual async Task PerformDataLoadAsync(CancellationToken cancellationToken)
-        {
-            if (_databaseRefreshNeeded)
-            {
-                await LoadAllDataAsync(cancellationToken);
-                _databaseRefreshNeeded = false;
-            }
-        }
-
-        protected virtual async Task LoadAllDataAsync(CancellationToken cancellationToken)
-        {
-            using var busy = SetBusy();
-
-            await Task.Yield();
-
-            try
-            {
-                Logger.Debug("Loading items...");
-
-                await DatabaseLock.WaitAsync(cancellationToken);
-
-                Execute.OnUIThread(() =>
-                {
-                    SelectedItem = null;
-                    Items.Clear();
-                    ClearAdditional();
-                });
-
-                // Load main items and additional collections concurrently
-                await Task.WhenAll(LoadMainItemsSteamAsync(cancellationToken), LoadAdditionalAsync(cancellationToken));
-
-                Logger.Debug("Items and auxiliary data loaded");
-            }
-            catch (OperationCanceledException e)
-            {
-                Logger.Debug(e, "Loading task cancelled");
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Error loading items");
-
-                _ = _notificationService.ShowNotificationAsync(
-                    "Database error",
-                    $"Could not load items.\n{e.Message}",
-                    NotificationType.Error,
-                    cancellationToken: CancellationToken.None);
-            }
-            finally
-            {
-                DatabaseLock.Release();
-            }
-        }
-
-        protected virtual Task LoadAdditionalAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
         protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             Logger.Debug("Activated");
@@ -389,7 +313,7 @@ namespace LoreCompanion.ViewModels
             }
 
             _loadingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            _loadingTask = Task.Run(() => PerformDataLoadAsync(_loadingCts.Token), _loadingCts.Token);
+            _loadingTask = Task.Run(() => LoadEntitiesAsync(_loadingCts.Token), _loadingCts.Token);
 
             await base.OnActivatedAsync(cancellationToken);
         }
@@ -483,34 +407,95 @@ namespace LoreCompanion.ViewModels
             });
         }
 
-        private async Task LoadMainItemsSteamAsync(CancellationToken cancellationToken)
+        private async Task LoadEntitiesAsync(CancellationToken cancellationToken)
         {
-            await using var context = await DbContextFactory.CreateDbContextAsync(cancellationToken);
+            using var busy = SetBusy();
 
-            const int BatchSize = 25;
-            var buffer = new List<TEntity>(BatchSize);
+            await Task.Yield();
 
-            // Stream items asynchronously from the database
-            await foreach (var entity in GetAllItemsQuery(context)
-                                         .AsNoTracking()
-                                         .AsAsyncEnumerable()
-                                         .WithCancellation(cancellationToken))
+            try
             {
-                buffer.Add(entity);
+                Logger.Debug("Loading items...");
 
-                if (buffer.Count >= BatchSize)
+                await DatabaseLock.WaitAsync(cancellationToken);
+
+                if (_databaseRefreshNeeded)
+                {
+                    _databaseRefreshNeeded = false;
+
+                    await Task.WhenAll(
+                        LoadEntitiesInternalAsync(cancellationToken),
+                        NotifyOfLoadingEntities(true, cancellationToken));
+                }
+                else
+                {
+                    await NotifyOfLoadingEntities(false, cancellationToken);
+                }
+            }
+            catch (OperationCanceledException e)
+            {
+                Logger.Debug(e, "Loading task cancelled");
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Error loading items");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database error",
+                    $"Could not load items.\n{e.Message}",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+            }
+            finally
+            {
+                DatabaseLock.Release();
+            }
+        }
+
+        private async Task NotifyOfLoadingEntities(bool forceLoad, CancellationToken cancellationToken)
+        {
+            var args = new LoadingEntitiesEventArgs { ForceLoad = forceLoad, CancellationToken = cancellationToken };
+
+            await LoadingEntities.InvokeAllAsync(this, args);
+        }
+
+        private async Task LoadEntitiesInternalAsync(CancellationToken cancellationToken)
+        {
+            Execute.OnUIThread(() =>
+            {
+                SelectedItem = null;
+                Items.Clear();
+            });
+
+            await using (var context = await DbContextFactory.CreateDbContextAsync(cancellationToken))
+            {
+                const int BatchSize = 25;
+                var buffer = new List<TEntity>(BatchSize);
+
+                // Stream items asynchronously from the database
+                await foreach (var entity in GetAllItemsQuery(context)
+                                             .AsNoTracking()
+                                             .AsAsyncEnumerable()
+                                             .WithCancellation(cancellationToken))
+                {
+                    buffer.Add(entity);
+
+                    if (buffer.Count >= BatchSize)
+                    {
+                        UpdateItemsAndSelectFirst(buffer);
+
+                        // Yield to let the WPF Dispatcher render the newly added items
+                        await Task.Yield();
+                    }
+                }
+
+                if (buffer.Count > 0)
                 {
                     UpdateItemsAndSelectFirst(buffer);
-
-                    // Yield to let the WPF Dispatcher render the newly added items
-                    await Task.Yield();
                 }
             }
 
-            if (buffer.Count > 0)
-            {
-                UpdateItemsAndSelectFirst(buffer);
-            }
+            Logger.Debug("Items and auxiliary data loaded");
         }
 
         private async Task SaveItemAsync(TEntity entity)
@@ -529,7 +514,8 @@ namespace LoreCompanion.ViewModels
                 Logger.Debug("Saving {EntityName} '{Entity}' to database...", entity.GetType().Name.ToLower(), entity);
                 await using var context = await DbContextFactory.CreateDbContextAsync();
 
-                await BeforeSaveAsync(entity, context);
+                var saveEventArgs = new SaveEntityEventArgs<TEntity> { Entity = entity };
+                await SavingEntity.InvokeAllAsync(this, saveEventArgs);
 
                 if (entity.Id == 0)
                 {
@@ -543,10 +529,8 @@ namespace LoreCompanion.ViewModels
                 }
 
                 await context.SaveChangesAsync();
-
-                await AfterSaveAsync(entity, context);
-
-                await OnEntitySavedAsync(entity);
+                await SavedEntity.InvokeAllAsync(this, saveEventArgs);
+                await _eventAggregator.PublishOnUIThreadAsync(new EntityUpdatedEvent<TEntity>());
 
                 entity.EndEdit();
                 ItemsView.Refresh();

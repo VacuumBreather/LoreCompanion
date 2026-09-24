@@ -9,6 +9,7 @@ namespace LoreCompanion.Views.Helpers
 {
     public static class DatabaseHelper
     {
+        public const string NoCaseCollation = "NOCASE";
         private static readonly TimeSpan StaleLockThreshold = TimeSpan.FromMinutes(5);
 
         private static ILogger Logger { get; } = LogManager.GetLogger();

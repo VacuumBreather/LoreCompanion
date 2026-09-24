@@ -3,40 +3,61 @@ using Caliburn.Micro;
 using JetBrains.Annotations;
 using LoreCompanion.Models;
 using LoreCompanion.ViewModels.Dialogs;
+using LoreCompanion.ViewModels.Events;
 using LoreCompanion.ViewModels.Notifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace LoreCompanion.ViewModels
 {
-    public abstract class MasterDetailWithEpisodeLocationSectionScreen<TEntity>(
-        IDbContextFactory<LoreDbContext> dbContextFactory,
-        IDialogService dialogService,
-        INotificationService notificationService,
-        IEventAggregator eventAggregator) : MasterDetailWithEpisodeSectionScreen<TEntity>(
-                                                dbContextFactory,
-                                                dialogService,
-                                                notificationService,
-                                                eventAggregator),
-                                            IHandle<LocationsUpdatedEvent>
+    public abstract class
+        MasterDetailWithEpisodeLocationSectionScreen<TEntity> : MasterDetailWithEpisodeSectionScreen<TEntity>,
+                                                                IHandle<EntityUpdatedEvent<Location>>
         where TEntity : EntityBase, INamed, IEpisodeReferencing, ILocationReferencing, IEditableObject, new()
     {
         private bool _locationsRefreshNeeded = true;
 
-        [UsedImplicitly]
-        public BindableCollection<Location> Locations { get; } = new();
+        protected MasterDetailWithEpisodeLocationSectionScreen(
+            IDbContextFactory<LoreDbContext> dbContextFactory,
+            IDialogService dialogService,
+            INotificationService notificationService,
+            IEventAggregator eventAggregator)
+            : base(dbContextFactory, dialogService, notificationService, eventAggregator)
+        {
+            LoadingEntities += OnLoadingEntities;
+            SavingEntity += OnSavingEntity;
+            SavedEntity += OnSavedEntity;
+        }
 
-        public Task HandleAsync(LocationsUpdatedEvent message, CancellationToken cancellationToken)
+        [UsedImplicitly]
+        public BindableCollection<Location> Locations { get; } = [];
+
+        public Task HandleAsync(EntityUpdatedEvent<Location> message, CancellationToken cancellationToken)
         {
             _locationsRefreshNeeded = true;
 
             return Task.CompletedTask;
         }
 
-        protected virtual async Task LoadLocationsAsync(CancellationToken cancellationToken)
+        protected override IQueryable<TEntity> GetAllItemsQuery(LoreDbContext context)
         {
-            await using var context = await DbContextFactory.CreateDbContextAsync(cancellationToken);
+            return base.GetAllItemsQuery(context).Include(x => x.Location);
+        }
 
-            var locations = await context.Locations.AsNoTracking().OrderBy(l => l.Name).ToListAsync(cancellationToken);
+        private async Task OnLoadingEntities(object sender, LoadingEntitiesEventArgs e)
+        {
+            if (!_locationsRefreshNeeded && !e.ForceLoad)
+            {
+                return;
+            }
+
+            _locationsRefreshNeeded = false;
+
+            await using var context = await DbContextFactory.CreateDbContextAsync(e.CancellationToken);
+
+            var locations = await context
+                                  .Locations.AsNoTracking()
+                                  .OrderBy(l => l.Name)
+                                  .ToListAsync(e.CancellationToken);
 
             Execute.OnUIThread(() =>
             {
@@ -54,88 +75,22 @@ namespace LoreCompanion.ViewModels
             });
         }
 
-        protected override IQueryable<TEntity> GetAllItemsQuery(LoreDbContext context)
+        private Task OnSavingEntity(object sender, SaveEntityEventArgs<TEntity> args)
         {
-            return base.GetAllItemsQuery(context).Include(x => x.Location);
+            // Clear navigation reference to prevent EF Core graph/tracking conflicts
+            args.Entity.Location = null;
+
+            return Task.CompletedTask;
         }
 
-        protected override void ClearAdditional()
+        private Task OnSavedEntity(object sender, SaveEntityEventArgs<TEntity> args)
         {
-            Locations.Clear();
-            base.ClearAdditional();
-        }
+            // Re-link navigation reference
+            args.Entity.Location = args.Entity.LocationId.HasValue
+                                       ? Locations.FirstOrDefault(e => e.Id == args.Entity.LocationId.Value)
+                                       : null;
 
-        protected override Task LoadAdditionalAsync(CancellationToken cancellationToken)
-        {
-            _locationsRefreshNeeded = false;
-
-            return Task.WhenAll(base.LoadAdditionalAsync(cancellationToken), LoadLocationsAsync(cancellationToken));
-        }
-
-        protected override async Task ReloadAuxiliaryDataAsync(CancellationToken cancellationToken)
-        {
-            using var busy = SetBusy();
-            await Task.Yield();
-
-            try
-            {
-                await DatabaseLock.WaitAsync(cancellationToken);
-
-                var tasks = new List<Task>();
-
-                if (_locationsRefreshNeeded)
-                {
-                    tasks.Add(LoadLocationsAsync(cancellationToken));
-                }
-
-                tasks.Add(base.LoadEpisodesAsync(cancellationToken));
-
-                await Task.WhenAll(tasks);
-                _locationsRefreshNeeded = false;
-
-                // Re-link navigation references on existing items
-                Execute.OnUIThread(() =>
-                {
-                    var episodeLookup = Episodes.ToDictionary(e => e.Id);
-                    var locationLookup = Locations.ToDictionary(l => l.Id);
-
-                    foreach (var item in Items)
-                    {
-                        item.Episode =
-                            item.EpisodeId.HasValue && episodeLookup.TryGetValue(item.EpisodeId.Value, out var ep)
-                                ? ep
-                                : null;
-
-                        item.Location =
-                            item.LocationId.HasValue && locationLookup.TryGetValue(item.LocationId.Value, out var loc)
-                                ? loc
-                                : null;
-                    }
-                });
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            finally
-            {
-                DatabaseLock.Release();
-            }
-        }
-
-        protected override Task BeforeSaveAsync(TEntity entity, LoreDbContext context)
-        {
-            entity.Location = null;
-
-            return base.BeforeSaveAsync(entity, context);
-        }
-
-        protected override Task AfterSaveAsync(TEntity entity, LoreDbContext context)
-        {
-            entity.Location = entity.LocationId.HasValue
-                                  ? Locations.FirstOrDefault(e => e.Id == entity.LocationId.Value)
-                                  : null;
-
-            return base.AfterSaveAsync(entity, context);
+            return Task.CompletedTask;
         }
     }
 }

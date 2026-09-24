@@ -42,16 +42,6 @@ namespace LoreCompanion.ViewModels
             return new Episode { Name = $"Episode {max + 1}" };
         }
 
-        protected override async Task OnEntitySavedAsync(Episode entity)
-        {
-            await EventAggregator.PublishOnUIThreadAsync(new EpisodesUpdatedEvent());
-        }
-
-        protected override async Task OnEntityDeletedAsync(Episode entity)
-        {
-            await EventAggregator.PublishOnUIThreadAsync(new EpisodesUpdatedEvent());
-        }
-
         protected override bool FilterEntity(Episode entity, string searchText)
         {
             return entity.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase);

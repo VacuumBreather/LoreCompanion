@@ -23,16 +23,6 @@ namespace LoreCompanion.ViewModels
             return new Location { Name = "New Location" };
         }
 
-        protected override async Task OnEntitySavedAsync(Location entity)
-        {
-            await EventAggregator.PublishOnUIThreadAsync(new LocationsUpdatedEvent());
-        }
-
-        protected override async Task OnEntityDeletedAsync(Location entity)
-        {
-            await EventAggregator.PublishOnUIThreadAsync(new LocationsUpdatedEvent());
-        }
-
         protected override bool FilterEntity(Location entity, string searchText)
         {
             return entity.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase);
