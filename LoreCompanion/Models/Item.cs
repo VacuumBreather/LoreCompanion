@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using JetBrains.Annotations;
 
 namespace LoreCompanion.Models
@@ -43,6 +44,24 @@ namespace LoreCompanion.Models
             set => Set(ref field, value);
         } = "";
 
+        [ForeignKey(nameof(Episode))]
+        public int? EpisodeId
+        {
+            get;
+            set
+            {
+                if (!Set(ref field, value))
+                {
+                    return;
+                }
+
+                if (Episode?.Id != value)
+                {
+                    Episode = null;
+                }
+            }
+        }
+
         public Episode? Episode
         {
             get;
@@ -75,6 +94,7 @@ namespace LoreCompanion.Models
                 Description = Description,
                 Type = Type,
                 Location = Location,
+                EpisodeId = EpisodeId,
                 Episode = Episode,
                 Timestamp = Timestamp,
             };
@@ -94,6 +114,7 @@ namespace LoreCompanion.Models
             Description = _backup.Description;
             Type = _backup.Type;
             Location = _backup.Location;
+            EpisodeId = _backup.EpisodeId;
             Episode = _backup.Episode;
             Timestamp = _backup.Timestamp;
             _backup = null;

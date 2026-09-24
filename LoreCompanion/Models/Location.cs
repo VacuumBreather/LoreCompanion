@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using JetBrains.Annotations;
 
 namespace LoreCompanion.Models
@@ -22,6 +23,24 @@ namespace LoreCompanion.Models
             get;
             set => Set(ref field, value);
         } = "";
+
+        [ForeignKey(nameof(Episode))]
+        public int? EpisodeId
+        {
+            get;
+            set
+            {
+                if (!Set(ref field, value))
+                {
+                    return;
+                }
+
+                if (Episode?.Id != value)
+                {
+                    Episode = null;
+                }
+            }
+        }
 
         public Episode? Episode
         {
@@ -50,7 +69,11 @@ namespace LoreCompanion.Models
 
             _backup = new Location
             {
-                Name = Name, ImageUrl = ImageUrl, Episode = Episode, Timestamp = Timestamp,
+                Name = Name,
+                ImageUrl = ImageUrl,
+                EpisodeId = EpisodeId,
+                Episode = Episode,
+                Timestamp = Timestamp,
             };
 
             _inEdit = true;
@@ -65,6 +88,7 @@ namespace LoreCompanion.Models
 
             Name = _backup!.Name;
             ImageUrl = _backup!.ImageUrl;
+            EpisodeId = _backup.EpisodeId;
             Episode = _backup.Episode;
             Timestamp = _backup.Timestamp;
             _backup = null;

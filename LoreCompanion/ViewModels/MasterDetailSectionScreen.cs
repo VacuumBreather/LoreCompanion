@@ -281,6 +281,16 @@ namespace LoreCompanion.ViewModels
             return Task.CompletedTask;
         }
 
+        protected virtual Task BeforeSaveAsync(TEntity entity, LoreDbContext context)
+        {
+            return Task.CompletedTask;
+        }
+
+        protected virtual Task AfterSaveAsync(TEntity entity, LoreDbContext context)
+        {
+            return Task.CompletedTask;
+        }
+
         protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             Logger.Debug("Activated");
@@ -473,10 +483,7 @@ namespace LoreCompanion.ViewModels
                 Logger.Debug("Saving {EntityName} '{Entity}' to database...", entity.GetType().Name.ToLower(), entity);
                 await using var context = await _dbContextFactory.CreateDbContextAsync();
 
-                if (entity is IEpisodeReferencing { Episode: not null } referencing)
-                {
-                    context.Attach(referencing.Episode);
-                }
+                await BeforeSaveAsync(entity, context);
 
                 if (entity.Id == 0)
                 {
@@ -490,6 +497,8 @@ namespace LoreCompanion.ViewModels
                 }
 
                 await context.SaveChangesAsync();
+
+                await AfterSaveAsync(entity, context);
 
                 entity.EndEdit();
 

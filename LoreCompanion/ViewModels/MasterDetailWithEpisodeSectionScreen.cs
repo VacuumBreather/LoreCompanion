@@ -44,6 +44,12 @@ namespace LoreCompanion.ViewModels
             Process.Start(new ProcessStartInfo { FileName = videoUrl, UseShellExecute = true });
         }
 
+        [UsedImplicitly]
+        public void ClearEpisode()
+        {
+            SelectedItem?.Episode = null;
+        }
+
         protected override IQueryable<TEntity> GetAllItemsQuery(LoreDbContext context)
         {
             return context.Set<TEntity>().Include(x => x.Episode);
@@ -73,6 +79,24 @@ namespace LoreCompanion.ViewModels
                 Episodes.IsNotifying = true;
                 Episodes.Refresh();
             }
+        }
+
+        protected override Task BeforeSaveAsync(TEntity entity, LoreDbContext context)
+        {
+            // Clear navigation reference to prevent EF Core graph/tracking conflicts
+            entity.Episode = null;
+
+            return Task.CompletedTask;
+        }
+
+        protected override Task AfterSaveAsync(TEntity entity, LoreDbContext context)
+        {
+            // Re-link navigation reference so UI (Episode.Name) and PlayVideo have the active Episode instance
+            entity.Episode = entity.EpisodeId.HasValue
+                                 ? Episodes.FirstOrDefault(e => e.Id == entity.EpisodeId.Value)
+                                 : null;
+
+            return Task.CompletedTask;
         }
     }
 }

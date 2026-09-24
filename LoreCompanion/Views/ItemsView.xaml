@@ -37,7 +37,7 @@
                 <iconPacks:PackIconRPGAwesome
                     Width="20"
                     Height="20"
-                    Margin="10,0,0,0"
+                    Margin="20,0,0,0"
                     VerticalAlignment="Center"
                     DockPanel.Dock="Left"
                     Foreground="{StaticResource Brush.Foreground.Primary}"
@@ -211,11 +211,13 @@
                         <ComboBox
                             Margin="0,10"
                             VerticalAlignment="Top"
+                            helpers:ComboBoxHelper.ClearButtonVisibility="Visible"
                             helpers:ComboBoxHelper.Header="Episode"
                             DisplayMemberPath="Name"
                             DockPanel.Dock="Top"
                             ItemsSource="{Binding DataContext.Episodes, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                            SelectedItem="{Binding Episode}"
+                            SelectedValue="{Binding EpisodeId}"
+                            SelectedValuePath="Id"
                             Style="{StaticResource Style.ComboBox.Header}" />
                         <TextBox
                             Margin="0,10"
@@ -226,7 +228,6 @@
                                 <behaviors:TimeTextBoxBehavior Value="{Binding Timestamp, UpdateSourceTrigger=PropertyChanged}" />
                             </b:Interaction.Behaviors>
                         </TextBox>
-                        <Separator />
                     </DockPanel>
                 </ScrollViewer>
             </Grid>
