@@ -30,6 +30,11 @@ namespace LoreCompanion.ViewModels
             Process.Start(new ProcessStartInfo { FileName = videoUrl, UseShellExecute = true });
         }
 
+        protected override int CompareEntities(Episode x, Episode y)
+        {
+            return Comparer<int>.Default.Compare(x.GetEpisodeNumber(), y.GetEpisodeNumber());
+        }
+
         protected override Episode CreateEntityInstance()
         {
             var max = Items.Select(item => item.GetEpisodeNumber()).DefaultIfEmpty(0).Max();

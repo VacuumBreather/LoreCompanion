@@ -43,8 +43,9 @@ namespace LoreCompanion.ViewModels
             _notificationService = notificationService;
             eventAggregator.SubscribeOnPublishedThread(this);
 
-            ItemsView = CollectionViewSource.GetDefaultView(Items);
+            ItemsView = (ListCollectionView)CollectionViewSource.GetDefaultView(Items);
             ItemsView.Filter = OnFilter;
+            ItemsView.CustomSort = Comparer<TEntity>.Create(CompareEntities);
         }
 
         [UsedImplicitly]
@@ -76,7 +77,7 @@ namespace LoreCompanion.ViewModels
             }
         }
 
-        public ICollectionView ItemsView { get; }
+        public ListCollectionView ItemsView { get; }
 
         public string SearchText
         {
@@ -260,6 +261,11 @@ namespace LoreCompanion.ViewModels
             _databaseRefreshNeeded = true;
 
             return Task.CompletedTask;
+        }
+
+        protected virtual int CompareEntities(TEntity x, TEntity y)
+        {
+            return Comparer<string>.Default.Compare(x.Name, y.Name);
         }
 
         protected virtual Task<bool> CanDeleteAsync(LoreDbContext context, TEntity entity)
@@ -501,6 +507,7 @@ namespace LoreCompanion.ViewModels
                 await AfterSaveAsync(entity, context);
 
                 entity.EndEdit();
+                ItemsView.Refresh();
 
                 _ = _notificationService.ShowNotificationAsync(
                     $"{entity.GetType().Name} saved",
