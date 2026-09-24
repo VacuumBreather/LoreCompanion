@@ -346,10 +346,12 @@ namespace LoreCompanion.ViewModels
                 }
             }
 
+            var lockAcquired = false;
+
             try
             {
                 await DatabaseLock.WaitAsync(cancellationToken);
-                DatabaseLock.Release();
+                lockAcquired = true;
             }
             catch (OperationCanceledException e)
             {
@@ -361,6 +363,13 @@ namespace LoreCompanion.ViewModels
                     $"Could not finish database operation.\n{e.Message}",
                     NotificationType.Error,
                     cancellationToken: CancellationToken.None);
+            }
+            finally
+            {
+                if (lockAcquired)
+                {
+                    DatabaseLock.Release();
+                }
             }
 
             if (close)
@@ -409,12 +418,14 @@ namespace LoreCompanion.ViewModels
             using var busy = SetBusy();
 
             await Task.Yield();
+            var lockAcquired = false;
 
             try
             {
                 Logger.Debug("Loading items...");
 
                 await DatabaseLock.WaitAsync(cancellationToken);
+                lockAcquired = true;
 
                 if (_databaseRefreshNeeded)
                 {
@@ -445,7 +456,10 @@ namespace LoreCompanion.ViewModels
             }
             finally
             {
-                DatabaseLock.Release();
+                if (lockAcquired)
+                {
+                    DatabaseLock.Release();
+                }
             }
         }
 
