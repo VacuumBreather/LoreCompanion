@@ -46,6 +46,14 @@
         <Setter Property="FontFamily" Value="{StaticResource FontFamily.Default.Italic}" />
     </Style>
 
+    <!--  Style.TextBlock.Body.Quote.Small  -->
+    <Style
+        x:Key="Style.TextBlock.Body.Quote.Small"
+        BasedOn="{StaticResource Style.TextBlock.Body.Small}"
+        TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Default.Italic}" />
+    </Style>
+
     <!--  Style.TextBlock.Subtitle  -->
     <Style
         x:Key="Style.TextBlock.Subtitle"
