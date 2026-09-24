@@ -178,7 +178,7 @@
                 <DockPanel>
                     <Button
                         DockPanel.Dock="Right"
-                        Style="{StaticResource Style.Button.Clear}"
+                        Style="{StaticResource Style.Button.ComboBox.Clear}"
                         Visibility="{Binding (helpers:ComboBoxHelper.ClearButtonVisibility), RelativeSource={RelativeSource TemplatedParent}}">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="Click">

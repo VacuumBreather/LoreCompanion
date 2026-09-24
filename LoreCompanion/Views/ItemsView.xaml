@@ -69,7 +69,7 @@
 
         <!--  DataTemplate.Item.Detail  -->
         <DataTemplate x:Key="DataTemplate.Item.Detail" DataType="{x:Type models:Item}">
-            <Grid cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
+            <UniformGrid cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
                 <!--  ReadOnly Template  -->
                 <DockPanel Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.ReadOnly}}">
                     <TextBlock
@@ -80,12 +80,11 @@
                         DockPanel.Dock="Top"
                         Style="{StaticResource Style.TextBlock.Heading.Large}" />
                     <Grid
+                        MaxHeight="250"
                         Margin="0,20,0,0"
-                        VerticalAlignment="Top"
-                        ColumnDefinitions="2* 3*"
+                        ColumnDefinitions="200 *"
                         DockPanel.Dock="Top">
                         <Border
-                            x:Name="ImageBorder"
                             Grid.Column="0"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top"
@@ -118,7 +117,7 @@
                     <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
                     <Grid
                         VerticalAlignment="Top"
-                        ColumnDefinitions="Auto 20 *"
+                        ColumnDefinitions="150 20 *"
                         RowDefinitions="50 50 50">
                         <TextBlock
                             Grid.Row="0"
@@ -235,7 +234,7 @@
                         </TextBox>
                     </DockPanel>
                 </ScrollViewer>
-            </Grid>
+            </UniformGrid>
         </DataTemplate>
     </UserControl.Resources>
 

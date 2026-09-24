@@ -6,10 +6,10 @@ namespace LoreCompanion.Views
     /// <summary>Interaction logic for MainWindow.xaml</summary>
     public partial class ShellView
     {
-        private const double BaseWidth = 1360;
-        private const double BaseHeight = 768;
+        public const double BaseWidth = 1360;
+        public const double BaseHeight = 768;
         private const double BaseMinWidth = 1024;
-        private const double BaseMinHeight = 600;
+        private const double BaseMinHeight = 576;
 
         private Point _dragStart;
 

@@ -78,9 +78,9 @@
 
         <!--  DataTemplate.Dialog.Detail  -->
         <DataTemplate x:Key="DataTemplate.Dialog.Detail" DataType="{x:Type models:Dialog}">
-            <Grid cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" RowDefinitions="*">
+            <UniformGrid cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
                 <!--  ReadOnly Template  -->
-                <DockPanel Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.ReadOnly}}">
+                <DockPanel VerticalAlignment="Top" Visibility="{Binding DataContext.EditMode, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource Converter.IsEqualToVisible}, ConverterParameter={x:Static viewModels:EditMode.ReadOnly}}">
                     <TextBlock
                         helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
                         helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
@@ -88,14 +88,11 @@
                         helpers:HighlightHelper.Text="{Binding Character.Name, FallbackValue=''}"
                         DockPanel.Dock="Top"
                         Style="{StaticResource Style.TextBlock.Heading.Large}" />
-                    <Grid
+                    <UniformGrid
                         Margin="0,20,0,0"
-                        VerticalAlignment="Top"
-                        ColumnDefinitions="2* 3*"
+                        Columns="2"
                         DockPanel.Dock="Top">
                         <Border
-                            x:Name="ImageBorder"
-                            Grid.Column="0"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top"
                             BorderBrush="{StaticResource Brush.Border.Primary}"
@@ -109,11 +106,11 @@
                                 </b:Interaction.Behaviors>
                             </Image>
                         </Border>
-                    </Grid>
+                    </UniformGrid>
                     <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
                     <Grid
                         VerticalAlignment="Top"
-                        ColumnDefinitions="Auto 20 *"
+                        ColumnDefinitions="150 20 *"
                         DockPanel.Dock="Bottom"
                         RowDefinitions="50 50 50">
                         <TextBlock
@@ -166,6 +163,7 @@
                     <Separator VerticalAlignment="Top" DockPanel.Dock="Bottom" />
                     <ScrollViewer
                         MinHeight="50"
+                        MaxHeight="300"
                         Margin="20,0,0,0"
                         Padding="0,0,5,0"
                         VerticalAlignment="Top"
@@ -241,7 +239,7 @@
                         </TextBox>
                     </DockPanel>
                 </ScrollViewer>
-            </Grid>
+            </UniformGrid>
         </DataTemplate>
     </UserControl.Resources>
 

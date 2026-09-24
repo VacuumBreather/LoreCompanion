@@ -12,10 +12,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utilities="clr-namespace:LoreCompanion.Utilities"
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
+    xmlns:views="clr-namespace:LoreCompanion.Views"
     x:Name="RootWindow"
     Title="MainWindow"
-    Width="1360"
-    Height="768"
+    Width="{x:Static views:ShellView.BaseWidth}"
+    Height="{x:Static views:ShellView.BaseHeight}"
     d:DataContext="{d:DesignInstance viewModels:ShellViewModel,
                                      IsDesignTimeCreatable=False}"
     AllowsTransparency="True"

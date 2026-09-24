@@ -62,9 +62,11 @@
                         helpers:HighlightHelper.Text="{Binding Name}"
                         DockPanel.Dock="Top"
                         Style="{StaticResource Style.TextBlock.Heading.Large}" />
-                    <UniformGrid Columns="2" DockPanel.Dock="Top">
+                    <UniformGrid
+                        Margin="0,20,0,0"
+                        Columns="2"
+                        DockPanel.Dock="Top">
                         <Border
-                            Margin="0,20,0,0"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top"
                             BorderBrush="{StaticResource Brush.Border.Primary}"
@@ -82,7 +84,7 @@
                     <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
                     <Grid
                         VerticalAlignment="Top"
-                        ColumnDefinitions="Auto 20 *"
+                        ColumnDefinitions="150 20 *"
                         DockPanel.Dock="Top">
                         <TextBlock
                             Grid.Column="0"

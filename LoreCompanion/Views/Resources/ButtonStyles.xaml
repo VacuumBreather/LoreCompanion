@@ -234,9 +234,9 @@
         </Setter>
     </Style>
 
-    <!--  Style.Button.ClearEpisode  -->
+    <!--  Style.Button.ComboBox.Clear  -->
     <Style
-        x:Key="Style.Button.Clear"
+        x:Key="Style.Button.ComboBox.Clear"
         BasedOn="{StaticResource Style.Button}"
         TargetType="{x:Type Button}">
         <Setter Property="Width" Value="46" />
