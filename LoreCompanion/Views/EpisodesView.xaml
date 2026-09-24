@@ -23,6 +23,7 @@
                 <Image
                     Margin="0,5"
                     RenderOptions.BitmapScalingMode="Fant"
+                    Source="{StaticResource Image.Placeholder}"
                     Stretch="Uniform">
                     <b:Interaction.Behaviors>
                         <behaviors:LoadCachedImageBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToThumbnailUrl}}" />
@@ -66,7 +67,10 @@
                         BorderBrush="{StaticResource Brush.Border.Primary}"
                         BorderThickness="2"
                         DockPanel.Dock="Top">
-                        <Image RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform">
+                        <Image
+                            RenderOptions.BitmapScalingMode="HighQuality"
+                            Source="{StaticResource Image.Placeholder}"
+                            Stretch="Uniform">
                             <b:Interaction.Behaviors>
                                 <behaviors:LoadCachedImageBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToThumbnailUrl}}" />
                             </b:Interaction.Behaviors>
