@@ -15,6 +15,7 @@ namespace LoreCompanion.ViewModels
         where TEntity : EntityBase, IEpisodeReferencing, ILocationReferencing, IEditableObject, new()
     {
         private bool _locationsRefreshNeeded = true;
+        private bool _needLocationsReconciliation;
 
         protected MasterDetailWithEpisodeLocationSectionScreen(
             IDbContextFactory<LoreDbContext> dbContextFactory,
@@ -24,6 +25,7 @@ namespace LoreCompanion.ViewModels
             : base(dbContextFactory, dialogService, notificationService, eventAggregator)
         {
             LoadingEntities += OnLoadingEntities;
+            LoadedEntities += OnLoadedEntities;
             SavingEntity += OnSavingEntity;
             SavedEntity += OnSavedEntity;
         }
@@ -43,14 +45,16 @@ namespace LoreCompanion.ViewModels
             return base.GetAllItemsQuery(context).Include(x => x.Location);
         }
 
-        private async Task OnLoadingEntities(object sender, LoadingEntitiesEventArgs e)
+        private async Task OnLoadingEntities(object sender, LoadEntitiesEventArgs e)
         {
             if (!_locationsRefreshNeeded && !e.ForceLoad)
             {
                 return;
             }
 
-            _locationsRefreshNeeded = false;
+            Logger.Debug("Loading locations...");
+
+            _needLocationsReconciliation = true;
 
             await using var context = await DbContextFactory.CreateDbContextAsync(e.CancellationToken);
 
@@ -66,6 +70,9 @@ namespace LoreCompanion.ViewModels
                     Locations.IsNotifying = false;
                     Locations.Clear();
                     Locations.AddRange(locations);
+
+                    _locationsRefreshNeeded = false;
+                    Logger.Debug("Locations loaded");
                 }
                 finally
                 {
@@ -73,6 +80,35 @@ namespace LoreCompanion.ViewModels
                     Locations.Refresh();
                 }
             });
+        }
+
+        private Task OnLoadedEntities(object sender, EventArgs e)
+        {
+            if (!_needLocationsReconciliation)
+            {
+                return Task.CompletedTask;
+            }
+
+            Logger.Debug("Reconciling locations...");
+
+            Execute.OnUIThread(() =>
+            {
+                var lookUp = Locations.ToDictionary(loc => loc.Id);
+
+                foreach (var item in Items)
+                {
+                    item.Location =
+                        item.LocationId.HasValue && lookUp.TryGetValue(item.LocationId.Value, out var location)
+                            ? location
+                            : null;
+                }
+            });
+
+            _needLocationsReconciliation = false;
+
+            Logger.Debug("Locations reconciled");
+
+            return Task.CompletedTask;
         }
 
         private Task OnSavingEntity(object sender, SaveEntityEventArgs<TEntity> args)

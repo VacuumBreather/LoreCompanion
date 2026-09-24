@@ -1,6 +1,6 @@
 ﻿namespace LoreCompanion.ViewModels
 {
-    public class LoadingEntitiesEventArgs : EventArgs
+    public class LoadEntitiesEventArgs : EventArgs
     {
         public bool ForceLoad { get; init; }
 

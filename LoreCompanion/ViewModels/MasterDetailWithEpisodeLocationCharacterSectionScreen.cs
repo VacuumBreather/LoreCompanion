@@ -16,6 +16,7 @@ namespace LoreCompanion.ViewModels
         new()
     {
         private bool _charactersRefreshNeeded = true;
+        private bool _needCharactersReconciliation;
 
         protected MasterDetailWithEpisodeLocationCharacterSectionScreen(
             IDbContextFactory<LoreDbContext> dbContextFactory,
@@ -25,6 +26,7 @@ namespace LoreCompanion.ViewModels
             : base(dbContextFactory, dialogService, notificationService, eventAggregator)
         {
             LoadingEntities += OnLoadingEntities;
+            LoadedEntities += OnLoadedEntities;
             SavingEntity += OnSavingEntity;
             SavedEntity += OnSavedEntity;
         }
@@ -44,20 +46,22 @@ namespace LoreCompanion.ViewModels
             return base.GetAllItemsQuery(context).Include(x => x.Character);
         }
 
-        private async Task OnLoadingEntities(object sender, LoadingEntitiesEventArgs e)
+        private async Task OnLoadingEntities(object sender, LoadEntitiesEventArgs e)
         {
             if (!_charactersRefreshNeeded && !e.ForceLoad)
             {
                 return;
             }
 
-            _charactersRefreshNeeded = false;
+            Logger.Debug("Loading characters...");
+
+            _needCharactersReconciliation = true;
 
             await using var context = await DbContextFactory.CreateDbContextAsync(e.CancellationToken);
 
-            var locations = await context.Characters.AsNoTracking()
-                                         .OrderBy(l => l.Name)
-                                         .ToListAsync(e.CancellationToken);
+            var characters = await context.Characters.AsNoTracking()
+                                          .OrderBy(l => l.Name)
+                                          .ToListAsync(e.CancellationToken);
 
             Execute.OnUIThread(() =>
             {
@@ -65,7 +69,10 @@ namespace LoreCompanion.ViewModels
                 {
                     Characters.IsNotifying = false;
                     Characters.Clear();
-                    Characters.AddRange(locations);
+                    Characters.AddRange(characters);
+
+                    _charactersRefreshNeeded = false;
+                    Logger.Debug("Characters loaded");
                 }
                 finally
                 {
@@ -73,6 +80,35 @@ namespace LoreCompanion.ViewModels
                     Characters.Refresh();
                 }
             });
+        }
+
+        private Task OnLoadedEntities(object sender, EventArgs e)
+        {
+            if (!_needCharactersReconciliation)
+            {
+                return Task.CompletedTask;
+            }
+
+            Logger.Debug("Reconciling characters...");
+
+            Execute.OnUIThread(() =>
+            {
+                var lookUp = Characters.ToDictionary(c => c.Id);
+
+                foreach (var item in Items)
+                {
+                    item.Character =
+                        item.CharacterId.HasValue && lookUp.TryGetValue(item.CharacterId.Value, out var character)
+                            ? character
+                            : null;
+                }
+            });
+
+            _needCharactersReconciliation = false;
+
+            Logger.Debug("Characters reconciled");
+
+            return Task.CompletedTask;
         }
 
         private Task OnSavingEntity(object sender, SaveEntityEventArgs<TEntity> args)

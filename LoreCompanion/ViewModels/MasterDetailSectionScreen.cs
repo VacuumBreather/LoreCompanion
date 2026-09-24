@@ -47,7 +47,9 @@ namespace LoreCompanion.ViewModels
             ItemsView.CustomSort = Comparer<TEntity>.Create(CompareEntities);
         }
 
-        protected event AsyncEventHandler<LoadingEntitiesEventArgs> LoadingEntities = (_, _) => Task.CompletedTask;
+        protected event AsyncEventHandler<LoadEntitiesEventArgs> LoadingEntities = (_, _) => Task.CompletedTask;
+
+        protected event AsyncEventHandler<EventArgs> LoadedEntities = (_, _) => Task.CompletedTask;
 
         protected event AsyncEventHandler<SaveEntityEventArgs<TEntity>> SavingEntity = (_, _) => Task.CompletedTask;
 
@@ -110,9 +112,9 @@ namespace LoreCompanion.ViewModels
 
         protected IDbContextFactory<LoreDbContext> DbContextFactory { get; }
 
-        protected SemaphoreSlim DatabaseLock { get; } = new(1, 1);
-
         protected ILogger Logger => field ??= LogManager.GetLogger(GetType());
+
+        private SemaphoreSlim DatabaseLock { get; } = new(1, 1);
 
         [PublicAPI]
         public Task CreateNewAsync()
@@ -419,10 +421,17 @@ namespace LoreCompanion.ViewModels
 
             await Task.Yield();
             var lockAcquired = false;
+            TEntity? currentSelectedItem = null;
 
             try
             {
                 Logger.Debug("Loading items...");
+
+                Execute.OnUIThread(() =>
+                {
+                    currentSelectedItem = SelectedItem;
+                    SelectedItem = null;
+                });
 
                 await DatabaseLock.WaitAsync(cancellationToken);
                 lockAcquired = true;
@@ -439,6 +448,8 @@ namespace LoreCompanion.ViewModels
                 {
                     await NotifyOfLoadingEntities(false, cancellationToken);
                 }
+
+                await LoadedEntities.InvokeAllAsync(this, EventArgs.Empty);
             }
             catch (OperationCanceledException e)
             {
@@ -456,6 +467,26 @@ namespace LoreCompanion.ViewModels
             }
             finally
             {
+                Execute.OnUIThread(() =>
+                {
+                    var firstItem = default(TEntity);
+                    var selectedItem = default(TEntity);
+
+                    foreach (var item in ItemsView.Cast<TEntity>())
+                    {
+                        firstItem ??= item;
+
+                        if (item.Id == currentSelectedItem?.Id)
+                        {
+                            selectedItem = item;
+
+                            break;
+                        }
+                    }
+
+                    SelectedItem = selectedItem ?? firstItem;
+                });
+
                 if (lockAcquired)
                 {
                     DatabaseLock.Release();
@@ -465,18 +496,14 @@ namespace LoreCompanion.ViewModels
 
         private async Task NotifyOfLoadingEntities(bool forceLoad, CancellationToken cancellationToken)
         {
-            var args = new LoadingEntitiesEventArgs { ForceLoad = forceLoad, CancellationToken = cancellationToken };
+            var args = new LoadEntitiesEventArgs { ForceLoad = forceLoad, CancellationToken = cancellationToken };
 
             await LoadingEntities.InvokeAllAsync(this, args);
         }
 
         private async Task LoadEntitiesInternalAsync(CancellationToken cancellationToken)
         {
-            Execute.OnUIThread(() =>
-            {
-                SelectedItem = null;
-                Items.Clear();
-            });
+            Execute.OnUIThread(() => { Items.Clear(); });
 
             await using (var context = await DbContextFactory.CreateDbContextAsync(cancellationToken))
             {
@@ -505,8 +532,6 @@ namespace LoreCompanion.ViewModels
                     UpdateItems(buffer);
                 }
             }
-
-            Execute.OnUIThread(() => { SelectedItem = ItemsView.Cast<TEntity>().FirstOrDefault(); });
 
             Logger.Debug("Items and auxiliary data loaded");
         }

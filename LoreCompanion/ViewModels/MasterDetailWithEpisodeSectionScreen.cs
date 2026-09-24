@@ -16,6 +16,7 @@ namespace LoreCompanion.ViewModels
         where TEntity : EntityBase, IEpisodeReferencing, IEditableObject, new()
     {
         private bool _episodesRefreshNeeded = true;
+        private bool _needEpisodesReconciliation;
 
         protected MasterDetailWithEpisodeSectionScreen(
             IDbContextFactory<LoreDbContext> dbContextFactory,
@@ -30,6 +31,7 @@ namespace LoreCompanion.ViewModels
                 eventAggregator)
         {
             LoadingEntities += OnLoadingEntities;
+            LoadedEntities += OnLoadedEntities;
             SavingEntity += OnSavingEntity;
             SavedEntity += OnSavedEntity;
         }
@@ -67,14 +69,16 @@ namespace LoreCompanion.ViewModels
             return context.Set<TEntity>().Include(x => x.Episode);
         }
 
-        private async Task OnLoadingEntities(object sender, LoadingEntitiesEventArgs e)
+        private async Task OnLoadingEntities(object sender, LoadEntitiesEventArgs e)
         {
             if (!_episodesRefreshNeeded && !e.ForceLoad)
             {
                 return;
             }
 
-            _episodesRefreshNeeded = false;
+            Logger.Debug("Loading episodes...");
+
+            _needEpisodesReconciliation = true;
 
             await using var context = await DbContextFactory.CreateDbContextAsync(e.CancellationToken);
 
@@ -89,6 +93,9 @@ namespace LoreCompanion.ViewModels
                     Episodes.IsNotifying = false;
                     Episodes.Clear();
                     Episodes.AddRange(episodes);
+
+                    _episodesRefreshNeeded = false;
+                    Logger.Debug("Episodes loaded");
                 }
                 finally
                 {
@@ -96,6 +103,34 @@ namespace LoreCompanion.ViewModels
                     Episodes.Refresh();
                 }
             });
+        }
+
+        private Task OnLoadedEntities(object sender, EventArgs e)
+        {
+            if (!_needEpisodesReconciliation)
+            {
+                return Task.CompletedTask;
+            }
+
+            Logger.Debug("Reconciling episodes...");
+
+            Execute.OnUIThread(() =>
+            {
+                var lookUp = Episodes.ToDictionary(ep => ep.Id);
+
+                foreach (var item in Items)
+                {
+                    item.Episode = item.EpisodeId.HasValue && lookUp.TryGetValue(item.EpisodeId.Value, out var episode)
+                                       ? episode
+                                       : null;
+                }
+            });
+
+            _needEpisodesReconciliation = false;
+
+            Logger.Debug("Episodes reconciled");
+
+            return Task.CompletedTask;
         }
 
         private Task OnSavingEntity(object sender, SaveEntityEventArgs<TEntity> args)
