@@ -31,7 +31,6 @@ namespace LoreCompanion.ViewModels
         private CancellationTokenSource? _loadingCts;
 
         public ArchiveViewModel(
-            string section,
             IDbContextFactory<LoreDbContext> dbContextFactory,
             INotificationService notificationService,
             IEventAggregator eventAggregator)
