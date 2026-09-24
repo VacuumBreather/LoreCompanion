@@ -20,7 +20,10 @@
         <!--  DataTemplate.Episode.Master  -->
         <DataTemplate x:Key="DataTemplate.Episode.Master" DataType="{x:Type models:Episode}">
             <DockPanel>
-                <Image Margin="0,5" Stretch="Uniform">
+                <Image
+                    Margin="0,5"
+                    RenderOptions.BitmapScalingMode="Fant"
+                    Stretch="Uniform">
                     <b:Interaction.Behaviors>
                         <behaviors:LoadCachedImageBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToThumbnailUrl}}" />
                     </b:Interaction.Behaviors>
@@ -63,7 +66,7 @@
                         BorderBrush="{StaticResource Brush.Border.Primary}"
                         BorderThickness="2"
                         DockPanel.Dock="Top">
-                        <Image Stretch="Uniform">
+                        <Image RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform">
                             <b:Interaction.Behaviors>
                                 <behaviors:LoadCachedImageBehavior Url="{Binding VideoKey, Converter={StaticResource Converter.VideoKeyToThumbnailUrl}}" />
                             </b:Interaction.Behaviors>

@@ -26,6 +26,7 @@
                     <Image
                         Margin="0,5"
                         HorizontalAlignment="Left"
+                        RenderOptions.BitmapScalingMode="Fant"
                         Stretch="Uniform">
                         <b:Interaction.Behaviors>
                             <behaviors:LoadCachedImageBehavior Url="{Binding ImageUrl}" />
@@ -68,7 +69,7 @@
                             VerticalAlignment="Top"
                             BorderBrush="{StaticResource Brush.Border.Primary}"
                             BorderThickness="2">
-                            <Image Stretch="Uniform">
+                            <Image RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform">
                                 <b:Interaction.Behaviors>
                                     <behaviors:LoadCachedImageBehavior Url="{Binding ImageUrl}" />
                                 </b:Interaction.Behaviors>
