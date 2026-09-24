@@ -87,7 +87,7 @@ namespace LoreCompanion.Models
             }
 
             Name = _backup!.Name;
-            ImageUrl = _backup!.ImageUrl;
+            ImageUrl = _backup.ImageUrl;
             EpisodeId = _backup.EpisodeId;
             Episode = _backup.Episode;
             Timestamp = _backup.Timestamp;
