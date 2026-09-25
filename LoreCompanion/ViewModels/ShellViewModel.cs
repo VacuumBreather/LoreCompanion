@@ -201,7 +201,7 @@ namespace LoreCompanion.ViewModels
                 }
 
                 var newVersion = releaseNotesDialog.IsMinorVersionRelease
-                                     ? new Version(1, currentVersion.Minor + 1, currentVersion.Build)
+                                     ? new Version(1, currentVersion.Minor + 1, 0)
                                      : new Version(1, currentVersion.Minor, currentVersion.Build + 1);
 
                 context.DatabaseReleases.Add(
