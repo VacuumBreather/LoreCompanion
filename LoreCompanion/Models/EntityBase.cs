@@ -63,8 +63,8 @@ namespace LoreCompanion.Models
                 Episode => 0,
                 Location => 1,
                 Character => 2,
-                Item => 3,
-                Dialog => 4,
+                Dialog => 3,
+                Item => 4,
                 var _ => int.MaxValue,
             };
         }

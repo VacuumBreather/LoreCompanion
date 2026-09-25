@@ -9,7 +9,6 @@
     xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:LoreCompanion.Models"
-    xmlns:utilities="clr-namespace:LoreCompanion.Utilities"
     xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
     x:Name="Root"
     cm:Bind.Model="{Binding}"
@@ -57,9 +56,10 @@
                             cm:Message.Attach="CreateNewAsync"
                             DockPanel.Dock="Right"
                             Style="{StaticResource Style.Button.New}"
-                            Visibility="{x:Static helpers:AdminHelper.AdminModeVisibility}" />
+                            Visibility="{Binding CanEdit, Mode=OneWay, Converter={StaticResource Converter.TrueToVisible}}" />
                     </DockPanel>
                     <ListBox
+                        helpers:ListBoxHelper.DeleteButtonVisibility="{Binding CanEdit, Converter={StaticResource Converter.TrueToVisible}}"
                         Background="Transparent"
                         BorderThickness="0"
                         ItemTemplate="{Binding ItemTemplate, ElementName=Root}"
@@ -87,7 +87,7 @@
                                     Converter="{StaticResource Converter.IsEqual}"
                                     ConverterParameter="{x:Static viewModels:EditMode.Edit}"
                                     Path="EditMode" />
-                                <Binding Source="{x:Static utilities:AppHelper.IsAdminMode}" />
+                                <Binding Mode="OneWay" Path="CanEdit" />
                             </MultiBinding.Bindings>
                         </MultiBinding>
                     </Button.Visibility>
@@ -106,7 +106,7 @@
                                     Converter="{StaticResource Converter.IsEqual}"
                                     ConverterParameter="{x:Static viewModels:EditMode.Edit}"
                                     Path="EditMode" />
-                                <Binding Source="{x:Static utilities:AppHelper.IsAdminMode}" />
+                                <Binding Mode="OneWay" Path="CanEdit" />
                             </MultiBinding.Bindings>
                         </MultiBinding>
                     </Button.Visibility>
@@ -125,7 +125,7 @@
                                     Converter="{StaticResource Converter.IsEqual}"
                                     ConverterParameter="{x:Static viewModels:EditMode.ReadOnly}"
                                     Path="EditMode" />
-                                <Binding Source="{x:Static utilities:AppHelper.IsAdminMode}" />
+                                <Binding Mode="OneWay" Path="CanEdit" />
                             </MultiBinding.Bindings>
                         </MultiBinding>
                     </Button.Visibility>

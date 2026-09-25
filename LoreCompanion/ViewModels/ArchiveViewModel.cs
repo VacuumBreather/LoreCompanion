@@ -34,7 +34,7 @@ namespace LoreCompanion.ViewModels
             IDialogService dialogService,
             INotificationService notificationService,
             IEventAggregator eventAggregator)
-            : base(NavigationSection.Overview, dialogService)
+            : base(NavigationSection.Overview, dialogService, false)
         {
             _dbContextFactory = dbContextFactory;
             _notificationService = notificationService;
