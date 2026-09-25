@@ -16,7 +16,6 @@ namespace LoreCompanion.ViewModels
     public abstract class MasterDetailSectionScreen<TEntity> : SectionScreen, IHandle<DatabaseUpdatedEvent>
         where TEntity : EntityBase, IEditableObject, IFilter, IComparable<TEntity>, new()
     {
-        private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
         private readonly IEventAggregator _eventAggregator;
 
@@ -32,10 +31,9 @@ namespace LoreCompanion.ViewModels
             IDialogService dialogService,
             INotificationService notificationService,
             IEventAggregator eventAggregator)
-            : base(section)
+            : base(section, dialogService)
         {
             DbContextFactory = dbContextFactory;
-            _dialogService = dialogService;
             _notificationService = notificationService;
             _eventAggregator = eventAggregator;
             _eventAggregator.SubscribeOnPublishedThread(this);
@@ -197,7 +195,7 @@ namespace LoreCompanion.ViewModels
                 return;
             }
 
-            var dialogResult = await _dialogService.ShowQueryDialogAsync(
+            var dialogResult = await DialogService.ShowQueryDialogAsync(
                                    $"Delete {entity.GetType().Name}",
                                    $"Are you sure you want to delete this {entity.GetType().Name.ToLower()}?\n\n'{entity}'",
                                    DialogResults.YesNo,

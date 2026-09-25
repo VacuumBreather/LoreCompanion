@@ -4,7 +4,9 @@
     xmlns:cm="http://caliburnmicro.com"
     xmlns:controls="clr-namespace:LoreCompanion.Views.Controls"
     xmlns:converters="clr-namespace:LoreCompanion.Views.Converters"
-    xmlns:dialogs="clr-namespace:LoreCompanion.ViewModels.Dialogs">
+    xmlns:dialogs="clr-namespace:LoreCompanion.ViewModels.Dialogs"
+    xmlns:views="clr-namespace:LoreCompanion.Views"
+    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="NotificationStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
@@ -177,6 +179,70 @@
                 Text="{Binding Content, Mode=OneWay}"
                 TextAlignment="Center" />
         </DockPanel>
+    </DataTemplate>
+
+    <!--  DataTemplate.VideoPlayerDialog.Implicit  -->
+    <DataTemplate DataType="{x:Type dialogs:VideoPlayerDialog}">
+
+        <DockPanel Width="800" Height="500">
+            <TextBlock
+                HorizontalAlignment="Center"
+                DockPanel.Dock="Top"
+                Style="{StaticResource Style.TextBlock.Heading}"
+                Text="{Binding Title, Mode=OneWay}"
+                TextAlignment="Center" />
+            <UniformGrid
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                DockPanel.Dock="Bottom"
+                Rows="1">
+                <Button
+                    MinWidth="50"
+                    Margin="10,10,10,0"
+                    controls:CloseDialog.Result="Ok"
+                    Content="OK"
+                    IsDefault="True"
+                    Style="{StaticResource Style.Button.Yes}" />
+                <Button
+                    MinWidth="50"
+                    Margin="10,10,10,0"
+                    controls:CloseDialog.Result="Cancel"
+                    Content="Cancel"
+                    IsCancel="True"
+                    Style="{StaticResource Style.Button.No}" />
+            </UniformGrid>
+            <views:YoutubePlayer />
+        </DockPanel>
+
+        <!-- <DockPanel> -->
+        <!--  <TextBlock  -->
+        <!--  HorizontalAlignment="Center"  -->
+        <!--  DockPanel.Dock="Top"  -->
+        <!--  Style="{StaticResource Style.TextBlock.Heading}"  -->
+        <!--  Text="{Binding Title, Mode=OneWay}"  -->
+        <!--  TextAlignment="Center" />  -->
+        <!--  <UniformGrid  -->
+        <!--  HorizontalAlignment="Center"  -->
+        <!--  VerticalAlignment="Bottom"  -->
+        <!--  DockPanel.Dock="Bottom"  -->
+        <!--  Rows="1">  -->
+        <!--  <Button  -->
+        <!--  MinWidth="50"  -->
+        <!--  Margin="10,10,10,0"  -->
+        <!--  controls:CloseDialog.Result="Ok"  -->
+        <!--  Content="OK"  -->
+        <!--  IsDefault="True"  -->
+        <!--  Style="{StaticResource Style.Button.Yes}" />  -->
+        <!--  <Button  -->
+        <!--  MinWidth="50"  -->
+        <!--  Margin="10,10,10,0"  -->
+        <!--  controls:CloseDialog.Result="Cancel"  -->
+        <!--  Content="Cancel"  -->
+        <!--  IsCancel="True"  -->
+        <!--  Style="{StaticResource Style.Button.No}" />  -->
+        <!--     </UniformGrid> -->
+        <!--     <wpf:WebView2 Source="{Binding Content, Mode=OneTime, TargetNullValue='about:blank', FallbackValue='about:blank'}" /> -->
+        <!-- </DockPanel> -->
     </DataTemplate>
 
     <!--  ControlTemplate.DialogItem  -->

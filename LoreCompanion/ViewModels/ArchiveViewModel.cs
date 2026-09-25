@@ -4,6 +4,7 @@ using Caliburn.Micro;
 using JetBrains.Annotations;
 using LoreCompanion.Models;
 using LoreCompanion.Utilities;
+using LoreCompanion.ViewModels.Dialogs;
 using LoreCompanion.ViewModels.Events;
 using LoreCompanion.ViewModels.Notifications;
 using Microsoft.EntityFrameworkCore;
@@ -32,9 +33,10 @@ namespace LoreCompanion.ViewModels
 
         public ArchiveViewModel(
             IDbContextFactory<LoreDbContext> dbContextFactory,
+            IDialogService dialogService,
             INotificationService notificationService,
             IEventAggregator eventAggregator)
-            : base(NavigationSection.Overview)
+            : base(NavigationSection.Overview, dialogService)
         {
             _dbContextFactory = dbContextFactory;
             _notificationService = notificationService;

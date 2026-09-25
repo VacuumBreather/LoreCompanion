@@ -4,7 +4,11 @@
     {
         public const string VideoUrlFormatString = "https://www.youtube.com/watch?v={0}";
 
+        public const string VideoUrlFormatEmbeddedString = "https://www.youtube.com/embed/{0}?autoplay=1";
+
         public const string VideoUrlFormatStringWithTime = "https://www.youtube.com/watch?v={0}&t={1}s";
+
+        public const string VideoUrlFormatEmbeddedStringWithTime = "https://www.youtube.com/embed/{0}?autoplay=1&start={1}";
 
         public const string ThumbnailUrlFormatString = "https://img.youtube.com/vi/{0}/mqdefault.jpg";
 

@@ -250,6 +250,7 @@
                             </ScrollViewer>
                         </Grid>
                     </Border>
+
                     <ContentControl x:Name="ActiveItem" />
 
                 </DockPanel>
