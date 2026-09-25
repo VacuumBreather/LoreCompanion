@@ -183,66 +183,40 @@
 
     <!--  DataTemplate.VideoPlayerDialog.Implicit  -->
     <DataTemplate DataType="{x:Type dialogs:VideoPlayerDialog}">
-
-        <DockPanel Width="800" Height="500">
+        <DockPanel>
             <TextBlock
                 HorizontalAlignment="Center"
                 DockPanel.Dock="Top"
-                Style="{StaticResource Style.TextBlock.Heading}"
+                Style="{StaticResource Style.TextBlock.Heading.Large}"
                 Text="{Binding Title, Mode=OneWay}"
                 TextAlignment="Center" />
+
             <UniformGrid
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
                 DockPanel.Dock="Bottom"
                 Rows="1">
                 <Button
-                    MinWidth="50"
-                    Margin="10,10,10,0"
+                    MinWidth="80"
+                    Margin="10,20,10,10"
                     controls:CloseDialog.Result="Ok"
-                    Content="OK"
+                    Content="Close"
+                    IsCancel="True"
                     IsDefault="True"
                     Style="{StaticResource Style.Button.Yes}" />
-                <Button
-                    MinWidth="50"
-                    Margin="10,10,10,0"
-                    controls:CloseDialog.Result="Cancel"
-                    Content="Cancel"
-                    IsCancel="True"
-                    Style="{StaticResource Style.Button.No}" />
             </UniformGrid>
-            <views:YoutubePlayer />
-        </DockPanel>
 
-        <!-- <DockPanel> -->
-        <!--  <TextBlock  -->
-        <!--  HorizontalAlignment="Center"  -->
-        <!--  DockPanel.Dock="Top"  -->
-        <!--  Style="{StaticResource Style.TextBlock.Heading}"  -->
-        <!--  Text="{Binding Title, Mode=OneWay}"  -->
-        <!--  TextAlignment="Center" />  -->
-        <!--  <UniformGrid  -->
-        <!--  HorizontalAlignment="Center"  -->
-        <!--  VerticalAlignment="Bottom"  -->
-        <!--  DockPanel.Dock="Bottom"  -->
-        <!--  Rows="1">  -->
-        <!--  <Button  -->
-        <!--  MinWidth="50"  -->
-        <!--  Margin="10,10,10,0"  -->
-        <!--  controls:CloseDialog.Result="Ok"  -->
-        <!--  Content="OK"  -->
-        <!--  IsDefault="True"  -->
-        <!--  Style="{StaticResource Style.Button.Yes}" />  -->
-        <!--  <Button  -->
-        <!--  MinWidth="50"  -->
-        <!--  Margin="10,10,10,0"  -->
-        <!--  controls:CloseDialog.Result="Cancel"  -->
-        <!--  Content="Cancel"  -->
-        <!--  IsCancel="True"  -->
-        <!--  Style="{StaticResource Style.Button.No}" />  -->
-        <!--     </UniformGrid> -->
-        <!--     <wpf:WebView2 Source="{Binding Content, Mode=OneTime, TargetNullValue='about:blank', FallbackValue='about:blank'}" /> -->
-        <!-- </DockPanel> -->
+            <Border
+                Margin="0,15,0,0"
+                BorderBrush="{StaticResource Brush.Border.Primary}"
+                BorderThickness="2">
+                <views:YoutubePlayer
+                    Width="800"
+                    Height="450"
+                    Timestamp="{Binding Timestamp}"
+                    VideoKey="{Binding VideoKey}" />
+            </Border>
+        </DockPanel>
     </DataTemplate>
 
     <!--  ControlTemplate.DialogItem  -->

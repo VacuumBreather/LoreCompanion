@@ -1,12 +1,11 @@
 ﻿namespace LoreCompanion.ViewModels.Dialogs
 {
-    public class VideoPlayerDialog(string title, string content) : InformationDialog(title, content)
+    public class VideoPlayerDialog(string title, string videoKey, TimeSpan timestamp = default) : DialogScreen
     {
-        protected override Task OnDialogClosed(CancellationToken cancellationToken)
-        {
-            Content = "about:blank";
+        public string Title { get; } = title;
 
-            return base.OnDialogClosed(cancellationToken);
-        }
+        public string VideoKey { get; } = videoKey;
+
+        public TimeSpan Timestamp { get; } = timestamp;
     }
 }

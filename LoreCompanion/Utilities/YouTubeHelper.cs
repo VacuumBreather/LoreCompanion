@@ -2,17 +2,22 @@
 {
     public static class YouTubeHelper
     {
+        public const string Referer = "https://vacuumbreather.de/lorecompanion/";
+        public const string Origin = "https://vacuumbreather.de";
+
         public const string VideoUrlFormatString = "https://www.youtube.com/watch?v={0}";
-
-        public const string VideoUrlFormatEmbeddedString = "https://www.youtube.com/embed/{0}?autoplay=1";
-
         public const string VideoUrlFormatStringWithTime = "https://www.youtube.com/watch?v={0}&t={1}s";
-
-        public const string VideoUrlFormatEmbeddedStringWithTime = "https://www.youtube.com/embed/{0}?autoplay=1&start={1}";
-
         public const string ThumbnailUrlFormatString = "https://img.youtube.com/vi/{0}/mqdefault.jpg";
 
         public const string MetadataUrlFormatString =
             "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={0}&format=json";
+
+        public static string BuildEmbedUrl(string videoKey, TimeSpan timestamp = default)
+        {
+            var seconds = (int)timestamp.TotalSeconds;
+
+            return
+                $"https://www.youtube.com/embed/{Uri.EscapeDataString(videoKey)}?autoplay=1&enablejsapi=1&start={seconds}&origin={Uri.EscapeDataString(Origin)}";
+        }
     }
 }

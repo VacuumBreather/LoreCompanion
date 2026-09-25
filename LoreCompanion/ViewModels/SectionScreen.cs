@@ -41,8 +41,7 @@ namespace LoreCompanion.ViewModels
 
             Logger.Debug("Playing video for episode '{EpisodeName}'", episode.ToString());
 
-            var videoUrl = string.Format(YouTubeHelper.VideoUrlFormatEmbeddedString, episode.VideoKey);
-            var dialog = new VideoPlayerDialog(episode.ToString(), videoUrl);
+            var dialog = new VideoPlayerDialog(episode.ToString(), episode.VideoKey);
             _ = DialogService.ShowDialogAsync(dialog);
 
             //Process.Start(new ProcessStartInfo { FileName = videoUrl, UseShellExecute = true });
@@ -58,8 +57,7 @@ namespace LoreCompanion.ViewModels
 
             Logger.Debug("Playing video for {EntityName}: {Location}", entity.GetType().Name.ToLower(), entity);
 
-            var videoUrl = string.Format(YouTubeHelper.VideoUrlFormatEmbeddedStringWithTime, entity.Episode.VideoKey, entity.Timestamp.TotalSeconds);
-            var dialog = new VideoPlayerDialog(entity.Episode.ToString(), videoUrl);
+            var dialog = new VideoPlayerDialog(entity.Episode.ToString(), entity.Episode.VideoKey, entity.Timestamp);
             _ = DialogService.ShowDialogAsync(dialog);
 
             // var videoUrl = string.Format(
