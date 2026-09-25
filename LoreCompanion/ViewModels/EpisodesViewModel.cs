@@ -26,11 +26,6 @@ namespace LoreCompanion.ViewModels
             return new Episode { Number = max + 1 };
         }
 
-        protected override bool FilterEntity(Episode entity, string searchText)
-        {
-            return entity.ToString().Contains(searchText, StringComparison.OrdinalIgnoreCase);
-        }
-
         protected override async Task<bool> CanDeleteAsync(LoreDbContext context, Episode entity)
         {
             try

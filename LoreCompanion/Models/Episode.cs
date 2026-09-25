@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 namespace LoreCompanion.Models
 {
     [PublicAPI]
-    public class Episode : EntityBase, IComparable<Episode>
+    public class Episode : EntityBase, IFilter, IComparable<Episode>
     {
         private Episode? _backup;
         private bool _inEdit;
@@ -61,6 +61,11 @@ namespace LoreCompanion.Models
 
             _backup = null;
             _inEdit = false;
+        }
+
+        public bool Filter(string searchText)
+        {
+            return ToString().Contains(searchText, StringComparison.OrdinalIgnoreCase);
         }
 
         public int CompareTo(Episode? other)

@@ -22,13 +22,5 @@ namespace LoreCompanion.ViewModels
         {
             return new Dialog { Context = "New Dialog Context" };
         }
-
-        protected override bool FilterEntity(Dialog entity, string searchText)
-        {
-            return (entity.Character is not null &&
-                    entity.Character.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
-                   entity.Context.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                   entity.Content.Contains(searchText, StringComparison.OrdinalIgnoreCase);
-        }
     }
 }

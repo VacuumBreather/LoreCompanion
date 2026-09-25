@@ -5,7 +5,12 @@ using JetBrains.Annotations;
 namespace LoreCompanion.Models
 {
     [PublicAPI]
-    public class Character : EntityBase, INamed, IEpisodeReferencing, ILocationReferencing, IComparable<Character>
+    public class Character : EntityBase,
+                             INamed,
+                             IEpisodeReferencing,
+                             ILocationReferencing,
+                             IFilter,
+                             IComparable<Character>
     {
         private Character? _backup;
         private bool _inEdit;
@@ -132,6 +137,11 @@ namespace LoreCompanion.Models
 
             _backup = null;
             _inEdit = false;
+        }
+
+        public bool Filter(string searchText)
+        {
+            return Name.Contains(searchText, StringComparison.OrdinalIgnoreCase);
         }
 
         public int CompareTo(Character? other)

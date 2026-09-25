@@ -751,7 +751,10 @@
                     Grid.Row="0"
                     Grid.Column="2"
                     VerticalAlignment="Center"
-                    Text="{Binding Context}" />
+                    helpers:HighlightHelper.HighlightBrush="{StaticResource Brush.Background.Highlight}"
+                    helpers:HighlightHelper.HighlightForegroundBrush="{StaticResource Brush.Foreground.Highlight}"
+                    helpers:HighlightHelper.HighlightText="{Binding DataContext.SearchText, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                    helpers:HighlightHelper.Text="{Binding Context}" />
                 <TextBlock
                     Grid.Row="1"
                     Grid.Column="0"

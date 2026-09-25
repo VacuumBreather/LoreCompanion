@@ -23,11 +23,6 @@ namespace LoreCompanion.ViewModels
             return new Location { Name = "New Location" };
         }
 
-        protected override bool FilterEntity(Location entity, string searchText)
-        {
-            return entity.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase);
-        }
-
         protected override async Task<bool> CanDeleteAsync(LoreDbContext context, Location entity)
         {
             try

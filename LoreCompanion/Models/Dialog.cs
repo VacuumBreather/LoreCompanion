@@ -9,6 +9,7 @@ namespace LoreCompanion.Models
                           ICharacterReferencing,
                           IEpisodeReferencing,
                           ILocationReferencing,
+                          IFilter,
                           IComparable<Dialog>
     {
         private Dialog? _backup;
@@ -164,6 +165,13 @@ namespace LoreCompanion.Models
 
             _backup = null;
             _inEdit = false;
+        }
+
+        public bool Filter(string searchText)
+        {
+            return (Character is not null && Character.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                   Context.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                   Content.Contains(searchText, StringComparison.OrdinalIgnoreCase);
         }
 
         public int CompareTo(Dialog? other)

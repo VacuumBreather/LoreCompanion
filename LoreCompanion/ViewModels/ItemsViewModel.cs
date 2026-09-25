@@ -22,11 +22,5 @@ namespace LoreCompanion.ViewModels
         {
             return new Item { Name = "New Item" };
         }
-
-        protected override bool FilterEntity(Item entity, string searchText)
-        {
-            return entity.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                   entity.Description.Contains(searchText, StringComparison.OrdinalIgnoreCase);
-        }
     }
 }

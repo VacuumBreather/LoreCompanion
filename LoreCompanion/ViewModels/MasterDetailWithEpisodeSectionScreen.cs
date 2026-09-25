@@ -11,7 +11,7 @@ namespace LoreCompanion.ViewModels
 {
     public abstract class MasterDetailWithEpisodeSectionScreen<TEntity> : MasterDetailSectionScreen<TEntity>,
                                                                           IHandle<EntityUpdatedEvent<Episode>>
-        where TEntity : EntityBase, IEpisodeReferencing, IEditableObject, IComparable<TEntity>, new()
+        where TEntity : EntityBase, IEpisodeReferencing, IEditableObject, IFilter, IComparable<TEntity>, new()
     {
         private bool _episodesRefreshNeeded = true;
         private bool _needEpisodesReconciliation;

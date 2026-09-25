@@ -14,7 +14,7 @@ using R3;
 namespace LoreCompanion.ViewModels
 {
     public abstract class MasterDetailSectionScreen<TEntity> : SectionScreen, IHandle<DatabaseUpdatedEvent>
-        where TEntity : EntityBase, IEditableObject, IComparable<TEntity>, new()
+        where TEntity : EntityBase, IEditableObject, IFilter, IComparable<TEntity>, new()
     {
         private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
@@ -391,9 +391,12 @@ namespace LoreCompanion.ViewModels
 
         protected abstract TEntity CreateEntityInstance();
 
-        protected abstract bool FilterEntity(TEntity entity, string searchText);
+        private static int CompareEntities(TEntity x, TEntity y)
+        {
+            return x.CompareTo(y);
+        }
 
-        protected ActionDisposable SetBusy()
+        private ActionDisposable SetBusy()
         {
             if (Interlocked.Increment(ref _busyCount) == 1)
             {
@@ -407,11 +410,6 @@ namespace LoreCompanion.ViewModels
                     NotifyOfPropertyChange(nameof(IsBusy));
                 }
             });
-        }
-
-        private static int CompareEntities(TEntity x, TEntity y)
-        {
-            return x.CompareTo(y);
         }
 
         private async Task LoadEntitiesAsync(CancellationToken cancellationToken)
@@ -680,7 +678,7 @@ namespace LoreCompanion.ViewModels
                 return true;
             }
 
-            return FilterEntity(entity, SearchText);
+            return entity.Filter(SearchText);
         }
     }
 }
