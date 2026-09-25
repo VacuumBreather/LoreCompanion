@@ -1,7 +1,10 @@
 ﻿using System.Windows;
+using Caliburn.Micro;
 using LoreCompanion.Utilities;
+using LoreCompanion.ViewModels.Notifications;
 using Microsoft.Web.WebView2.Core;
 using Serilog;
+using LogManager = LoreCompanion.Utilities.LogManager;
 
 namespace LoreCompanion.Views
 {
@@ -64,6 +67,22 @@ namespace LoreCompanion.Views
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
             StopVideo();
+
+            WebView.CoreWebView2?.ProcessFailed -= OnProcessFailed;
+        }
+
+        private void OnProcessFailed(object? sender, CoreWebView2ProcessFailedEventArgs e)
+        {
+            Logger.Warning("WebView2 process failed: {Kind}, {Reason}", e.ProcessFailedKind, e.Reason);
+
+            _isInitialized = false;
+            WebView.CoreWebView2?.Navigate("about:blank");
+
+            _ = IoC.Get<INotificationService>()
+                   .ShowNotificationAsync(
+                       "Youtube player",
+                       $"Youtube player WebView2 process failed:\n{e.ProcessFailedKind}\n{e.Reason}",
+                       NotificationType.Warning);
         }
 
         private void OnWebResourceRequested(object? sender, CoreWebView2WebResourceRequestedEventArgs e)
@@ -83,10 +102,12 @@ namespace LoreCompanion.Views
                 return false;
             }
 
-            return url.Host.Equals("youtube.com", StringComparison.OrdinalIgnoreCase) ||
-                   url.Host.Equals("www.youtube.com", StringComparison.OrdinalIgnoreCase) ||
-                   url.Host.Equals("youtube-nocookie.com", StringComparison.OrdinalIgnoreCase) ||
-                   url.Host.Equals("www.youtube-nocookie.com", StringComparison.OrdinalIgnoreCase);
+            var host = url.Host;
+
+            return host.Equals("youtube.com", StringComparison.OrdinalIgnoreCase) ||
+                   host.EndsWith(".youtube.com", StringComparison.OrdinalIgnoreCase) ||
+                   host.Equals("youtube-nocookie.com", StringComparison.OrdinalIgnoreCase) ||
+                   host.EndsWith(".youtube-nocookie.com", StringComparison.OrdinalIgnoreCase);
         }
 
         private static void OnVideoSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -125,6 +146,8 @@ namespace LoreCompanion.Views
 
             var core = WebView.CoreWebView2;
 
+            core.ProcessFailed += OnProcessFailed;
+
             core.AddWebResourceRequestedFilter("https://www.youtube.com/*", CoreWebView2WebResourceContext.All);
             core.AddWebResourceRequestedFilter("https://youtube.com/*", CoreWebView2WebResourceContext.All);
 
@@ -133,6 +156,8 @@ namespace LoreCompanion.Views
                 CoreWebView2WebResourceContext.All);
 
             core.AddWebResourceRequestedFilter("https://youtube-nocookie.com/*", CoreWebView2WebResourceContext.All);
+            core.AddWebResourceRequestedFilter("https://*.youtube.com/*", CoreWebView2WebResourceContext.All);
+            core.AddWebResourceRequestedFilter("https://*.youtube-nocookie.com/*", CoreWebView2WebResourceContext.All);
 
             core.WebResourceRequested += OnWebResourceRequested;
 

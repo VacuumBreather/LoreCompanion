@@ -13,10 +13,15 @@
 
         public static string BuildEmbedUrl(string videoKey, TimeSpan timestamp = default)
         {
-            var seconds = (int)timestamp.TotalSeconds;
+            if (string.IsNullOrWhiteSpace(videoKey))
+            {
+                return string.Empty;
+            }
+
+            var seconds = Math.Max(0, (int)timestamp.TotalSeconds);
 
             return
-                $"https://www.youtube.com/embed/{Uri.EscapeDataString(videoKey)}?autoplay=1&enablejsapi=1&start={seconds}&origin={Uri.EscapeDataString(Origin)}";
+                $"https://www.youtube.com/embed/{Uri.EscapeDataString(videoKey.Trim())}?autoplay=1&enablejsapi=1&start={seconds}&origin={Uri.EscapeDataString(Origin)}";
         }
     }
 }
