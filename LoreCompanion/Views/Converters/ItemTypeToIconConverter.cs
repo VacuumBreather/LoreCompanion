@@ -17,7 +17,7 @@ namespace LoreCompanion.Views.Converters
 
             return itemType switch
             {
-                ItemType.Tool => PackIconRPGAwesomeKind.FireBomb,
+                ItemType.Tool => PackIconRPGAwesomeKind.RoundBottomFlask,
                 ItemType.Ash => PackIconRPGAwesomeKind.RingingBell,
                 ItemType.CraftingMaterial => PackIconRPGAwesomeKind.Leaf,
                 ItemType.BolsteringMaterial => PackIconRPGAwesomeKind.MuscleUp,
@@ -35,7 +35,7 @@ namespace LoreCompanion.Views.Converters
                 ItemType.Arms => PackIconRPGAwesomeKind.Hand,
                 ItemType.Legs => PackIconRPGAwesomeKind.ShoePrints,
                 ItemType.Talisman => PackIconRPGAwesomeKind.GemPendant,
-                ItemType.Info => PackIconRPGAwesomeKind.Book,
+                ItemType.Info => PackIconRPGAwesomeKind.QuillInk,
                 var _ => DependencyProperty.UnsetValue,
             };
         }
