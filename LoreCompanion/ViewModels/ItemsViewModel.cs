@@ -18,11 +18,6 @@ namespace LoreCompanion.ViewModels
         notificationService,
         eventAggregator)
     {
-        protected override int CompareEntities(Item x, Item y)
-        {
-            return string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
-        }
-
         protected override Item CreateEntityInstance()
         {
             return new Item { Name = "New Item" };

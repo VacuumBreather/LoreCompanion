@@ -15,6 +15,7 @@ namespace LoreCompanion.ViewModels
 {
     [UsedImplicitly]
     public sealed class ArchiveViewModel : SectionScreen,
+                                           IVideoPlayer,
                                            IHandle<DatabaseUpdatedEvent>,
                                            IHandle<EntityUpdatedEvent<Location>>,
                                            IHandle<EntityUpdatedEvent<Character>>,

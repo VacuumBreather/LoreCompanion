@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 namespace LoreCompanion.Models
 {
     [PublicAPI]
-    public class Character : EntityBase, INamed, IEpisodeReferencing, ILocationReferencing
+    public class Character : EntityBase, INamed, IEpisodeReferencing, ILocationReferencing, IComparable<Character>
     {
         private Character? _backup;
         private bool _inEdit;
@@ -132,6 +132,21 @@ namespace LoreCompanion.Models
 
             _backup = null;
             _inEdit = false;
+        }
+
+        public int CompareTo(Character? other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return 0;
+            }
+
+            if (other is null)
+            {
+                return 1;
+            }
+
+            return string.Compare(Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

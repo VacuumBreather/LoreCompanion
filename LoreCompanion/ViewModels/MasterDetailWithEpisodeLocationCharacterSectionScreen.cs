@@ -13,7 +13,7 @@ namespace LoreCompanion.ViewModels
         MasterDetailWithEpisodeLocationSectionScreen<TEntity>,
         IHandle<EntityUpdatedEvent<Character>>
         where TEntity : EntityBase, ICharacterReferencing, IEpisodeReferencing, ILocationReferencing, IEditableObject,
-        new()
+        IComparable<TEntity>, new()
     {
         private bool _charactersRefreshNeeded = true;
         private bool _needCharactersReconciliation;

@@ -10,13 +10,11 @@ using LoreCompanion.ViewModels.Events;
 using LoreCompanion.ViewModels.Notifications;
 using Microsoft.EntityFrameworkCore;
 using R3;
-using Serilog;
-using LogManager = LoreCompanion.Utilities.LogManager;
 
 namespace LoreCompanion.ViewModels
 {
     public abstract class MasterDetailSectionScreen<TEntity> : SectionScreen, IHandle<DatabaseUpdatedEvent>
-        where TEntity : EntityBase, IEditableObject, new()
+        where TEntity : EntityBase, IEditableObject, IComparable<TEntity>, new()
     {
         private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
@@ -111,8 +109,6 @@ namespace LoreCompanion.ViewModels
         public bool IsBusy => _busyCount > 0;
 
         protected IDbContextFactory<LoreDbContext> DbContextFactory { get; }
-
-        protected ILogger Logger => field ??= LogManager.GetLogger(GetType());
 
         private SemaphoreSlim DatabaseLock { get; } = new(1, 1);
 
@@ -393,8 +389,6 @@ namespace LoreCompanion.ViewModels
             await base.OnDeactivateAsync(close, cancellationToken);
         }
 
-        protected abstract int CompareEntities(TEntity x, TEntity y);
-
         protected abstract TEntity CreateEntityInstance();
 
         protected abstract bool FilterEntity(TEntity entity, string searchText);
@@ -413,6 +407,11 @@ namespace LoreCompanion.ViewModels
                     NotifyOfPropertyChange(nameof(IsBusy));
                 }
             });
+        }
+
+        private static int CompareEntities(TEntity x, TEntity y)
+        {
+            return x.CompareTo(y);
         }
 
         private async Task LoadEntitiesAsync(CancellationToken cancellationToken)

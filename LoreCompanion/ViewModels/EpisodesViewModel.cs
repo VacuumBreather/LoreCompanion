@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
-using Caliburn.Micro;
+﻿using Caliburn.Micro;
 using JetBrains.Annotations;
 using LoreCompanion.Models;
-using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
 using LoreCompanion.ViewModels.Notifications;
 using Microsoft.EntityFrameworkCore;
@@ -21,19 +19,6 @@ namespace LoreCompanion.ViewModels
         notificationService,
         eventAggregator)
     {
-        [UsedImplicitly]
-        public void PlayVideo(Episode episode)
-        {
-            Logger.Debug("Playing video for episode '{EpisodeName}'", episode.ToString());
-            var videoUrl = string.Format(YouTubeHelper.VideoUrlFormatString, episode.VideoKey);
-            Process.Start(new ProcessStartInfo { FileName = videoUrl, UseShellExecute = true });
-        }
-
-        protected override int CompareEntities(Episode x, Episode y)
-        {
-            return Comparer<int>.Default.Compare(x.Number, y.Number);
-        }
-
         protected override Episode CreateEntityInstance()
         {
             var max = Items.Select(ep => ep.Number).DefaultIfEmpty(0).Max();

@@ -5,7 +5,11 @@ using JetBrains.Annotations;
 namespace LoreCompanion.Models
 {
     [PublicAPI]
-    public class Dialog : EntityBase, ICharacterReferencing, IEpisodeReferencing, ILocationReferencing
+    public class Dialog : EntityBase,
+                          ICharacterReferencing,
+                          IEpisodeReferencing,
+                          ILocationReferencing,
+                          IComparable<Dialog>
     {
         private Dialog? _backup;
         private bool _inEdit;
@@ -160,6 +164,42 @@ namespace LoreCompanion.Models
 
             _backup = null;
             _inEdit = false;
+        }
+
+        public int CompareTo(Dialog? other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return 0;
+            }
+
+            if (other is null)
+            {
+                return 1;
+            }
+
+            var result = Character?.CompareTo(other.Character) ?? -1;
+
+            if (result != 0)
+            {
+                return result;
+            }
+
+            result = Episode?.CompareTo(other.Episode) ?? -1;
+
+            if (result != 0)
+            {
+                return result;
+            }
+
+            result = TimeSpan.Compare(Timestamp, other.Timestamp);
+
+            if (result != 0)
+            {
+                return result;
+            }
+
+            return string.Compare(Context, other.Context, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

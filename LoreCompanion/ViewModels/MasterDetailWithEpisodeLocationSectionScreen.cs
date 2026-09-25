@@ -12,7 +12,8 @@ namespace LoreCompanion.ViewModels
     public abstract class
         MasterDetailWithEpisodeLocationSectionScreen<TEntity> : MasterDetailWithEpisodeSectionScreen<TEntity>,
                                                                 IHandle<EntityUpdatedEvent<Location>>
-        where TEntity : EntityBase, IEpisodeReferencing, ILocationReferencing, IEditableObject, new()
+        where TEntity : EntityBase, IEpisodeReferencing, ILocationReferencing, IEditableObject, IComparable<TEntity>,
+        new()
     {
         private bool _locationsRefreshNeeded = true;
         private bool _needLocationsReconciliation;

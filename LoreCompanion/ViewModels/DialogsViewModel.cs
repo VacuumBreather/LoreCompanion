@@ -18,11 +18,6 @@ namespace LoreCompanion.ViewModels
         notificationService,
         eventAggregator)
     {
-        protected override int CompareEntities(Dialog x, Dialog y)
-        {
-            return string.Compare(x.Context, y.Context, StringComparison.OrdinalIgnoreCase);
-        }
-
         protected override Dialog CreateEntityInstance()
         {
             return new Dialog { Context = "New Dialog Context" };

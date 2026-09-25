@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
 using Caliburn.Micro;
 using JetBrains.Annotations;
 using LoreCompanion.Models;
-using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
 using LoreCompanion.ViewModels.Events;
 using LoreCompanion.ViewModels.Notifications;
@@ -13,7 +11,7 @@ namespace LoreCompanion.ViewModels
 {
     public abstract class MasterDetailWithEpisodeSectionScreen<TEntity> : MasterDetailSectionScreen<TEntity>,
                                                                           IHandle<EntityUpdatedEvent<Episode>>
-        where TEntity : EntityBase, IEpisodeReferencing, IEditableObject, new()
+        where TEntity : EntityBase, IEpisodeReferencing, IEditableObject, IComparable<TEntity>, new()
     {
         private bool _episodesRefreshNeeded = true;
         private bool _needEpisodesReconciliation;
@@ -38,24 +36,6 @@ namespace LoreCompanion.ViewModels
 
         [UsedImplicitly]
         public BindableCollection<Episode> Episodes { get; } = [];
-
-        [UsedImplicitly]
-        public void PlayVideo(TEntity entity)
-        {
-            if (entity.Episode is null)
-            {
-                return;
-            }
-
-            Logger.Debug("Playing video for {EntityName}: {Location}", entity.GetType().Name.ToLower(), entity);
-
-            var videoUrl = string.Format(
-                YouTubeHelper.VideoUrlFormatStringWithTime,
-                entity.Episode.VideoKey,
-                entity.Timestamp.TotalSeconds);
-
-            Process.Start(new ProcessStartInfo { FileName = videoUrl, UseShellExecute = true });
-        }
 
         public Task HandleAsync(EntityUpdatedEvent<Episode> message, CancellationToken cancellationToken)
         {
