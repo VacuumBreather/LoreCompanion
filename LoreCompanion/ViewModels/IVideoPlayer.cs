@@ -4,7 +4,7 @@ namespace LoreCompanion.ViewModels
 {
     public interface IVideoPlayer
     {
-        void PlayVideo(Episode episode);
+        void PlayEpisodeVideo(Episode episode);
 
         void PlayVideo(IEpisodeReferencing entity);
     }

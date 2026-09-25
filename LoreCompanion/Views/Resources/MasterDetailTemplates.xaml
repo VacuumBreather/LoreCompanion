@@ -93,7 +93,7 @@
                     Margin="0,20,0,0"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Top"
-                    cm:Message.Attach="PlayVideo($dataContext)"
+                    cm:Message.Attach="PlayEpisodeVideo($dataContext)"
                     DockPanel.Dock="Top"
                     Style="{StaticResource Style.Button.Play}" />
             </DockPanel>

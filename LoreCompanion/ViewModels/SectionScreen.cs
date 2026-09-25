@@ -28,17 +28,22 @@ namespace LoreCompanion.ViewModels
         protected ILogger Logger => field ??= LogManager.GetLogger(GetType());
 
         [UsedImplicitly]
-        public void PlayVideo(Episode episode)
+        public void PlayEpisodeVideo(Episode? episode)
         {
+            if (episode is null)
+            {
+                return;
+            }
+
             Logger.Debug("Playing video for episode '{EpisodeName}'", episode.ToString());
             var videoUrl = string.Format(YouTubeHelper.VideoUrlFormatString, episode.VideoKey);
             Process.Start(new ProcessStartInfo { FileName = videoUrl, UseShellExecute = true });
         }
 
         [UsedImplicitly]
-        public void PlayVideo(IEpisodeReferencing entity)
+        public void PlayVideo(IEpisodeReferencing? entity)
         {
-            if (entity.Episode is null)
+            if (entity?.Episode is null)
             {
                 return;
             }
