@@ -13,12 +13,28 @@ namespace LoreCompanion.Views.Helpers
             typeof(ListBoxHelper),
             new PropertyMetadata(false, OnScrollToSelectedItemChanged));
 
+        public static readonly DependencyProperty DeleteButtonVisibilityProperty = DependencyProperty.RegisterAttached(
+            DependencyPropertyNameHelper.GetName(nameof(DeleteButtonVisibilityProperty)),
+            typeof(Visibility),
+            typeof(ListBoxHelper),
+            new PropertyMetadata(Visibility.Visible));
+
         private static readonly DependencyProperty ItemsCollectionChangedHandlerProperty =
             DependencyProperty.RegisterAttached(
                 DependencyPropertyNameHelper.GetName(nameof(ItemsCollectionChangedHandlerProperty)),
                 typeof(NotifyCollectionChangedEventHandler),
                 typeof(ListBoxHelper),
                 new PropertyMetadata(null));
+
+        public static void SetDeleteButtonVisibility(DependencyObject element, Visibility value)
+        {
+            element.SetValue(DeleteButtonVisibilityProperty, value);
+        }
+
+        public static Visibility GetDeleteButtonVisibility(DependencyObject element)
+        {
+            return (Visibility)element.GetValue(DeleteButtonVisibilityProperty);
+        }
 
         public static void SetScrollToSelectedItem(DependencyObject element, bool value)
         {

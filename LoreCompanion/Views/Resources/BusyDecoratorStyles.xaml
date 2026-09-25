@@ -6,8 +6,6 @@
         <ResourceDictionary Source="ProgressBarStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <BooleanToVisibilityConverter x:Key="Converter.BoolToVisibility" />
-
     <!--  Default DataTemplate for BusyContent when none is explicitly provided  -->
     <DataTemplate x:Key="ContentTemplate.BusyDecorator">
         <Border
@@ -52,7 +50,7 @@
                             Background="{TemplateBinding OverlayBackgroundBrush}"
                             IsHitTestVisible="{TemplateBinding IsBusy}"
                             Visibility="{TemplateBinding IsBusy,
-                                                         Converter={StaticResource Converter.BoolToVisibility}}">
+                                                         Converter={StaticResource Converter.TrueToVisible}}">
                             <ContentPresenter
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"

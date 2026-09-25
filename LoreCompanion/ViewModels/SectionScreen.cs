@@ -2,6 +2,7 @@
 using JetBrains.Annotations;
 using LoreCompanion.Extensions;
 using LoreCompanion.Models;
+using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
 using Serilog;
 using LogManager = LoreCompanion.Utilities.LogManager;
@@ -10,11 +11,12 @@ namespace LoreCompanion.ViewModels
 {
     public abstract class SectionScreen : Screen, IVideoPlayer
     {
-        protected SectionScreen(string section, IDialogService dialogService)
+        protected SectionScreen(string section, IDialogService dialogService, bool canEdit = true)
         {
             DialogService = dialogService;
             DisplayName = GetType().Name.Replace("ViewModel", "");
             Section = section;
+            CanEdit = canEdit && AppHelper.IsAdminMode;
         }
 
         /// <inheritdoc/>
@@ -23,6 +25,9 @@ namespace LoreCompanion.ViewModels
             get => base.DisplayName;
             set => base.DisplayName = value;
         }
+
+        [UsedImplicitly]
+        public bool CanEdit { get; }
 
         public string Section { get; }
 

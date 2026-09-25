@@ -41,7 +41,7 @@
                                 cm:Message.Attach="DeleteAsync($dataContext)"
                                 DockPanel.Dock="Right"
                                 Style="{StaticResource Style.Button.Delete}"
-                                Visibility="{x:Static helpers:AdminHelper.AdminModeVisibility}" />
+                                Visibility="{Binding (helpers:ListBoxHelper.DeleteButtonVisibility), RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" />
                             <ContentPresenter
                                 HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                 VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
