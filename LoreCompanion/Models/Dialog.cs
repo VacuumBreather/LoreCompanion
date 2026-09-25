@@ -10,7 +10,8 @@ namespace LoreCompanion.Models
                           IEpisodeReferencing,
                           ILocationReferencing,
                           IFilter,
-                          IComparable<Dialog>
+                          IComparable<Dialog>,
+                          IComparable
     {
         private Dialog? _backup;
         private bool _inEdit;
@@ -208,6 +209,26 @@ namespace LoreCompanion.Models
             }
 
             return string.Compare(Context, other.Context, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public int CompareTo(object? obj)
+        {
+            if (ReferenceEquals(this, obj))
+            {
+                return 0;
+            }
+
+            if (obj is null)
+            {
+                return 1;
+            }
+
+            if (obj is Dialog other)
+            {
+                return CompareTo(other);
+            }
+
+            return CompareTypes(this, obj);
         }
     }
 }

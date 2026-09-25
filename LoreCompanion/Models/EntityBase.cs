@@ -30,6 +30,18 @@ namespace LoreCompanion.Models
         /// <inheritdoc/>
         public abstract void EndEdit();
 
+        protected static int CompareTypes(object a, object b)
+        {
+            var typeComparison = GetTypeOrder(a).CompareTo(GetTypeOrder(b));
+
+            if (typeComparison != 0)
+            {
+                return typeComparison;
+            }
+
+            return string.Compare(a.GetType().Name, b.GetType().Name, StringComparison.Ordinal);
+        }
+
         protected bool Set<T>(ref T oldValue, T newValue, [CallerMemberName] string? propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(oldValue, newValue))
@@ -42,6 +54,19 @@ namespace LoreCompanion.Models
             NotifyOfPropertyChange(propertyName ?? string.Empty);
 
             return true;
+        }
+
+        private static int GetTypeOrder(object? obj)
+        {
+            return obj switch
+            {
+                Episode => 0,
+                Location => 1,
+                Character => 2,
+                Item => 3,
+                Dialog => 4,
+                var _ => int.MaxValue,
+            };
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

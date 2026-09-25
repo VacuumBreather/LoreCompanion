@@ -15,7 +15,6 @@ namespace LoreCompanion.ViewModels
 {
     [UsedImplicitly]
     public sealed class ArchiveViewModel : SectionScreen,
-                                           IVideoPlayer,
                                            IHandle<DatabaseUpdatedEvent>,
                                            IHandle<EntityUpdatedEvent<Location>>,
                                            IHandle<EntityUpdatedEvent<Character>>,
@@ -49,14 +48,17 @@ namespace LoreCompanion.ViewModels
         [UsedImplicitly]
         public BindableCollection<EntityBase> Items { get; } = [];
 
+        [UsedImplicitly]
         public EntityBase? SelectedItem
         {
             get;
             set => Set(ref field, value);
         }
 
+        [UsedImplicitly]
         public ListCollectionView ItemsView { get; }
 
+        [UsedImplicitly]
         public string SearchText
         {
             get;
@@ -64,8 +66,6 @@ namespace LoreCompanion.ViewModels
         } = "";
 
         public bool IsBusy => _busyCount > 0;
-
-        private static ILogger Logger => field ??= LogManager.GetLogger();
 
         private SemaphoreSlim DatabaseLock { get; } = new(1, 1);
 
@@ -251,12 +251,12 @@ namespace LoreCompanion.ViewModels
 
         private int CompareEntities(EntityBase x, EntityBase y)
         {
-            return 0;
+            return x is IComparable comparableX ? comparableX.CompareTo(y) : 0;
         }
 
         private bool FilterEntity(EntityBase entity, string searchText)
         {
-            return true;
+            return entity is not IFilter filterable || filterable.Filter(searchText);
         }
 
         private async Task LoadEntitiesAsync(CancellationToken cancellationToken)

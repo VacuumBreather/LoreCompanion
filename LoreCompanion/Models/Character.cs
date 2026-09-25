@@ -10,7 +10,8 @@ namespace LoreCompanion.Models
                              IEpisodeReferencing,
                              ILocationReferencing,
                              IFilter,
-                             IComparable<Character>
+                             IComparable<Character>,
+                             IComparable
     {
         private Character? _backup;
         private bool _inEdit;
@@ -157,6 +158,26 @@ namespace LoreCompanion.Models
             }
 
             return string.Compare(Name, other.Name, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public int CompareTo(object? obj)
+        {
+            if (ReferenceEquals(this, obj))
+            {
+                return 0;
+            }
+
+            if (obj is null)
+            {
+                return 1;
+            }
+
+            if (obj is Character other)
+            {
+                return CompareTo(other);
+            }
+
+            return CompareTypes(this, obj);
         }
     }
 }
