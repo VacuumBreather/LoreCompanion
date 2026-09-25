@@ -22,7 +22,7 @@ namespace LoreCompanion.Views.Converters
                 return DependencyProperty.UnsetValue;
             }
 
-            return $"\"{str}\"";
+            return $"\u201C\u200A{str}\u200A\u201D";
         }
 
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
