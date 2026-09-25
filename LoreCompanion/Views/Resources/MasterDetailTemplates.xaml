@@ -823,7 +823,7 @@
                     TextWrapping="NoWrap" />
                 <TextBox
                     Margin="0,10"
-                    helpers:TextBoxHelper.Header="Description"
+                    helpers:TextBoxHelper.Header="Content"
                     DockPanel.Dock="Top"
                     MaxLength="2048"
                     Style="{StaticResource Style.TextBox.Header}"
