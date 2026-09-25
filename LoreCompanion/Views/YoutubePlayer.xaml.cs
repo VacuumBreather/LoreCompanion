@@ -55,6 +55,7 @@ namespace LoreCompanion.Views
                 }
                 else
                 {
+                    AttachCoreEvents();
                     PlayCurrentVideo();
                 }
             }
@@ -67,8 +68,7 @@ namespace LoreCompanion.Views
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
             StopVideo();
-
-            WebView.CoreWebView2?.ProcessFailed -= OnProcessFailed;
+            DetachCoreEvents();
         }
 
         private void OnProcessFailed(object? sender, CoreWebView2ProcessFailedEventArgs e)
@@ -118,6 +118,31 @@ namespace LoreCompanion.Views
             }
         }
 
+        private void AttachCoreEvents()
+        {
+            if (WebView.CoreWebView2 is not { } core)
+            {
+                return;
+            }
+
+            core.ProcessFailed -= OnProcessFailed;
+            core.ProcessFailed += OnProcessFailed;
+
+            core.WebResourceRequested -= OnWebResourceRequested;
+            core.WebResourceRequested += OnWebResourceRequested;
+        }
+
+        private void DetachCoreEvents()
+        {
+            if (WebView.CoreWebView2 is not { } core)
+            {
+                return;
+            }
+
+            core.ProcessFailed -= OnProcessFailed;
+            core.WebResourceRequested -= OnWebResourceRequested;
+        }
+
         private void PlayCurrentVideo()
         {
             if (WebView.CoreWebView2 is null || string.IsNullOrWhiteSpace(VideoKey))
@@ -146,8 +171,6 @@ namespace LoreCompanion.Views
 
             var core = WebView.CoreWebView2;
 
-            core.ProcessFailed += OnProcessFailed;
-
             core.AddWebResourceRequestedFilter("https://www.youtube.com/*", CoreWebView2WebResourceContext.All);
             core.AddWebResourceRequestedFilter("https://youtube.com/*", CoreWebView2WebResourceContext.All);
 
@@ -159,7 +182,7 @@ namespace LoreCompanion.Views
             core.AddWebResourceRequestedFilter("https://*.youtube.com/*", CoreWebView2WebResourceContext.All);
             core.AddWebResourceRequestedFilter("https://*.youtube-nocookie.com/*", CoreWebView2WebResourceContext.All);
 
-            core.WebResourceRequested += OnWebResourceRequested;
+            AttachCoreEvents();
 
             _isInitialized = true;
             PlayCurrentVideo();
