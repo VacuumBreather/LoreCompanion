@@ -192,10 +192,17 @@ namespace LoreCompanion.ViewModels
                            .FirstOrDefault() ??
                     Version.Parse("0.0.0");
 
-                Version newVersion = new(currentVersion.Major, currentVersion.Minor + 1, currentVersion.Build);
+                var releaseNotesDialog = new ReleaseNotesDialog(currentVersion);
+                result = await _dialogService.ShowDialogAsync(releaseNotesDialog);
 
-                var releaseNotesDialog = new ReleaseNotesDialog(newVersion);
-                _ = await _dialogService.ShowDialogAsync(releaseNotesDialog);
+                if (result != DialogResult.Ok)
+                {
+                    return;
+                }
+
+                var newVersion = releaseNotesDialog.IsMinorVersionRelease
+                                     ? new Version(1, currentVersion.Minor + 1, currentVersion.Build)
+                                     : new Version(1, currentVersion.Minor, currentVersion.Build + 1);
 
                 context.DatabaseReleases.Add(
                     new DatabaseRelease

@@ -2,7 +2,7 @@
 {
     public sealed class ReleaseNotesDialog(Version version) : QueryDialog(
         "Publish Database",
-        $"Enter release notes for version: {version}",
+        $"Enter release notes - Current version: {version}",
         DialogResults.Ok,
         DialogResult.Ok)
     {
@@ -11,5 +11,11 @@
             get;
             set => Set(ref field, value);
         } = string.Empty;
+
+        public bool IsMinorVersionRelease
+        {
+            get;
+            set => Set(ref field, value);
+        }
     }
 }

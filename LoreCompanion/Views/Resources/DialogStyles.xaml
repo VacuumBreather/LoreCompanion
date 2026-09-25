@@ -131,20 +131,41 @@
                 Style="{StaticResource Style.TextBlock.Heading}"
                 Text="{Binding Title, Mode=OneWay}"
                 TextAlignment="Center" />
-            <Button
-                MinWidth="50"
-                Margin="10,10,10,0"
+            <UniformGrid
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
-                controls:CloseDialog.Result="Ok"
-                Content="OK"
                 DockPanel.Dock="Bottom"
-                IsDefault="True"
-                Style="{StaticResource Style.Button.Yes}" />
+                Rows="1">
+                <Button
+                    MinWidth="50"
+                    Margin="10,10,10,0"
+                    controls:CloseDialog.Result="Ok"
+                    Content="OK"
+                    IsDefault="True"
+                    Style="{StaticResource Style.Button.Yes}" />
+                <Button
+                    MinWidth="50"
+                    Margin="10,10,10,0"
+                    controls:CloseDialog.Result="Cancel"
+                    Content="Cancel"
+                    IsCancel="True"
+                    Style="{StaticResource Style.Button.No}" />
+            </UniformGrid>
+            <DockPanel
+                Margin="10"
+                HorizontalAlignment="Center"
+                DockPanel.Dock="Bottom">
+                <CheckBox
+                    Margin="10"
+                    VerticalAlignment="Center"
+                    DockPanel.Dock="Left"
+                    IsChecked="{Binding IsMinorVersionRelease}" />
+                <TextBlock VerticalAlignment="Center" Text="Minor Version Release" />
+            </DockPanel>
             <TextBox
                 Width="500"
                 Height="100"
-                Margin="10,10,20,10"
+                Margin="10"
                 DockPanel.Dock="Bottom"
                 MaxLength="2048"
                 Text="{Binding ReleaseNotes}"
