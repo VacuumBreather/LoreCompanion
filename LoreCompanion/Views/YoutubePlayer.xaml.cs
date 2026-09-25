@@ -166,7 +166,12 @@ namespace LoreCompanion.Views
                 AdditionalBrowserArguments = "--autoplay-policy=no-user-gesture-required",
             };
 
-            var environment = await CoreWebView2Environment.CreateAsync(options: options);
+            var userDataFolder = AppHelper.WebViewUserDataFolder;
+
+            var environment = await CoreWebView2Environment.CreateAsync(
+                                  userDataFolder: userDataFolder,
+                                  options: options);
+
             await WebView.EnsureCoreWebView2Async(environment);
 
             var core = WebView.CoreWebView2;

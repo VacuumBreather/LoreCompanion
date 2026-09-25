@@ -12,7 +12,7 @@ namespace LoreCompanion.Utilities
     public sealed class CachedDataLoader : IDisposable, IAsyncDisposable
     {
         private readonly MemoryCache _memoryCache = new(new MemoryCacheOptions { SizeLimit = 1024 });
-        private readonly string _diskPath = Path.Combine(Path.GetTempPath(), nameof(LoreCompanion), "Cache");
+        private readonly string _diskPath = AppHelper.CacheFolder;
 
         // Deduplicate simultaneous requests for the same URL
         private readonly ConcurrentDictionary<string, Task<byte[]?>> _inFlightRequests = new();
