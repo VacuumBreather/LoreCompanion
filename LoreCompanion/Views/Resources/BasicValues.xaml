@@ -1,0 +1,27 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+
+    <!--  Width.Image.MasterTemplate  -->
+    <system:Double x:Key="Width.Image.MasterTemplate">75</system:Double>
+
+    <!--  CornerRadius.Controls  -->
+    <CornerRadius
+        x:Key="CornerRadius.Controls"
+        BottomLeft="5"
+        BottomRight="5"
+        TopLeft="5"
+        TopRight="5" />
+
+    <!--  CornerRadius.Controls  -->
+    <CornerRadius
+        x:Key="CornerRadius.ComboBox.Open"
+        BottomLeft="0"
+        BottomRight="0"
+        TopLeft="5"
+        TopRight="5" />
+
+    <!--  Image.Placeholder  -->
+    <BitmapImage x:Key="Image.Placeholder" UriSource="pack://application:,,,/LoreCompanion;component/Views/Resources/Images/Placeholder.png" />
+</ResourceDictionary>

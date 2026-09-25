@@ -1,0 +1,771 @@
+﻿using System.Diagnostics;
+using System.IO;
+using System.Net.Http;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Windows;
+using System.Windows.Data;
+using Caliburn.Micro;
+using JetBrains.Annotations;
+using LoreCompanion.Dtos;
+using LoreCompanion.Extensions;
+using LoreCompanion.Models;
+using LoreCompanion.Utilities;
+using LoreCompanion.ViewModels.Attributes;
+using LoreCompanion.ViewModels.Dialogs;
+using LoreCompanion.ViewModels.Events;
+using LoreCompanion.ViewModels.Notifications;
+using LoreCompanion.Views.Helpers;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+using LogManager = LoreCompanion.Utilities.LogManager;
+
+namespace LoreCompanion.ViewModels
+{
+    public sealed class ShellViewModel : Conductor<SectionScreen>.Collection.OneActive
+    {
+        private readonly IDbContextFactory<LoreDbContext> _dbContextFactory;
+        private readonly CachedDataLoader _cachedDataLoader;
+        private readonly IDialogService _dialogService;
+        private readonly INotificationService _notificationService;
+        private readonly IEventAggregator _eventAggregator;
+        private readonly SectionScreen _dashboard;
+
+        private CancellationTokenSource? _applicationUpdate;
+        private CancellationTokenSource? _databaseUpdate;
+        private int _busyCount;
+
+        public ShellViewModel(
+            IEnumerable<SectionScreen> sections,
+            IDbContextFactory<LoreDbContext> dbContextFactory,
+            CachedDataLoader cachedDataLoader,
+            IDialogService dialogService,
+            INotificationService notificationService,
+            IEventAggregator eventAggregator)
+        {
+            _dbContextFactory = dbContextFactory;
+            _cachedDataLoader = cachedDataLoader;
+            _dialogService = dialogService;
+            _notificationService = notificationService;
+            _eventAggregator = eventAggregator;
+
+            Items.AddRange(sections);
+            _dashboard = Items.First(item => item.GetType().GetCustomAttribute<DashboardAttribute>() != null);
+
+            ItemsView = (ListCollectionView)CollectionViewSource.GetDefaultView(Items);
+            ItemsView.GroupDescriptions!.Add(new PropertyGroupDescription(nameof(SectionScreen.Section)));
+
+            ItemsView.CustomSort = Comparer<SectionScreen>.Create((a, b) =>
+            {
+                if (ReferenceEquals(_dashboard, a))
+                {
+                    return -1;
+                }
+
+                if (ReferenceEquals(_dashboard, b))
+                {
+                    return 1;
+                }
+
+                var result = NavigationSection.Order.IndexOf(a.Section)
+                                              .CompareTo(NavigationSection.Order.IndexOf(b.Section));
+
+                if (result != 0)
+                {
+                    return result;
+                }
+
+                return string.Compare(a.DisplayName, b.DisplayName, StringComparison.Ordinal);
+            });
+        }
+
+        public Version CurrentDatabaseVersion
+        {
+            get;
+            private set => Set(ref field, value);
+        } = Version.Parse("0.0.0");
+
+        public ListCollectionView ItemsView { get; }
+
+        public bool IsBusy => _busyCount > 0;
+
+        public DatabaseStatus DatabaseStatus
+        {
+            get;
+            private set => Set(ref field, value);
+        } = DatabaseStatus.Unknown;
+
+        private static ILogger Logger { get; } = LogManager.GetLogger();
+
+        public override async Task<bool> CanCloseAsync(CancellationToken cancellationToken = new())
+        {
+            Logger.Information("Closing application...");
+
+            try
+            {
+                await _cachedDataLoader.DisposeAsync();
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Error closing cached data loader");
+            }
+
+            if (_applicationUpdate is not null)
+            {
+                try
+                {
+                    await _applicationUpdate.CancelAsync();
+                    _applicationUpdate = null;
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "Error awaiting application update");
+                }
+            }
+
+            if (_databaseUpdate is not null)
+            {
+                try
+                {
+                    await _databaseUpdate.CancelAsync();
+                    _databaseUpdate = null;
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "Error awaiting database update");
+                }
+            }
+
+            try
+            {
+                if (_notificationService is IDeactivate deactivateNotifications)
+                {
+                    Logger.Debug("Closing notification service...");
+                    await deactivateNotifications.DeactivateAsync(true, cancellationToken);
+                }
+
+                if (_dialogService is IDeactivate deactivateDialogs)
+                {
+                    Logger.Debug("Closing dialog service...");
+                    await deactivateDialogs.DeactivateAsync(true, cancellationToken);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Error closing dialogs and notifications");
+            }
+
+            return await base.CanCloseAsync(cancellationToken);
+        }
+
+        [PublicAPI]
+        public async Task PublishDatabaseAsync()
+        {
+            if (!AppHelper.IsAdminMode)
+            {
+                Log.Error("Cannot publish database in non-admin mode");
+
+                return;
+            }
+
+            var result = await _dialogService.ShowQueryDialogAsync(
+                             "Publish Database",
+                             "Are you sure you want to publish a new database version?",
+                             DialogResults.YesNo,
+                             DialogResult.Yes);
+
+            if (result != DialogResult.Yes)
+            {
+                return;
+            }
+
+            try
+            {
+                await using var context = await _dbContextFactory.CreateDbContextAsync();
+
+                var currentVersion =
+                    context.DatabaseReleases.AsEnumerable()
+                           .OrderByDescending(r => r.PublishedAt)
+                           .Select(r => r.Version)
+                           .FirstOrDefault() ??
+                    Version.Parse("0.0.0");
+
+                var releaseNotesDialog = new ReleaseNotesDialog(currentVersion);
+                result = await _dialogService.ShowDialogAsync(releaseNotesDialog);
+
+                if (result != DialogResult.Ok)
+                {
+                    return;
+                }
+
+                var newVersion = releaseNotesDialog.IsMinorVersionRelease
+                                     ? new Version(1, currentVersion.Minor + 1, 0)
+                                     : new Version(1, currentVersion.Minor, currentVersion.Build + 1);
+
+                context.DatabaseReleases.Add(
+                    new DatabaseRelease
+                    {
+                        Version = newVersion,
+                        PublishedAt = DateTime.UtcNow,
+                        ReleaseNotes = releaseNotesDialog.ReleaseNotes,
+                    });
+
+                await context.SaveChangesAsync();
+
+                CurrentDatabaseVersion = newVersion;
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database",
+                    $"Version {newVersion} released",
+                    NotificationType.Success);
+            }
+            catch (Exception e)
+            {
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database Error",
+                    $"Unable to create database release\n{e.Message}",
+                    NotificationType.Error);
+
+                Logger.Error(e, "Unable to create database release");
+            }
+        }
+
+        [PublicAPI]
+        public async Task CheckForDatabaseUpdateAsync()
+        {
+            try
+            {
+                using var scope = SetBusy();
+
+                _databaseUpdate = new CancellationTokenSource();
+
+                await DeactivateItemAsync(ActiveItem, false, _databaseUpdate.Token);
+                await UpdateDatabase(CurrentDatabaseVersion, _databaseUpdate.Token);
+
+                Logger.Information("Showing dashboard...");
+
+                await ActivateItemAsync(_dashboard, _databaseUpdate.Token);
+            }
+            catch (OperationCanceledException) when (_databaseUpdate is { IsCancellationRequested: true })
+            {
+                // Ignore and proceed
+                Logger.Debug("Database update was canceled");
+            }
+            finally
+            {
+                _databaseUpdate?.Dispose();
+                _databaseUpdate = null;
+            }
+        }
+
+        protected override async Task OnInitializedAsync(CancellationToken cancellationToken)
+        {
+            Logger.Information("Application initialized");
+
+            if (AppHelper.IsAdminMode)
+            {
+                Logger.Information("Admin mode detected!");
+            }
+
+            CurrentDatabaseVersion = await MigrateDatabaseAsync(cancellationToken);
+            Logger.Information("Database version: {Version}", CurrentDatabaseVersion);
+
+            if (_notificationService is IActivate activateNotifications)
+            {
+                Logger.Debug("Activating notification service...");
+                await activateNotifications.ActivateAsync(cancellationToken);
+            }
+
+            if (_dialogService is IActivate activateDialogs)
+            {
+                Logger.Debug("Activating dialog service...");
+                await activateDialogs.ActivateAsync(cancellationToken);
+            }
+
+            _ = CheckForUpdatesAsync();
+        }
+
+        private async Task CheckForApplicationUpdateAsync()
+        {
+            try
+            {
+                _applicationUpdate = new CancellationTokenSource();
+                using var client = new HttpClient();
+                client.Configure();
+
+                ApplicationManifest? manifest;
+
+                try
+                {
+                    await using var scope = await _dialogService.ShowBusyDialogAsync(
+                                                "Please wait",
+                                                "Checking for application update...",
+                                                _applicationUpdate.Token);
+
+                    var json = await client.GetStringAsync(AppHelper.ApplicationManifestUrl, _applicationUpdate.Token);
+                    manifest = JsonSerializer.Deserialize<ApplicationManifest>(json);
+                }
+                catch (HttpRequestException e)
+                {
+                    Logger.Error(e, "Failed to retrieve application manifest");
+
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Application update",
+                        $"Failed to retrieve application manifest.\n{e.Message}",
+                        NotificationType.Error,
+                        cancellationToken: CancellationToken.None);
+
+                    return;
+                }
+                catch (OperationCanceledException e) when (_applicationUpdate.IsCancellationRequested)
+                {
+                    Logger.Warning(e, "Application manifest retrieval canceled");
+
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Application update",
+                        $"Application manifest retrieval canceled.\n{e.Message}",
+                        NotificationType.Warning,
+                        cancellationToken: CancellationToken.None);
+
+                    return;
+                }
+                catch (OperationCanceledException e)
+                {
+                    Logger.Error(e, "Application manifest retrieval timed out");
+
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Application update",
+                        $"Application manifest retrieval timed out.\n{e.Message}",
+                        NotificationType.Error,
+                        cancellationToken: CancellationToken.None);
+
+                    return;
+                }
+                catch (JsonException e)
+                {
+                    Logger.Error(e, "Failed to parse application manifest");
+
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Application update",
+                        $"Failed to parse application manifest.\n{e.Message}",
+                        NotificationType.Error,
+                        cancellationToken: CancellationToken.None);
+
+                    return;
+                }
+
+                if (manifest?.Version is null or { Major: 0, Minor: 0 })
+                {
+                    Logger.Error("Application manifest does not contain a valid version");
+
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Application update",
+                        "Application manifest does not contain a valid version.",
+                        NotificationType.Error,
+                        cancellationToken: CancellationToken.None);
+
+                    return;
+                }
+
+                if (manifest.Version <= AppHelper.CurrentVersion)
+                {
+                    // We are up to date
+                    return;
+                }
+
+                var result = await _dialogService.ShowQueryDialogAsync(
+                                 "Application update",
+                                 $"Application update available: v{manifest.Version}\n\nDo you want to update now?",
+                                 DialogResults.YesNo,
+                                 DialogResult.Yes,
+                                 _applicationUpdate.Token);
+
+                if (result != DialogResult.Yes)
+                {
+                    return;
+                }
+
+                if (manifest.Url is null)
+                {
+                    Logger.Error("Application manifest does not contain a valid URL");
+
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Application update",
+                        "Application manifest does not contain a valid URL.",
+                        NotificationType.Error,
+                        cancellationToken: CancellationToken.None);
+
+                    return;
+                }
+
+                Logger.Information("Opening browser with new release URL");
+
+                try
+                {
+                    Process.Start(new ProcessStartInfo { FileName = manifest.Url.AbsoluteUri, UseShellExecute = true });
+
+                    Logger.Information("Shutting down application for update");
+                    Application.Current.Shutdown();
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "Failed to open browser with new release URL");
+
+                    _ = _notificationService.ShowNotificationAsync(
+                        "Application update",
+                        "Failed to open browser with new release URL.",
+                        NotificationType.Error,
+                        cancellationToken: CancellationToken.None);
+                }
+            }
+            catch (OperationCanceledException) when (_applicationUpdate is { IsCancellationRequested: true })
+            {
+                // Ignore and proceed
+                Logger.Debug("Application update was canceled");
+            }
+            finally
+            {
+                _applicationUpdate?.Dispose();
+                _applicationUpdate = null;
+            }
+        }
+
+        private async Task CheckForUpdatesAsync()
+        {
+            using var scope = SetBusy();
+            await CheckForApplicationUpdateAsync();
+            await CheckForDatabaseUpdateAsync();
+        }
+
+        private ActionDisposable SetBusy()
+        {
+            if (Interlocked.Increment(ref _busyCount) == 1)
+            {
+                NotifyOfPropertyChange(nameof(IsBusy));
+            }
+
+            return new ActionDisposable(() =>
+            {
+                if (Interlocked.Decrement(ref _busyCount) == 0)
+                {
+                    NotifyOfPropertyChange(nameof(IsBusy));
+                }
+            });
+        }
+
+        private async Task UpdateDatabase(Version currentVersion, CancellationToken cancellationToken)
+        {
+            using var client = new HttpClient();
+            client.Configure();
+
+            DatabaseManifest? manifest;
+            DatabaseStatus = DatabaseStatus.Unknown;
+
+            try
+            {
+                await using var scope = await _dialogService.ShowBusyDialogAsync(
+                                            "Please wait",
+                                            "Checking for database update...",
+                                            cancellationToken);
+
+                var json = await client.GetStringAsync(AppHelper.DatabaseManifestUrl, cancellationToken);
+                manifest = JsonSerializer.Deserialize<DatabaseManifest>(json);
+            }
+            catch (HttpRequestException e)
+            {
+                Logger.Error(e, "Failed to retrieve database manifest");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    $"Failed to retrieve database manifest.\n{e.Message}",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+            catch (OperationCanceledException e) when (cancellationToken.IsCancellationRequested)
+            {
+                Logger.Warning(e, "Database manifest retrieval canceled");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    $"Database manifest retrieval canceled.\n{e.Message}",
+                    NotificationType.Warning,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+            catch (OperationCanceledException e)
+            {
+                Logger.Error(e, "Database manifest retrieval timed out");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    $"Database manifest retrieval timed out.\n{e.Message}",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+            catch (JsonException e)
+            {
+                Logger.Error(e, "Failed to parse database manifest");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    $"Failed to parse database manifest.\n{e.Message}",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+
+            if (manifest?.Version is null or { Major: 0, Minor: 0 })
+            {
+                Logger.Error("Database manifest does not contain a valid version");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    "Database manifest does not contain a valid version.",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+
+            if (manifest.Version <= currentVersion)
+            {
+                DatabaseStatus = DatabaseStatus.UpToDate;
+
+                return;
+            }
+
+            DatabaseStatus = DatabaseStatus.OutOfDate;
+
+            var result = await _dialogService.ShowQueryDialogAsync(
+                             "Database update",
+                             $"Database update available: v{manifest.Version}\n\nDo you want to update now?",
+                             DialogResults.YesNo,
+                             DialogResult.Yes,
+                             cancellationToken);
+
+            if (result != DialogResult.Yes)
+            {
+                return;
+            }
+
+            if (manifest.RequiredAppVersion is null or { Major: 0, Minor: 0 })
+            {
+                Logger.Error("Database manifest does not contain a valid required app version");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    "Database manifest does not contain a valid required app version.",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+
+            if (manifest.RequiredAppVersion > AppHelper.CurrentVersion)
+            {
+                await _dialogService.ShowInformationDialogAsync(
+                    "Database update",
+                    $"Database update requires application version v{manifest.RequiredAppVersion}",
+                    cancellationToken);
+
+                return;
+            }
+
+            if (manifest.DownloadUrl is null)
+            {
+                Logger.Error("Database manifest does not contain a download URL");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    "Database manifest does not contain a download URL.",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(manifest.Sha256))
+            {
+                Logger.Error("Database manifest does not contain a SHA-256 hash");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    "Database manifest does not contain a SHA-256 hash.",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+
+            byte[] bytes;
+
+            try
+            {
+                await using var scope = await _dialogService.ShowBusyDialogAsync(
+                                            "Please wait",
+                                            "Downloading database update...",
+                                            cancellationToken);
+
+                bytes = await client.GetByteArrayAsync(manifest.DownloadUrl, cancellationToken);
+            }
+            catch (HttpRequestException e)
+            {
+                Logger.Error(e, "Failed to download database {Version}", manifest.Version);
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    $"Failed to download database {manifest.Version}\n{e.Message}",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+            catch (OperationCanceledException e) when (cancellationToken.IsCancellationRequested)
+            {
+                Logger.Warning(e, "Database {Version} download canceled", manifest.Version);
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    $"Database {manifest.Version} download canceled\n{e.Message}",
+                    NotificationType.Warning,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+            catch (OperationCanceledException e)
+            {
+                Logger.Error(e, "Database {Version} download timed out", manifest.Version);
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    $"Database {manifest.Version} download timed out\n{e.Message}",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+
+            var hash = SHA256.HashData(bytes);
+            var hashString = Convert.ToHexString(hash);
+
+            if (!string.Equals(hashString, manifest.Sha256, StringComparison.OrdinalIgnoreCase))
+            {
+                Logger.Error("Database {Version} failed SHA-256 verification", manifest.Version);
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    $"Database {manifest.Version} failed SHA-256 verification",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+
+                return;
+            }
+
+            var tempPath = $"{AppHelper.DatabasePath}.tmp";
+
+            try
+            {
+                await using var scope = await _dialogService.ShowBusyDialogAsync(
+                                            "Please wait",
+                                            "Updating database...",
+                                            cancellationToken);
+
+                SqliteConnection.ClearAllPools();
+
+                await File.WriteAllBytesAsync(tempPath, bytes, cancellationToken);
+
+                File.Move(tempPath, AppHelper.DatabasePath, true);
+
+                CurrentDatabaseVersion = await MigrateDatabaseAsync(cancellationToken);
+                DatabaseStatus = DatabaseStatus.UpToDate;
+                await _eventAggregator.PublishOnUIThreadAsync(new DatabaseUpdatedEvent(), cancellationToken);
+
+                Logger.Information("Database updated to version {Version}", manifest.Version);
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    $"Database updated to version {manifest.Version}",
+                    NotificationType.Success,
+                    cancellationToken: CancellationToken.None);
+            }
+            catch (OperationCanceledException e)
+            {
+                Logger.Warning(e, "Database update was canceled");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    $"Database update was canceled\n{e.Message}",
+                    NotificationType.Warning,
+                    cancellationToken: CancellationToken.None);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Failed to update database");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database update",
+                    $"Failed to update database\n{e.Message}",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+            }
+            finally
+            {
+                // Don't leave a partially downloaded database behind.
+                if (File.Exists(tempPath))
+                {
+                    try
+                    {
+                        File.Delete(tempPath);
+                    }
+                    catch (Exception e)
+                    {
+                        // Nothing useful to do if cleanup itself fails.
+                        Logger.Warning(e, "Failed to delete temporary database file");
+
+                        _ = _notificationService.ShowNotificationAsync(
+                            "Database update",
+                            $"Failed to delete temporary database file\n{e.Message}",
+                            NotificationType.Warning,
+                            cancellationToken: CancellationToken.None);
+                    }
+                }
+            }
+        }
+
+        private async Task<Version> MigrateDatabaseAsync(CancellationToken cancellationToken)
+        {
+            await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+            await DatabaseHelper.ClearStaleMigrationLockAsync(context, cancellationToken);
+
+            try
+            {
+                using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                cts.CancelAfter(TimeSpan.FromSeconds(30));
+                await context.Database.MigrateAsync(cts.Token);
+            }
+            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+                throw new InvalidOperationException(
+                    "Database migration timed out — the migration lock may be stuck. " +
+                    "Check for another running instance or a stale __EFMigrationsLock row.");
+            }
+
+            var version = context.DatabaseReleases.AsEnumerable()
+                                 .Select(r => r.Version)
+                                 .OrderDescending()
+                                 .FirstOrDefault();
+
+            await context.Database.CloseConnectionAsync();
+
+            return version ?? Version.Parse("0.0.0");
+        }
+    }
+}

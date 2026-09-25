@@ -1,0 +1,350 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="BusyDecoratorStyles.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <!--  Style.Button  -->
+    <Style x:Key="Style.Button" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Width" Value="30" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Background" Value="{StaticResource Brush.Background.Button}" />
+        <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Button}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush.Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Border.CornerRadius" Value="{StaticResource CornerRadius.Controls}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TextBlock
+                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                        Style="{StaticResource Style.TextBlock.Label}"
+                        Text="{Binding}" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border
+                        x:Name="ContentContainer"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding Border.CornerRadius}"
+                        SnapsToDevicePixels="true">
+                        <Viewbox>
+                            <ContentPresenter
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                RecognizesAccessKey="True"
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </Viewbox>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsPressed" Value="true">
+                <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Button.Primary}" />
+                <Setter Property="Background" Value="{StaticResource Brush.Background.Button.Primary.Pressed}" />
+                <Setter Property="BorderBrush" Value="{StaticResource Brush.Border.Primary}" />
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Button.Primary}" />
+                <Setter Property="Background" Value="{StaticResource Brush.Background.Button.Primary.MouseOver}" />
+                <Setter Property="BorderBrush" Value="{StaticResource Brush.Border.Primary}" />
+            </Trigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsPressed" Value="true" />
+                    <Condition Property="IsMouseOver" Value="true" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Button.Primary}" />
+                <Setter Property="Background" Value="{StaticResource Brush.Background.Button.Primary.Pressed}" />
+                <Setter Property="BorderBrush" Value="{StaticResource Brush.Border.Primary}" />
+            </MultiTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--  Style.Button.New  -->
+    <Style
+        x:Key="Style.Button.New"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="Add" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.Delete  -->
+    <Style
+        x:Key="Style.Button.Delete"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="Width" Value="20" />
+        <Setter Property="Height" Value="20" />
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="Delete" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.WindowMinimize  -->
+    <Style
+        x:Key="Style.Button.WindowMinimize"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Primary.Transparent}" />
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterial Kind="WindowMinimize" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsPressed" Value="true">
+                <Setter Property="Foreground" Value="{StaticResource Brush.Background.Button.Primary.Pressed}" />
+                <Setter Property="Background" Value="{StaticResource Brush.Border.Primary}" />
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter Property="Foreground" Value="{StaticResource Brush.Background.Button.Primary.MouseOver}" />
+                <Setter Property="Background" Value="{StaticResource Brush.Border.Primary}" />
+            </Trigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsPressed" Value="true" />
+                    <Condition Property="IsMouseOver" Value="true" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Foreground" Value="{StaticResource Brush.Background.Button.Primary.Pressed}" />
+                <Setter Property="Background" Value="{StaticResource Brush.Border.Primary}" />
+            </MultiTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--  Style.Button.WindowMaximize  -->
+    <Style
+        x:Key="Style.Button.WindowMaximize"
+        BasedOn="{StaticResource Style.Button.WindowMinimize}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterial Kind="WindowMaximize" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Value="{x:Static WindowState.Maximized}">
+                <Setter Property="ContentTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <iconPacks:PackIconMaterial Kind="WindowRestore" />
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--  Style.Button.WindowClose  -->
+    <Style
+        x:Key="Style.Button.WindowClose"
+        BasedOn="{StaticResource Style.Button.WindowMinimize}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterial Kind="WindowClose" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.Release  -->
+    <Style
+        x:Key="Style.Button.Release"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="UploadFileRound" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.Refresh  -->
+    <Style
+        x:Key="Style.Button.Refresh"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="Refresh" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.Edit  -->
+    <Style
+        x:Key="Style.Button.Edit"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="Edit" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.Save  -->
+    <Style
+        x:Key="Style.Button.Save"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="Save" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.ComboBox.Clear  -->
+    <Style
+        x:Key="Style.Button.ComboBox.Clear"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="Width" Value="46" />
+        <Setter Property="Height" Value="46" />
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="Backspace" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.Cancel  -->
+    <Style
+        x:Key="Style.Button.Cancel"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="Cancel" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.Yes  -->
+    <Style
+        x:Key="Style.Button.Yes"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="Check" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.No  -->
+    <Style
+        x:Key="Style.Button.No"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterialDesign Kind="Close" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.Play  -->
+    <Style
+        x:Key="Style.Button.Play"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <iconPacks:PackIconMaterial Kind="PlayCircle" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Style.Button.TextBox.Clear  -->
+    <Style
+        x:Key="Style.Button.TextBox.Clear"
+        BasedOn="{StaticResource Style.Button}"
+        TargetType="{x:Type Button}">
+        <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Dark}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Width" Value="20" />
+        <Setter Property="Height" Value="20" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <Viewbox>
+                        <iconPacks:PackIconMaterialDesign Kind="Close" />
+                    </Viewbox>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsPressed" Value="true">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Pressed}" />
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.MouseOver}" />
+            </Trigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsPressed" Value="true" />
+                    <Condition Property="IsMouseOver" Value="true" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Pressed}" />
+            </MultiTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--  Style.Button.Implicit  -->
+    <Style BasedOn="{StaticResource Style.Button}" TargetType="{x:Type Button}" />
+</ResourceDictionary>

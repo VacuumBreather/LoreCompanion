@@ -1,0 +1,106 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="SeparatorStyles.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <!--  FontFamily.Default  -->
+    <FontFamily x:Key="FontFamily.Default">
+        /LoreCompanion;component/Views/Resources/Fonts/CormorantGaramond-VariableFont.ttf#Cormorant Garamond Light
+    </FontFamily>
+
+    <!--  FontFamily.Default.Italic  -->
+    <FontFamily x:Key="FontFamily.Default.Italic">
+        /LoreCompanion;component/Views/Resources/Fonts/CormorantGaramond-Italic-VariableFont.ttf#Cormorant Garamond Light
+    </FontFamily>
+
+    <!--  Style.TextBlock.Body  -->
+    <Style x:Key="Style.TextBlock.Body" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Default}" />
+        <Setter Property="FontSize" Value="18" />
+    </Style>
+
+    <!--  Style.TextBlock.Body.Small  -->
+    <Style
+        x:Key="Style.TextBlock.Body.Small"
+        BasedOn="{StaticResource Style.TextBlock.Body}"
+        TargetType="{x:Type TextBlock}">
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <!--  Style.TextBlock.Body.Large  -->
+    <Style
+        x:Key="Style.TextBlock.Body.Large"
+        BasedOn="{StaticResource Style.TextBlock.Body}"
+        TargetType="{x:Type TextBlock}">
+        <Setter Property="FontSize" Value="20" />
+    </Style>
+
+    <!--  Style.TextBlock.Body.Quote  -->
+    <Style
+        x:Key="Style.TextBlock.Body.Quote"
+        BasedOn="{StaticResource Style.TextBlock.Body.Large}"
+        TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Default.Italic}" />
+    </Style>
+
+    <!--  Style.TextBlock.Body.Quote.Small  -->
+    <Style
+        x:Key="Style.TextBlock.Body.Quote.Small"
+        BasedOn="{StaticResource Style.TextBlock.Body.Small}"
+        TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamily.Default.Italic}" />
+    </Style>
+
+    <!--  Style.TextBlock.Subtitle  -->
+    <Style
+        x:Key="Style.TextBlock.Subtitle"
+        BasedOn="{StaticResource Style.TextBlock.Body}"
+        TargetType="{x:Type TextBlock}">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="helpers:TypographyHelper.AllCaps" Value="True" />
+        <Setter Property="helpers:TypographyHelper.IncreaseLetterSpacing" Value="True" />
+    </Style>
+
+    <!--  Style.TextBlock.Label  -->
+    <Style
+        x:Key="Style.TextBlock.Label"
+        BasedOn="{StaticResource Style.TextBlock.Body}"
+        TargetType="{x:Type TextBlock}">
+        <Setter Property="helpers:TypographyHelper.AllCaps" Value="True" />
+    </Style>
+
+    <!--  Style.TextBlock.Heading  -->
+    <Style
+        x:Key="Style.TextBlock.Heading"
+        BasedOn="{StaticResource Style.TextBlock.Body}"
+        TargetType="{x:Type TextBlock}">
+        <Setter Property="Foreground" Value="{StaticResource Brush.Foreground.Primary}" />
+        <Setter Property="helpers:TypographyHelper.AllCaps" Value="True" />
+    </Style>
+
+    <!--  Style.TextBlock.Heading.Large  -->
+    <Style
+        x:Key="Style.TextBlock.Heading.Large"
+        BasedOn="{StaticResource Style.TextBlock.Heading}"
+        TargetType="{x:Type TextBlock}">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="helpers:TypographyHelper.IncreaseLetterSpacing" Value="True" />
+    </Style>
+
+    <!--  Style.TextBlock.Heading.Navigation  -->
+    <Style
+        x:Key="Style.TextBlock.Heading.Navigation"
+        BasedOn="{StaticResource Style.TextBlock.Heading}"
+        TargetType="{x:Type TextBlock}">
+        <Setter Property="helpers:TypographyHelper.AllCaps" Value="False" />
+        <Setter Property="Typography.Capitals" Value="SmallCaps" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <!--  Style.TextBlock.Implicit  -->
+    <Style BasedOn="{StaticResource Style.TextBlock.Body}" TargetType="{x:Type TextBlock}" />
+
+</ResourceDictionary>

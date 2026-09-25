@@ -1,0 +1,260 @@
+﻿<Window
+    x:Class="LoreCompanion.Views.ShellView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:cm="http://caliburnmicro.com"
+    xmlns:controls="clr-namespace:LoreCompanion.Views.Controls"
+    xmlns:converters="clr-namespace:LoreCompanion.Views.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:effects="clr-namespace:LoreCompanion.Views.Effects"
+    xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
+    xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:utilities="clr-namespace:LoreCompanion.Utilities"
+    xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
+    xmlns:views="clr-namespace:LoreCompanion.Views"
+    x:Name="RootWindow"
+    Title="MainWindow"
+    Width="{x:Static views:ShellView.BaseWidth}"
+    Height="{x:Static views:ShellView.BaseHeight}"
+    d:DataContext="{d:DesignInstance viewModels:ShellViewModel,
+                                     IsDesignTimeCreatable=False}"
+    AllowsTransparency="True"
+    Background="{StaticResource Brush.Background}"
+    Foreground="{StaticResource Brush.Foreground}"
+    KeyboardNavigation.ControlTabNavigation="None"
+    KeyboardNavigation.DirectionalNavigation="None"
+    KeyboardNavigation.TabNavigation="None"
+    WindowStyle="None"
+    mc:Ignorable="d">
+    <DockPanel>
+        <!--  Root LayoutTransform scales fonts and icons cleanly  -->
+        <DockPanel.LayoutTransform>
+            <ScaleTransform x:Name="RootScaleTransform" ScaleX="1.0" ScaleY="1.0" />
+        </DockPanel.LayoutTransform>
+        <!--  Header  -->
+        <Border
+            BorderBrush="{StaticResource Brush.Border.Primary}"
+            BorderThickness="0,0,0,1"
+            DockPanel.Dock="Top"
+            MouseDown="OnTitleBarMouseDown"
+            MouseLeftButtonUp="OnTitleBarMouseLeftButtonUp"
+            MouseMove="OnTitleBarMouseMove">
+            <Border.Background>
+                <VisualBrush Stretch="UniformToFill">
+                    <VisualBrush.Visual>
+                        <Image Source="/LoreCompanion;component/Views/Resources/Images/Background.png">
+                            <Image.Effect>
+                                <effects:TintShaderEffect TintColor="{StaticResource Color.Background.7}" />
+                            </Image.Effect>
+                        </Image>
+                    </VisualBrush.Visual>
+                </VisualBrush>
+            </Border.Background>
+            <DockPanel>
+                <Image
+                    Height="50"
+                    Margin="10"
+                    VerticalAlignment="Center"
+                    DockPanel.Dock="Left"
+                    Source="/LoreCompanion;component/Views/Resources/Images/EldenRing.png" />
+                <StackPanel
+                    Margin="5"
+                    VerticalAlignment="Center"
+                    DockPanel.Dock="Left">
+                    <TextBlock Style="{StaticResource Style.TextBlock.Heading.Large}" Text="The Tarnished Archive" />
+                    <TextBlock Style="{StaticResource Style.TextBlock.Subtitle}" Text="Lore • Items • Characters • Locations • More" />
+                </StackPanel>
+
+                <DockPanel Margin="10,5" DockPanel.Dock="Right">
+                    <UniformGrid
+                        HorizontalAlignment="Right"
+                        DockPanel.Dock="Top"
+                        Rows="1">
+                        <Button
+                            Margin="5"
+                            Click="OnWindowMinimize"
+                            Style="{StaticResource Style.Button.WindowMinimize}" />
+                        <Button
+                            Margin="5"
+                            Click="OnWindowMaximize"
+                            Style="{StaticResource Style.Button.WindowMaximize}" />
+                        <Button
+                            Margin="5"
+                            Click="OnWindowClose"
+                            Style="{StaticResource Style.Button.WindowClose}" />
+                    </UniformGrid>
+                    <TextBlock
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Right"
+                        Text="{x:Static utilities:AppHelper.CurrentVersionString}" />
+                    <TextBlock
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        DockPanel.Dock="Right"
+                        Text="Version: " />
+                </DockPanel>
+                <DockPanel
+                    Margin="0,0,50,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    DockPanel.Dock="Right"
+                    Visibility="{x:Static helpers:AdminHelper.AdminModeVisibility}">
+                    <TextBlock
+                        Margin="0,10,0,0"
+                        DockPanel.Dock="Bottom"
+                        Foreground="{StaticResource Brush.Foreground.Notification.Warning}"
+                        Style="{StaticResource Style.TextBlock.Heading}"
+                        Text="Admin Mode" />
+                    <icon:PackIconMaterialDesign
+                        Width="25"
+                        Height="25"
+                        HorizontalAlignment="Center"
+                        Foreground="{StaticResource Brush.Foreground.Notification.Warning}"
+                        Kind="AdminPanelSettings" />
+                </DockPanel>
+            </DockPanel>
+        </Border>
+
+        <controls:DialogsNotificationsDecorator>
+            <DockPanel>
+                <!--  Footer  -->
+                <Border
+                    Height="75"
+                    Background="{StaticResource Brush.Background.Secondary}"
+                    BorderBrush="{StaticResource Brush.Border.Primary}"
+                    BorderThickness="0,1,0,0"
+                    DockPanel.Dock="Bottom">
+                    <Grid>
+                        <Image
+                            HorizontalAlignment="Right"
+                            Source="/LoreCompanion;component/Views/Resources/Images/FooterLandscape.png"
+                            Stretch="Uniform">
+                            <Image.Effect>
+                                <effects:TintShaderEffect TintColor="{StaticResource Color.Primary.60}" />
+                            </Image.Effect>
+                        </Image>
+                        <DockPanel>
+                            <Image
+                                Margin="10"
+                                VerticalAlignment="Center"
+                                DockPanel.Dock="Left"
+                                Source="/LoreCompanion;component/Views/Resources/Images/EldenRing.png" />
+                            <TextBlock
+                                Margin="10"
+                                VerticalAlignment="Center"
+                                DockPanel.Dock="Left"
+                                Style="{StaticResource Style.TextBlock.Body.Large}"
+                                Text="The more you learn, the more the world reveals itself." />
+                        </DockPanel>
+                    </Grid>
+                </Border>
+
+                <!--  Content  -->
+                <DockPanel IsEnabled="{Binding IsBusy, Converter={StaticResource Converter.BoolInversion}}">
+                    <Border
+                        Background="{StaticResource Brush.Background.Panel}"
+                        BorderBrush="{StaticResource Brush.Border.Primary}"
+                        BorderThickness="0,0,0.5,0">
+                        <Grid Width="250" DockPanel.Dock="Left">
+                            <Image
+                                VerticalAlignment="Bottom"
+                                Source="/LoreCompanion;component/Views/Resources/Images/NavigationLandscape.png"
+                                Stretch="Uniform">
+                                <Image.Effect>
+                                    <effects:TintShaderEffect TintColor="{StaticResource Color.Primary.60}" />
+                                </Image.Effect>
+                            </Image>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <ScrollViewer.Resources>
+                                    <helpers:DatabaseStatusTemplateSelector x:Key="DataTemplateSelector.DatabaseStatus">
+                                        <helpers:DatabaseStatusTemplateSelector.UnknownTemplate>
+                                            <DataTemplate>
+                                                <TextBlock
+                                                    Foreground="{StaticResource Brush.Foreground.Notification.Warning}"
+                                                    Style="{StaticResource Style.TextBlock.Body.Small}"
+                                                    Text="Unknown" />
+                                            </DataTemplate>
+                                        </helpers:DatabaseStatusTemplateSelector.UnknownTemplate>
+                                        <helpers:DatabaseStatusTemplateSelector.UpToDateTemplate>
+                                            <DataTemplate>
+                                                <TextBlock
+                                                    Foreground="{StaticResource Brush.Foreground}"
+                                                    Style="{StaticResource Style.TextBlock.Body.Small}"
+                                                    Text="Up to date" />
+                                            </DataTemplate>
+                                        </helpers:DatabaseStatusTemplateSelector.UpToDateTemplate>
+                                        <helpers:DatabaseStatusTemplateSelector.OutOfDateTemplate>
+                                            <DataTemplate>
+                                                <TextBlock
+                                                    Foreground="{StaticResource Brush.Foreground.Notification.Success}"
+                                                    Style="{StaticResource Style.TextBlock.Body.Small}"
+                                                    Text="Update available" />
+                                            </DataTemplate>
+                                        </helpers:DatabaseStatusTemplateSelector.OutOfDateTemplate>
+                                    </helpers:DatabaseStatusTemplateSelector>
+                                    <converters:ChainConverter x:Key="Converter.UpToDateToHidden">
+                                        <converters:IsEqualConverter />
+                                        <converters:BoolToVisibilityConverter FalseVisibility="Visible" TrueVisibility="Collapsed" />
+                                    </converters:ChainConverter>
+                                </ScrollViewer.Resources>
+                                <DockPanel>
+                                    <ListBox
+                                        DockPanel.Dock="Top"
+                                        ItemsSource="{Binding ItemsView}"
+                                        SelectedItem="{Binding ActiveItem}"
+                                        Style="{StaticResource Style.ListBox.Navigation}" />
+                                    <TextBlock
+                                        Margin="8,12,8,4"
+                                        DockPanel.Dock="Top"
+                                        Style="{StaticResource Style.TextBlock.Heading.Navigation}"
+                                        Text="Database" />
+                                    <DockPanel
+                                        Margin="16,8"
+                                        VerticalAlignment="Top"
+                                        DockPanel.Dock="Top">
+                                        <icon:PackIconMaterial
+                                            VerticalAlignment="Center"
+                                            DockPanel.Dock="Left"
+                                            Foreground="{StaticResource Brush.Foreground.Primary}"
+                                            Kind="Database" />
+                                        <TextBlock
+                                            Margin="10,0"
+                                            VerticalAlignment="Center"
+                                            DockPanel.Dock="Left"
+                                            Text="{Binding CurrentDatabaseVersion, StringFormat={}v{0}}" />
+                                    </DockPanel>
+                                    <ContentControl
+                                        Margin="16,0"
+                                        Content="{Binding DatabaseStatus}"
+                                        ContentTemplateSelector="{StaticResource DataTemplateSelector.DatabaseStatus}"
+                                        DockPanel.Dock="Top" />
+                                    <UniformGrid
+                                        Margin="10"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Top"
+                                        DockPanel.Dock="Top">
+                                        <Button
+                                            Margin="5"
+                                            cm:Message.Attach="CheckForDatabaseUpdateAsync"
+                                            Style="{StaticResource Style.Button.Refresh}"
+                                            Visibility="{Binding DatabaseStatus, Converter={StaticResource Converter.UpToDateToHidden}, ConverterParameter={x:Static viewModels:DatabaseStatus.UpToDate}}" />
+                                        <Button
+                                            Margin="5"
+                                            cm:Message.Attach="PublishDatabaseAsync"
+                                            Style="{StaticResource Style.Button.Release}"
+                                            Visibility="{x:Static helpers:AdminHelper.AdminModeVisibility}" />
+                                    </UniformGrid>
+                                </DockPanel>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+
+                    <ContentControl x:Name="ActiveItem" />
+
+                </DockPanel>
+            </DockPanel>
+        </controls:DialogsNotificationsDecorator>
+    </DockPanel>
+</Window>

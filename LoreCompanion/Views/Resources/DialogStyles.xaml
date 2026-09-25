@@ -1,0 +1,283 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:cm="http://caliburnmicro.com"
+    xmlns:controls="clr-namespace:LoreCompanion.Views.Controls"
+    xmlns:converters="clr-namespace:LoreCompanion.Views.Converters"
+    xmlns:dialogs="clr-namespace:LoreCompanion.ViewModels.Dialogs"
+    xmlns:views="clr-namespace:LoreCompanion.Views">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="NotificationStyles.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <!--  DataTemplate.QueryDialog.Implicit  -->
+    <DataTemplate DataType="{x:Type dialogs:QueryDialog}">
+        <DataTemplate.Resources>
+            <converters:EnumFlagSetToVisibilityConverter x:Key="Converter.EnumFlagSetToVisible" />
+            <converters:IsEqualConverter x:Key="Converter.IsEqualTo" />
+            <converters:ChainConverter x:Key="Converter.IsEqualToVisibility">
+                <converters:IsEqualConverter />
+                <BooleanToVisibilityConverter />
+            </converters:ChainConverter>
+        </DataTemplate.Resources>
+        <DockPanel cm:Bind.ModelWithoutContext="{Binding}">
+            <TextBlock
+                HorizontalAlignment="Center"
+                DockPanel.Dock="Top"
+                Style="{StaticResource Style.TextBlock.Heading.Large}"
+                Text="{Binding Title, Mode=OneWay}"
+                TextAlignment="Center" />
+            <ProgressBar
+                Height="4"
+                Margin="0,10,0,0"
+                DockPanel.Dock="Bottom"
+                IsIndeterminate="True"
+                Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.IsEqualToVisibility}, ConverterParameter={x:Static dialogs:DialogResults.None}}" />
+            <UniformGrid
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                DockPanel.Dock="Bottom"
+                Rows="1">
+                <Button
+                    MinWidth="50"
+                    Margin="10,0"
+                    controls:CloseDialog.Result="Ok"
+                    Content="OK"
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Ok}}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Ok}}" />
+                <Button
+                    MinWidth="50"
+                    Margin="10,0"
+                    controls:CloseDialog.Result="Yes"
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Yes}}"
+                    Style="{StaticResource Style.Button.Yes}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Yes}}" />
+                <Button
+                    MinWidth="50"
+                    Margin="10,0"
+                    controls:CloseDialog.Result="No"
+                    IsCancel="True"
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.No}}"
+                    Style="{StaticResource Style.Button.No}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.No}}" />
+                <Button
+                    MinWidth="50"
+                    Margin="10,0"
+                    controls:CloseDialog.Result="Retry"
+                    Content="Retry"
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Retry}}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Retry}}" />
+                <Button
+                    MinWidth="50"
+                    Margin="10,0"
+                    controls:CloseDialog.Result="TryAgain"
+                    Content="Try Again"
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.TryAgain}}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.TryAgain}}" />
+                <Button
+                    MinWidth="50"
+                    Margin="10,0"
+                    controls:CloseDialog.Result="Abort"
+                    Content="Abort"
+                    IsCancel="True"
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Abort}}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Abort}}" />
+                <Button
+                    MinWidth="50"
+                    Margin="10,0"
+                    controls:CloseDialog.Result="Continue"
+                    Content="Continue"
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Continue}}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Continue}}" />
+                <Button
+                    MinWidth="50"
+                    Margin="10,0"
+                    controls:CloseDialog.Result="Ignore"
+                    Content="Ignore"
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Ignore}}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Ignore}}" />
+                <Button
+                    MinWidth="50"
+                    Margin="10,0"
+                    controls:CloseDialog.Result="Cancel"
+                    Content="Cancel"
+                    IsCancel="True"
+                    IsDefault="{Binding DefaultResult, Mode=OneWay, Converter={StaticResource Converter.IsEqualTo}, ConverterParameter={x:Static dialogs:DialogResult.Cancel}}"
+                    Visibility="{Binding DialogResults, Mode=OneWay, Converter={StaticResource Converter.EnumFlagSetToVisible}, ConverterParameter={x:Static dialogs:DialogResults.Cancel}}" />
+            </UniformGrid>
+            <TextBlock
+                Margin="0,20,0,30"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Style="{StaticResource Style.TextBlock.Body.Large}"
+                Text="{Binding Content, Mode=OneWay}"
+                TextAlignment="Center" />
+        </DockPanel>
+    </DataTemplate>
+
+    <!--  DataTemplate.ReleaseNotesDialog.Implicit  -->
+    <DataTemplate DataType="{x:Type dialogs:ReleaseNotesDialog}">
+        <DataTemplate.Resources>
+            <converters:EnumFlagSetToVisibilityConverter x:Key="Converter.EnumFlagSetToVisible" />
+            <converters:IsEqualConverter x:Key="Converter.IsEqualTo" />
+            <converters:ChainConverter x:Key="Converter.IsEqualToVisibility">
+                <converters:IsEqualConverter />
+                <BooleanToVisibilityConverter />
+            </converters:ChainConverter>
+        </DataTemplate.Resources>
+        <DockPanel>
+            <TextBlock
+                HorizontalAlignment="Center"
+                DockPanel.Dock="Top"
+                Style="{StaticResource Style.TextBlock.Heading}"
+                Text="{Binding Title, Mode=OneWay}"
+                TextAlignment="Center" />
+            <UniformGrid
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                DockPanel.Dock="Bottom"
+                Rows="1">
+                <Button
+                    MinWidth="50"
+                    Margin="10,10,10,0"
+                    controls:CloseDialog.Result="Ok"
+                    Content="OK"
+                    IsDefault="True"
+                    Style="{StaticResource Style.Button.Yes}" />
+                <Button
+                    MinWidth="50"
+                    Margin="10,10,10,0"
+                    controls:CloseDialog.Result="Cancel"
+                    Content="Cancel"
+                    IsCancel="True"
+                    Style="{StaticResource Style.Button.No}" />
+            </UniformGrid>
+            <DockPanel
+                Margin="10"
+                HorizontalAlignment="Center"
+                DockPanel.Dock="Bottom">
+                <CheckBox
+                    Margin="10"
+                    VerticalAlignment="Center"
+                    DockPanel.Dock="Left"
+                    IsChecked="{Binding IsMinorVersionRelease}" />
+                <TextBlock VerticalAlignment="Center" Text="Minor Version Release" />
+            </DockPanel>
+            <TextBox
+                Width="500"
+                Height="100"
+                Margin="10"
+                DockPanel.Dock="Bottom"
+                MaxLength="2048"
+                Text="{Binding ReleaseNotes}"
+                TextWrapping="Wrap" />
+            <TextBlock
+                Margin="0,20,0,10"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Text="{Binding Content, Mode=OneWay}"
+                TextAlignment="Center" />
+        </DockPanel>
+    </DataTemplate>
+
+    <!--  DataTemplate.VideoPlayerDialog.Implicit  -->
+    <DataTemplate DataType="{x:Type dialogs:VideoPlayerDialog}">
+        <DockPanel>
+            <TextBlock
+                HorizontalAlignment="Center"
+                DockPanel.Dock="Top"
+                Style="{StaticResource Style.TextBlock.Heading.Large}"
+                Text="{Binding Title, Mode=OneWay}"
+                TextAlignment="Center"
+                TextTrimming="CharacterEllipsis" />
+
+            <UniformGrid
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                DockPanel.Dock="Bottom"
+                Rows="1">
+                <Button
+                    MinWidth="80"
+                    Margin="0,30,0,0"
+                    controls:CloseDialog.Result="Ok"
+                    Content="Close"
+                    IsCancel="True"
+                    IsDefault="True"
+                    Style="{StaticResource Style.Button.Yes}" />
+            </UniformGrid>
+
+            <Border
+                Margin="0,30,0,0"
+                BorderBrush="{StaticResource Brush.Border.Primary}"
+                BorderThickness="2">
+                <views:YoutubePlayer
+                    Width="720"
+                    Height="405"
+                    Timestamp="{Binding Timestamp}"
+                    VideoKey="{Binding VideoKey}" />
+            </Border>
+        </DockPanel>
+    </DataTemplate>
+
+    <!--  ControlTemplate.DialogItem  -->
+    <ControlTemplate x:Key="ControlTemplate.DialogItem" TargetType="{x:Type controls:DialogItem}">
+        <Border
+            x:Name="Border"
+            Padding="{TemplateBinding Padding}"
+            Background="{TemplateBinding Background}"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            CornerRadius="{TemplateBinding Border.CornerRadius}"
+            RenderTransformOrigin=".5,.5"
+            TextElement.Foreground="{TemplateBinding Foreground}">
+            <ContentPresenter ContentSource="Content" />
+        </Border>
+    </ControlTemplate>
+
+    <!--  ControlTemplate.DialogHost  -->
+    <ControlTemplate x:Key="ControlTemplate.DialogHost" TargetType="{x:Type controls:DialogHost}">
+        <Grid
+            x:Name="PART_RootGrid"
+            Background="{TemplateBinding OverlayBackgroundBrush}"
+            Visibility="Collapsed">
+            <controls:DialogItem
+                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                Content="{TemplateBinding Content}"
+                Style="{TemplateBinding DialogContainerStyle}" />
+        </Grid>
+    </ControlTemplate>
+
+    <!--  Style.DialogItem  -->
+    <Style x:Key="Style.DialogItem" TargetType="{x:Type controls:DialogItem}">
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="KeyboardNavigation.ControlTabNavigation" Value="Cycle" />
+        <Setter Property="KeyboardNavigation.TabNavigation" Value="Cycle" />
+        <Setter Property="MinWidth" Value="300" />
+        <Setter Property="MinHeight" Value="150" />
+        <Setter Property="Border.CornerRadius" Value="10" />
+        <Setter Property="Background" Value="{StaticResource Brush.Background.Panel}" />
+        <Setter Property="Padding" Value="80,40" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush.Border}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="Template" Value="{StaticResource ControlTemplate.DialogItem}" />
+    </Style>
+
+    <!--  Style.DialogHost  -->
+    <Style x:Key="Style.DialogHost" TargetType="{x:Type controls:DialogHost}">
+        <Setter Property="OverlayBackgroundBrush" Value="{StaticResource Brush.Background.DialogHost}" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="DialogContainerStyle" Value="{StaticResource Style.DialogItem}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template" Value="{StaticResource ControlTemplate.DialogHost}" />
+    </Style>
+
+    <!--  Style.DialogItem.Implicit  -->
+    <Style BasedOn="{StaticResource Style.DialogItem}" TargetType="{x:Type controls:DialogItem}" />
+
+    <!--  Style.DialogHost.Implicit  -->
+    <Style BasedOn="{StaticResource Style.DialogHost}" TargetType="{x:Type controls:DialogHost}" />
+</ResourceDictionary>

@@ -1,0 +1,45 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:LoreCompanion.Views.Converters">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="BasicValues.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <!--  Converter.TrueToVisible  -->
+    <converters:BoolToVisibilityConverter x:Key="Converter.TrueToVisible" />
+
+    <!--  Converter.FalseToHidden  -->
+    <converters:BoolToVisibilityConverter
+        x:Key="Converter.FalseToHidden"
+        FalseVisibility="Hidden"
+        TrueVisibility="Visible" />
+
+    <!--  Converter.IsEqual  -->
+    <converters:IsEqualConverter x:Key="Converter.IsEqual" />
+
+    <!--  Converter.NullToCollapsed  -->
+    <converters:IsNullToVisibilityConverter x:Key="Converter.NullToCollapsed" />
+
+    <!--  Converter.BoolInversion  -->
+    <converters:BoolInversionConverter x:Key="Converter.BoolInversion" />
+
+    <!--  Converter.IsEqualToVisible  -->
+    <converters:ChainConverter x:Key="Converter.IsEqualToVisible">
+        <converters:IsEqualConverter />
+        <converters:BoolToVisibilityConverter />
+    </converters:ChainConverter>
+
+    <!--  Converter.Multi.BooleanAndToVisibility  -->
+    <converters:BooleanAndToVisibilityMultiConverter x:Key="Converter.Multi.BooleanAndToVisibility" />
+
+    <!--  Converter.VideoKeyToThumbnailUrl  -->
+    <converters:VideoKeyToThumbnailUrlConverter x:Key="Converter.VideoKeyToThumbnailUrl" />
+
+    <!--  Converter.VideoKeyToMetadataUrl  -->
+    <converters:VideoKeyToMetadataUrlConverter x:Key="Converter.VideoKeyToMetadataUrl" />
+
+    <!--  Converter.ItemTypeToIcon  -->
+    <converters:ItemTypeToIconConverter x:Key="Converter.ItemTypeToIcon" />
+
+</ResourceDictionary>

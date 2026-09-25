@@ -1,0 +1,210 @@
+﻿<UserControl
+    x:Class="LoreCompanion.Views.DashboardView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:behaviors="clr-namespace:LoreCompanion.Views.Behaviors"
+    xmlns:controls="clr-namespace:LoreCompanion.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:effects="clr-namespace:LoreCompanion.Views.Effects"
+    xmlns:helpers="clr-namespace:LoreCompanion.Views.Helpers"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="clr-namespace:LoreCompanion.Models"
+    xmlns:viewModels="clr-namespace:LoreCompanion.ViewModels"
+    d:DataContext="{d:DesignInstance viewModels:DashboardViewModel,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    mc:Ignorable="d">
+    <UserControl.Background>
+        <VisualBrush Stretch="UniformToFill">
+            <VisualBrush.Visual>
+                <Image Source="/LoreCompanion;component/Views/Resources/Images/Background.png">
+                    <Image.Effect>
+                        <effects:TintShaderEffect TintColor="{StaticResource Color.Background.5}" />
+                    </Image.Effect>
+                </Image>
+            </VisualBrush.Visual>
+        </VisualBrush>
+    </UserControl.Background>
+    <UserControl.Resources>
+
+        <helpers:EntityTemplateSelector x:Key="DataTemplateSelector.Dashboard">
+            <helpers:EntityTemplateSelector.LocationTemplate>
+                <DataTemplate DataType="{x:Type models:Location}">
+                    <Border
+                        Margin="10"
+                        Padding="5,20"
+                        Background="{StaticResource Brush.Background.Panel}"
+                        BorderBrush="{StaticResource Brush.Border}"
+                        BorderThickness="1">
+                        <DockPanel Width="250" Height="150">
+                            <DockPanel HorizontalAlignment="Center" DockPanel.Dock="Top">
+                                <iconPacks:PackIconRPGAwesome
+                                    Width="20"
+                                    Height="20"
+                                    VerticalAlignment="Center"
+                                    DockPanel.Dock="Left"
+                                    Foreground="{StaticResource Brush.Foreground.Primary}"
+                                    Kind="Tower" />
+                                <TextBlock
+                                    Margin="15,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource Style.TextBlock.Heading}"
+                                    Text="{Binding Name}" />
+                            </DockPanel>
+                            <Image
+                                Margin="0,20,0,0"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                RenderOptions.BitmapScalingMode="HighQuality"
+                                Source="{StaticResource Image.Placeholder}"
+                                Stretch="Uniform">
+                                <b:Interaction.Behaviors>
+                                    <behaviors:LoadCachedImageBehavior Url="{Binding ImageUrl}" />
+                                </b:Interaction.Behaviors>
+                            </Image>
+                        </DockPanel>
+                    </Border>
+                </DataTemplate>
+            </helpers:EntityTemplateSelector.LocationTemplate>
+            <helpers:EntityTemplateSelector.ItemTemplate>
+                <DataTemplate DataType="{x:Type models:Item}">
+                    <Border
+                        Margin="10"
+                        Padding="5,20"
+                        Background="{StaticResource Brush.Background.Panel}"
+                        BorderBrush="{StaticResource Brush.Border}"
+                        BorderThickness="1">
+                        <DockPanel Width="250" Height="150">
+                            <DockPanel HorizontalAlignment="Center" DockPanel.Dock="Top">
+                                <iconPacks:PackIconRPGAwesome
+                                    Width="20"
+                                    Height="20"
+                                    VerticalAlignment="Center"
+                                    DockPanel.Dock="Left"
+                                    Foreground="{StaticResource Brush.Foreground.Primary}"
+                                    Kind="{Binding Type, Converter={StaticResource Converter.ItemTypeToIcon}}" />
+                                <TextBlock
+                                    Margin="15,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource Style.TextBlock.Heading}"
+                                    Text="{Binding Name}" />
+                            </DockPanel>
+                            <Image
+                                Margin="0,20,0,0"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                RenderOptions.BitmapScalingMode="HighQuality"
+                                Source="{StaticResource Image.Placeholder}"
+                                Stretch="Uniform">
+                                <b:Interaction.Behaviors>
+                                    <behaviors:LoadCachedImageBehavior Url="{Binding ImageUrl}" />
+                                </b:Interaction.Behaviors>
+                            </Image>
+                        </DockPanel>
+                    </Border>
+                </DataTemplate>
+            </helpers:EntityTemplateSelector.ItemTemplate>
+            <helpers:EntityTemplateSelector.DialogTemplate>
+                <DataTemplate DataType="{x:Type models:Dialog}">
+                    <Border
+                        Margin="10"
+                        Padding="5,20"
+                        Background="{StaticResource Brush.Background.Panel}"
+                        BorderBrush="{StaticResource Brush.Border}"
+                        BorderThickness="1">
+                        <DockPanel Width="250" Height="150">
+                            <DockPanel HorizontalAlignment="Center" DockPanel.Dock="Top">
+                                <iconPacks:PackIconMaterialDesign
+                                    Width="20"
+                                    Height="20"
+                                    VerticalAlignment="Center"
+                                    DockPanel.Dock="Left"
+                                    Foreground="{StaticResource Brush.Foreground.Primary}"
+                                    Kind="Chat" />
+                                <TextBlock
+                                    Margin="15,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource Style.TextBlock.Heading}"
+                                    Text="{Binding Character.Name, FallbackValue='Unknown'}" />
+                            </DockPanel>
+                            <TextBlock
+                                MaxWidth="200"
+                                Margin="0,20,0,0"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                DockPanel.Dock="Left"
+                                Style="{StaticResource Style.TextBlock.Body.Quote.Small}"
+                                Text="{Binding Content}"
+                                TextTrimming="WordEllipsis"
+                                TextWrapping="Wrap" />
+                        </DockPanel>
+                    </Border>
+                </DataTemplate>
+            </helpers:EntityTemplateSelector.DialogTemplate>
+            <helpers:EntityTemplateSelector.CharacterTemplate>
+                <DataTemplate DataType="{x:Type models:Character}">
+                    <Border
+                        Margin="10"
+                        Padding="5,20"
+                        Background="{StaticResource Brush.Background.Panel}"
+                        BorderBrush="{StaticResource Brush.Border}"
+                        BorderThickness="1">
+                        <DockPanel Width="250" Height="150">
+                            <DockPanel HorizontalAlignment="Center" DockPanel.Dock="Top">
+                                <iconPacks:PackIconMaterialDesign
+                                    Width="20"
+                                    Height="20"
+                                    VerticalAlignment="Center"
+                                    DockPanel.Dock="Left"
+                                    Foreground="{StaticResource Brush.Foreground.Primary}"
+                                    Kind="Person" />
+                                <TextBlock
+                                    Margin="15,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource Style.TextBlock.Heading}"
+                                    Text="{Binding Name}" />
+                            </DockPanel>
+                            <Image
+                                Margin="0,20,0,0"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                RenderOptions.BitmapScalingMode="HighQuality"
+                                Source="{StaticResource Image.Placeholder}"
+                                Stretch="Uniform">
+                                <b:Interaction.Behaviors>
+                                    <behaviors:LoadCachedImageBehavior Url="{Binding ImageUrl}" />
+                                </b:Interaction.Behaviors>
+                            </Image>
+                        </DockPanel>
+                    </Border>
+                </DataTemplate>
+            </helpers:EntityTemplateSelector.CharacterTemplate>
+        </helpers:EntityTemplateSelector>
+    </UserControl.Resources>
+
+    <controls:BusyDecorator IsBusy="{Binding IsBusy, Mode=OneWay}">
+        <DockPanel Margin="10,20">
+            <TextBlock
+                HorizontalAlignment="Center"
+                DockPanel.Dock="Top"
+                Style="{StaticResource Style.TextBlock.Heading.Large}"
+                Text="Latest Discoveries" />
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <ItemsControl
+                    Margin="0,20,0,0"
+                    ItemTemplateSelector="{StaticResource DataTemplateSelector.Dashboard}"
+                    ItemsSource="{Binding ItemsView}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
+    </controls:BusyDecorator>
+
+</UserControl>
