@@ -1,12 +1,11 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using LoreCompanion.Utilities;
 using Microsoft.Web.WebView2.Core;
 using Serilog;
 
 namespace LoreCompanion.Views
 {
-    public partial class YoutubePlayer : UserControl
+    public partial class YoutubePlayer
     {
         public static readonly DependencyProperty VideoKeyProperty = DependencyProperty.Register(
             nameof(VideoKey),
@@ -41,24 +40,7 @@ namespace LoreCompanion.Views
             set => SetValue(TimestampProperty, value);
         }
 
-        public void PlayCurrentVideo()
-        {
-            if (WebView.CoreWebView2 is null || string.IsNullOrWhiteSpace(VideoKey))
-            {
-                return;
-            }
-
-            var url = YouTubeHelper.BuildEmbedUrl(VideoKey, Timestamp);
-            WebView.CoreWebView2.Navigate(url);
-        }
-
-        public void StopVideo()
-        {
-            if (WebView.CoreWebView2 is not null)
-            {
-                WebView.CoreWebView2.Navigate("about:blank");
-            }
-        }
+        private static ILogger Logger => field ??= LogManager.GetLogger();
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
@@ -78,8 +60,6 @@ namespace LoreCompanion.Views
                 Logger.Error(ex, "Failed to initialize or play video");
             }
         }
-
-        private static ILogger Logger => field ??= LogManager.GetLogger();
 
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
@@ -117,9 +97,31 @@ namespace LoreCompanion.Views
             }
         }
 
+        private void PlayCurrentVideo()
+        {
+            if (WebView.CoreWebView2 is null || string.IsNullOrWhiteSpace(VideoKey))
+            {
+                return;
+            }
+
+            var url = YouTubeHelper.BuildEmbedUrl(VideoKey, Timestamp);
+            WebView.CoreWebView2.Navigate(url);
+        }
+
+        private void StopVideo()
+        {
+            WebView.CoreWebView2?.Navigate("about:blank");
+        }
+
         private async Task InitializeAsync()
         {
-            await WebView.EnsureCoreWebView2Async();
+            var options = new CoreWebView2EnvironmentOptions
+            {
+                AdditionalBrowserArguments = "--autoplay-policy=no-user-gesture-required",
+            };
+
+            var environment = await CoreWebView2Environment.CreateAsync(options: options);
+            await WebView.EnsureCoreWebView2Async(environment);
 
             var core = WebView.CoreWebView2;
 

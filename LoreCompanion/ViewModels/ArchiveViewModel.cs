@@ -9,8 +9,6 @@ using LoreCompanion.ViewModels.Events;
 using LoreCompanion.ViewModels.Notifications;
 using Microsoft.EntityFrameworkCore;
 using R3;
-using Serilog;
-using LogManager = LoreCompanion.Utilities.LogManager;
 
 namespace LoreCompanion.ViewModels
 {

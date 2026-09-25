@@ -1,8 +1,7 @@
-﻿using System.Diagnostics;
-using Caliburn.Micro;
+﻿using Caliburn.Micro;
 using JetBrains.Annotations;
+using LoreCompanion.Extensions;
 using LoreCompanion.Models;
-using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels.Dialogs;
 using Serilog;
 using LogManager = LoreCompanion.Utilities.LogManager;
@@ -43,8 +42,6 @@ namespace LoreCompanion.ViewModels
 
             var dialog = new VideoPlayerDialog(episode.ToString(), episode.VideoKey);
             _ = DialogService.ShowDialogAsync(dialog);
-
-            //Process.Start(new ProcessStartInfo { FileName = videoUrl, UseShellExecute = true });
         }
 
         [UsedImplicitly]
@@ -55,17 +52,10 @@ namespace LoreCompanion.ViewModels
                 return;
             }
 
-            Logger.Debug("Playing video for {EntityName}: {Location}", entity.GetType().Name.ToLower(), entity);
+            Logger.Debug("Playing video for {EntityName}: {Entity}", entity.GetType().Name.ToLower(), entity);
 
-            var dialog = new VideoPlayerDialog(entity.Episode.ToString(), entity.Episode.VideoKey, entity.Timestamp);
+            var dialog = new VideoPlayerDialog(entity.GetVideoTitle(), entity.Episode.VideoKey, entity.Timestamp);
             _ = DialogService.ShowDialogAsync(dialog);
-
-            // var videoUrl = string.Format(
-            //     YouTubeHelper.VideoUrlFormatStringWithTime,
-            //     entity.Episode.VideoKey,
-            //     entity.Timestamp.TotalSeconds);
-            //
-            // Process.Start(new ProcessStartInfo { FileName = videoUrl, UseShellExecute = true });
         }
     }
 }

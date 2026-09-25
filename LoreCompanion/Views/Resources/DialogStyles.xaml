@@ -5,8 +5,7 @@
     xmlns:controls="clr-namespace:LoreCompanion.Views.Controls"
     xmlns:converters="clr-namespace:LoreCompanion.Views.Converters"
     xmlns:dialogs="clr-namespace:LoreCompanion.ViewModels.Dialogs"
-    xmlns:views="clr-namespace:LoreCompanion.Views"
-    xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf">
+    xmlns:views="clr-namespace:LoreCompanion.Views">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="NotificationStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
@@ -189,7 +188,8 @@
                 DockPanel.Dock="Top"
                 Style="{StaticResource Style.TextBlock.Heading.Large}"
                 Text="{Binding Title, Mode=OneWay}"
-                TextAlignment="Center" />
+                TextAlignment="Center"
+                TextTrimming="CharacterEllipsis" />
 
             <UniformGrid
                 HorizontalAlignment="Center"
@@ -198,7 +198,7 @@
                 Rows="1">
                 <Button
                     MinWidth="80"
-                    Margin="10,20,10,10"
+                    Margin="0,30,0,0"
                     controls:CloseDialog.Result="Ok"
                     Content="Close"
                     IsCancel="True"
@@ -207,12 +207,12 @@
             </UniformGrid>
 
             <Border
-                Margin="0,15,0,0"
+                Margin="0,30,0,0"
                 BorderBrush="{StaticResource Brush.Border.Primary}"
                 BorderThickness="2">
                 <views:YoutubePlayer
-                    Width="800"
-                    Height="450"
+                    Width="720"
+                    Height="405"
                     Timestamp="{Binding Timestamp}"
                     VideoKey="{Binding VideoKey}" />
             </Border>
