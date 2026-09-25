@@ -11,14 +11,52 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoreCompanion.Migrations
 {
     [DbContext(typeof(LoreDbContext))]
-    [Migration("20260924041710_RestrictItemLocation")]
-    partial class RestrictItemLocation
+    [Migration("20260925153335_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
+
+            modelBuilder.Entity("LoreCompanion.Models.Character", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("EpisodeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("LocationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EpisodeId");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Characters");
+                });
 
             modelBuilder.Entity("LoreCompanion.Models.DatabaseRelease", b =>
                 {
@@ -42,16 +80,54 @@ namespace LoreCompanion.Migrations
                     b.ToTable("DatabaseReleases");
                 });
 
+            modelBuilder.Entity("LoreCompanion.Models.Dialog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("CharacterId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Context")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.Property<int?>("EpisodeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("LocationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId");
+
+                    b.HasIndex("EpisodeId");
+
+                    b.HasIndex("LocationId");
+
+                    b.ToTable("Dialogs");
+                });
+
             modelBuilder.Entity("LoreCompanion.Models.Episode", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Number")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("VideoKey")
                         .IsRequired()
@@ -60,7 +136,16 @@ namespace LoreCompanion.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Episodes");
+                    b.HasIndex("Number")
+                        .IsUnique();
+
+                    b.HasIndex("VideoKey")
+                        .IsUnique();
+
+                    b.ToTable("Episodes", t =>
+                        {
+                            t.HasCheckConstraint("CK_Episodes_Number_Min", "\"Number\" >= 1");
+                        });
                 });
 
             modelBuilder.Entity("LoreCompanion.Models.Item", b =>
@@ -88,7 +173,8 @@ namespace LoreCompanion.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(128)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
 
                     b.Property<long>("Timestamp")
                         .HasColumnType("INTEGER");
@@ -101,6 +187,9 @@ namespace LoreCompanion.Migrations
                     b.HasIndex("EpisodeId");
 
                     b.HasIndex("LocationId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Items");
                 });
@@ -122,7 +211,8 @@ namespace LoreCompanion.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(128)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
 
                     b.Property<long>("Timestamp")
                         .HasColumnType("INTEGER");
@@ -131,7 +221,51 @@ namespace LoreCompanion.Migrations
 
                     b.HasIndex("EpisodeId");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Locations");
+                });
+
+            modelBuilder.Entity("LoreCompanion.Models.Character", b =>
+                {
+                    b.HasOne("LoreCompanion.Models.Episode", "Episode")
+                        .WithMany()
+                        .HasForeignKey("EpisodeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("LoreCompanion.Models.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Episode");
+
+                    b.Navigation("Location");
+                });
+
+            modelBuilder.Entity("LoreCompanion.Models.Dialog", b =>
+                {
+                    b.HasOne("LoreCompanion.Models.Character", "Character")
+                        .WithMany()
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("LoreCompanion.Models.Episode", "Episode")
+                        .WithMany()
+                        .HasForeignKey("EpisodeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("LoreCompanion.Models.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Character");
+
+                    b.Navigation("Episode");
+
+                    b.Navigation("Location");
                 });
 
             modelBuilder.Entity("LoreCompanion.Models.Item", b =>
