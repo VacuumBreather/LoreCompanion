@@ -1,5 +1,3 @@
-Now I'm examining the files in the Doc folder to understand the existing documentation structure and content, which will help me determine how to update or expand it effectively.
-
 **LoreCompanion**
 
 ![LoreCompanion Screenshot](Doc/screenshot.jpg)
