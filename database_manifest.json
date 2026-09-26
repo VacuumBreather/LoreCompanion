@@ -1,6 +1,6 @@
 {
-  "version": "1.2.0",
-  "downloadUrl": "https://github.com/VacuumBreather/LoreCompanion/releases/download/db-v1.2.0/lorecompanion.db",
+  "version": "1.2.1",
+  "downloadUrl": "https://github.com/VacuumBreather/LoreCompanion/releases/download/db-v1.2.1/lorecompanion.db",
   "sha256": "4f496ed382d5f92cebb71ab7d01bfa811f19f0c6f14bb7d9ce138f88f42970e7",
   "required_app_version": "1.0.0"
 }
