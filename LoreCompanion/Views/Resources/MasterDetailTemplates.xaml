@@ -167,8 +167,8 @@
                 DockPanel.Dock="Top"
                 Style="{StaticResource Style.TextBlock.Heading.Large}" />
             <Border
-                Width="256"
-                Height="144"
+                Width="384"
+                Height="216"
                 Margin="0,20,0,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
@@ -531,8 +531,8 @@
                 DockPanel.Dock="Top"
                 Style="{StaticResource Style.TextBlock.Heading.Large}" />
             <Border
-                Width="256"
-                Height="144"
+                Width="384"
+                Height="216"
                 Margin="0,20,0,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
