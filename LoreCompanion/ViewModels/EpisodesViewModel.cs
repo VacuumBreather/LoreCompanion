@@ -61,23 +61,25 @@ namespace LoreCompanion.ViewModels
             }
         }
 
-        protected override async Task<IEnumerable<EntityBase>> GetRelatedItemsAsync(CancellationToken cancellationToken)
+        protected override async Task<IEnumerable<EntityBase>> GetRelatedItemsAsync(
+            Episode selectedItem,
+            CancellationToken cancellationToken)
         {
             Logger.Debug("Loading related characters and items...");
 
             await using var context = await DbContextFactory.CreateDbContextAsync(cancellationToken);
 
-            var locations = await context.Locations.Where(d => d.EpisodeId == SelectedItem!.Id)
+            var locations = await context.Locations.Where(d => d.EpisodeId == selectedItem.Id)
                                          .OrderBy(d => d.Name)
                                          .AsNoTracking()
                                          .ToListAsync(cancellationToken);
 
-            var characters = await context.Characters.Where(c => c.EpisodeId == SelectedItem!.Id)
+            var characters = await context.Characters.Where(c => c.EpisodeId == selectedItem.Id)
                                           .OrderBy(c => c.Name)
                                           .AsNoTracking()
                                           .ToListAsync(cancellationToken);
 
-            var items = await context.Items.Where(it => it.EpisodeId == SelectedItem!.Id)
+            var items = await context.Items.Where(it => it.EpisodeId == selectedItem.Id)
                                      .OrderBy(it => it.Type)
                                      .ThenBy(it => it.Name)
                                      .AsNoTracking()

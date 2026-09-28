@@ -58,7 +58,7 @@ namespace LoreCompanion.ViewModels
             {
                 if (Set(ref field, value))
                 {
-                    _ = LoadRelatedItemsAsync();
+                    _ = LoadRelatedItemsAsync(field);
                 }
             }
         }
@@ -138,8 +138,8 @@ namespace LoreCompanion.ViewModels
                 _loadingCts = null;
             }
 
-            _loadingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            _loadingTask = Task.Run(() => LoadEntitiesAsync(_loadingCts.Token), _loadingCts.Token);
+            var loadingCts = _loadingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            _loadingTask = Task.Run(() => LoadEntitiesAsync(loadingCts.Token), loadingCts.Token);
 
             await base.OnActivatedAsync(cancellationToken);
         }
@@ -264,7 +264,7 @@ namespace LoreCompanion.ViewModels
             }
         }
 
-        private async Task LoadRelatedItemsAsync()
+        private async Task LoadRelatedItemsAsync(EntityBase? selectedItem)
         {
             if (_loadingRelatedCts is not null)
             {
@@ -275,19 +275,19 @@ namespace LoreCompanion.ViewModels
 
             Execute.OnUIThread(() => { RelatedItems.Clear(); });
 
-            if (SelectedItem is null or Item or Dialog)
+            if (selectedItem is null or Item or Dialog || (selectedItem.Id == 0))
             {
                 return;
             }
 
-            _loadingRelatedCts = new CancellationTokenSource();
+            var loadingRelatedCts = _loadingRelatedCts = new CancellationTokenSource();
 
             _loadingRelatedTask = Task.Run(
-                () => LoadRelatedItemsInternalAsync(_loadingRelatedCts.Token),
-                _loadingRelatedCts.Token);
+                () => LoadRelatedItemsInternalAsync(selectedItem, loadingRelatedCts.Token),
+                loadingRelatedCts.Token);
         }
 
-        private async Task LoadRelatedItemsInternalAsync(CancellationToken cancellationToken)
+        private async Task LoadRelatedItemsInternalAsync(EntityBase selectedItem, CancellationToken cancellationToken)
         {
             await Task.Yield();
             var lockAcquired = false;
@@ -299,11 +299,22 @@ namespace LoreCompanion.ViewModels
                 await DatabaseLock.WaitAsync(cancellationToken);
                 lockAcquired = true;
 
-                var relatedItems = await GetRelatedItemsAsync(cancellationToken);
+                var relatedItems = await GetRelatedItemsAsync(selectedItem, cancellationToken);
 
-                Execute.OnUIThread(() => { RelatedItems.AddRange(relatedItems); });
+                cancellationToken.ThrowIfCancellationRequested();
 
-                Logger.Debug("Related items loaded");
+                Execute.OnUIThread(() =>
+                {
+                    if ((SelectedItem?.GetType() == selectedItem.GetType()) && (SelectedItem?.Id == selectedItem.Id))
+                    {
+                        RelatedItems.AddRange(relatedItems);
+                        Logger.Debug("Related items loaded");
+                    }
+                    else
+                    {
+                        Logger.Debug("Related items assignment aborted due to change in selected item");
+                    }
+                });
             }
             catch (OperationCanceledException e)
             {
@@ -328,20 +339,22 @@ namespace LoreCompanion.ViewModels
             }
         }
 
-        private async Task<IEnumerable<EntityBase>> GetRelatedItemsAsync(CancellationToken cancellationToken)
+        private async Task<IEnumerable<EntityBase>> GetRelatedItemsAsync(
+            EntityBase selectedItem,
+            CancellationToken cancellationToken)
         {
             Logger.Debug("Loading related characters and items...");
 
             await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-            if (SelectedItem is Location)
+            if (selectedItem is Location)
             {
-                var characters = await context.Characters.Where(c => c.LocationId == SelectedItem!.Id)
+                var characters = await context.Characters.Where(c => c.LocationId == selectedItem.Id)
                                               .OrderBy(c => c.Name)
                                               .AsNoTracking()
                                               .ToListAsync(cancellationToken);
 
-                var items = await context.Items.Where(it => it.LocationId == SelectedItem!.Id)
+                var items = await context.Items.Where(it => it.LocationId == selectedItem.Id)
                                          .OrderBy(it => it.Type)
                                          .ThenBy(it => it.Name)
                                          .AsNoTracking()
@@ -350,9 +363,9 @@ namespace LoreCompanion.ViewModels
                 return characters.Cast<EntityBase>().Concat(items);
             }
 
-            if (SelectedItem is Character)
+            if (selectedItem is Character)
             {
-                return await context.Dialogs.Where(d => d.CharacterId == SelectedItem!.Id)
+                return await context.Dialogs.Where(d => d.CharacterId == selectedItem.Id)
                                     .OrderBy(d => d.Episode!.Number)
                                     .ThenBy(d => d.Timestamp)
                                     .AsNoTracking()

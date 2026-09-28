@@ -38,13 +38,15 @@ namespace LoreCompanion.ViewModels
             }
         }
 
-        protected override async Task<IEnumerable<EntityBase>> GetRelatedItemsAsync(CancellationToken cancellationToken)
+        protected override async Task<IEnumerable<EntityBase>> GetRelatedItemsAsync(
+            Character selectedItem,
+            CancellationToken cancellationToken)
         {
             Logger.Debug("Loading related dialogs...");
 
             await using var context = await DbContextFactory.CreateDbContextAsync(cancellationToken);
 
-            return await context.Dialogs.Where(d => d.CharacterId == SelectedItem!.Id)
+            return await context.Dialogs.Where(d => d.CharacterId == selectedItem.Id)
                                 .OrderBy(d => d.Episode!.Number)
                                 .ThenBy(d => d.Timestamp)
                                 .AsNoTracking()
