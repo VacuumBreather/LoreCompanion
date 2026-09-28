@@ -48,7 +48,6 @@ namespace LoreCompanion.ViewModels
                                 .OrderBy(d => d.Episode!.Number)
                                 .ThenBy(d => d.Timestamp)
                                 .AsNoTracking()
-                                .OrderBy(d => d)
                                 .ToListAsync(cancellationToken);
         }
     }

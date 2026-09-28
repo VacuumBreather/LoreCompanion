@@ -435,7 +435,7 @@ namespace LoreCompanion.ViewModels
 
             Execute.OnUIThread(() => { RelatedItems.Clear(); });
 
-            if (SelectedItem is null)
+            if (SelectedItem is null || SelectedItem.Id == 0)
             {
                 return;
             }
