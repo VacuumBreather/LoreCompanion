@@ -25,10 +25,19 @@
             EpisodeTemplate="{StaticResource DataTemplate.Episode.Detail.ReadOnly}"
             ItemTemplate="{StaticResource DataTemplate.Item.Detail.ReadOnly}"
             LocationTemplate="{StaticResource DataTemplate.Location.Detail.ReadOnly}" />
+
+        <helpers:EntityTemplateSelector
+            x:Key="DataTemplateSelector.Related"
+            CharacterTemplate="{StaticResource DataTemplate.Character.Related}"
+            DialogTemplate="{StaticResource DataTemplate.Dialog.Related}"
+            ItemTemplate="{StaticResource DataTemplate.Item.Related}"
+            LocationTemplate="{StaticResource DataTemplate.Location.Related}" />
     </UserControl.Resources>
 
     <views:MasterDetailControl
         DetailTemplateSelector="{StaticResource DataTemplateSelector.Detail}"
         EditMode="ReadOnly"
-        ItemTemplateSelector="{StaticResource DataTemplateSelector.Master}" />
+        ItemTemplateSelector="{StaticResource DataTemplateSelector.Master}"
+        RelatedItemTemplateSelector="{StaticResource DataTemplateSelector.Related}"
+        RelatedItemsSource="{Binding RelatedItems}" />
 </UserControl>

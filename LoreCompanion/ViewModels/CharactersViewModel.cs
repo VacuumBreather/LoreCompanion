@@ -37,5 +37,20 @@ namespace LoreCompanion.ViewModels
                 return false;
             }
         }
+
+        protected override async Task<IEnumerable<EntityBase>> GetRelatedItemsAsync(
+            Character selectedItem,
+            CancellationToken cancellationToken)
+        {
+            Logger.Debug("Loading related dialogs...");
+
+            await using var context = await DbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            return await context.Dialogs.Where(d => d.CharacterId == selectedItem.Id)
+                                .OrderBy(d => d.Episode!.Number)
+                                .ThenBy(d => d.Timestamp)
+                                .AsNoTracking()
+                                .ToListAsync(cancellationToken);
+        }
     }
 }

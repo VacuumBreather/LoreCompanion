@@ -23,7 +23,9 @@ namespace LoreCompanion.ViewModels
         private bool _databaseRefreshNeeded = true;
         private int _busyCount;
         private Task? _loadingTask;
+        private Task? _loadingRelatedTask;
         private CancellationTokenSource? _loadingCts;
+        private CancellationTokenSource? _loadingRelatedCts;
 
         protected MasterDetailSectionScreen(
             string section,
@@ -66,17 +68,17 @@ namespace LoreCompanion.ViewModels
                     return;
                 }
 
-                if ((EditMode != EditMode.Edit) || previousItem is null)
+                if ((EditMode == EditMode.Edit) && previousItem is not null)
                 {
-                    return;
+                    EditMode = EditMode.ReadOnly;
+
+                    if (Items.Contains(previousItem))
+                    {
+                        _ = SaveItemAsync(previousItem);
+                    }
                 }
 
-                EditMode = EditMode.ReadOnly;
-
-                if (Items.Contains(previousItem))
-                {
-                    _ = SaveItemAsync(previousItem);
-                }
+                _ = LoadRelatedItemsAsync(field);
             }
         }
 
@@ -105,6 +107,8 @@ namespace LoreCompanion.ViewModels
         } = EditMode.ReadOnly;
 
         public bool IsBusy => _busyCount > 0;
+
+        public BindableCollection<EntityBase> RelatedItems { get; } = [];
 
         protected IDbContextFactory<LoreDbContext> DbContextFactory { get; }
 
@@ -280,6 +284,13 @@ namespace LoreCompanion.ViewModels
             return context.Set<TEntity>();
         }
 
+        protected virtual Task<IEnumerable<EntityBase>> GetRelatedItemsAsync(
+            TEntity selectedItem,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult<IEnumerable<EntityBase>>([]);
+        }
+
         protected override async Task OnActivatedAsync(CancellationToken cancellationToken)
         {
             Logger.Debug("Activated");
@@ -301,10 +312,11 @@ namespace LoreCompanion.ViewModels
             {
                 await _loadingCts.CancelAsync();
                 _loadingCts.Dispose();
+                _loadingCts = null;
             }
 
-            _loadingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            _loadingTask = Task.Run(() => LoadEntitiesAsync(_loadingCts.Token), _loadingCts.Token);
+            var loadingCts = _loadingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            _loadingTask = Task.Run(() => LoadEntitiesAsync(loadingCts.Token), loadingCts.Token);
 
             await base.OnActivatedAsync(cancellationToken);
         }
@@ -318,6 +330,13 @@ namespace LoreCompanion.ViewModels
                 await _loadingCts.CancelAsync();
                 _loadingCts.Dispose();
                 _loadingCts = null;
+            }
+
+            if (_loadingRelatedCts is not null)
+            {
+                await _loadingRelatedCts.CancelAsync();
+                _loadingRelatedCts.Dispose();
+                _loadingRelatedCts = null;
             }
 
             _subscription?.Dispose();
@@ -379,7 +398,20 @@ namespace LoreCompanion.ViewModels
                     catch (OperationCanceledException e)
                     {
                         // Log and ignore cancellation to ensure cleanup proceeds
-                        Logger.Debug(e, "Loading task cancelled during deactivation");
+                        Logger.Debug(e, "Loading task cancelled during close");
+                    }
+                }
+
+                if (_loadingRelatedTask is not null)
+                {
+                    try
+                    {
+                        await _loadingRelatedTask;
+                    }
+                    catch (OperationCanceledException e)
+                    {
+                        // Log and ignore cancellation to ensure cleanup proceeds
+                        Logger.Debug(e, "Loading related items task cancelled during close");
                     }
                 }
             }
@@ -392,6 +424,81 @@ namespace LoreCompanion.ViewModels
         private static int CompareEntities(TEntity x, TEntity y)
         {
             return x.CompareTo(y);
+        }
+
+        private async Task LoadRelatedItemsAsync(TEntity? selectedItem)
+        {
+            if (_loadingRelatedCts is not null)
+            {
+                await _loadingRelatedCts.CancelAsync();
+                _loadingRelatedCts.Dispose();
+                _loadingRelatedCts = null;
+            }
+
+            Execute.OnUIThread(() => { RelatedItems.Clear(); });
+
+            if (selectedItem is null || (selectedItem.Id == 0))
+            {
+                return;
+            }
+
+            var loadingRelatedCts = _loadingRelatedCts = new CancellationTokenSource();
+
+            _loadingRelatedTask = Task.Run(
+                () => LoadRelatedItemsInternalAsync(selectedItem, loadingRelatedCts.Token),
+                loadingRelatedCts.Token);
+        }
+
+        private async Task LoadRelatedItemsInternalAsync(TEntity selectedItem, CancellationToken cancellationToken)
+        {
+            await Task.Yield();
+            var lockAcquired = false;
+
+            try
+            {
+                Logger.Debug("Loading related items...");
+
+                await DatabaseLock.WaitAsync(cancellationToken);
+                lockAcquired = true;
+
+                var relatedItems = await GetRelatedItemsAsync(selectedItem, cancellationToken);
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                Execute.OnUIThread(() =>
+                {
+                    if (SelectedItem?.Id == selectedItem.Id)
+                    {
+                        RelatedItems.AddRange(relatedItems);
+                        Logger.Debug("Related items loaded");
+                    }
+                    else
+                    {
+                        Logger.Debug("Related items assignment aborted due to change in selected item");
+                    }
+                });
+            }
+            catch (OperationCanceledException e)
+            {
+                Logger.Debug(e, "Loading related items task cancelled");
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Error loading related items");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database error",
+                    $"Could not load related items.\n{e.Message}",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+            }
+            finally
+            {
+                if (lockAcquired)
+                {
+                    DatabaseLock.Release();
+                }
+            }
         }
 
         private ActionDisposable SetBusy()

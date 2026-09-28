@@ -16,6 +16,8 @@
         EditDetailTemplate="{StaticResource DataTemplate.Character.Detail.Edit}"
         EditMode="{Binding EditMode, Mode=OneWay}"
         ItemTemplate="{StaticResource DataTemplate.Character.Master}"
-        ReadOnlyDetailTemplate="{StaticResource DataTemplate.Character.Detail.ReadOnly}" />
+        ReadOnlyDetailTemplate="{StaticResource DataTemplate.Character.Detail.ReadOnly}"
+        RelatedItemTemplate="{StaticResource DataTemplate.Dialog.Related}"
+        RelatedItemsSource="{Binding RelatedItems}" />
 
 </UserControl>

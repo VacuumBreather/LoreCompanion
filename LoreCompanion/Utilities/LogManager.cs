@@ -5,7 +5,6 @@ using Caliburn.Micro;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Core;
-using Serilog.Sinks.SystemConsole.Themes;
 
 namespace LoreCompanion.Utilities
 {
