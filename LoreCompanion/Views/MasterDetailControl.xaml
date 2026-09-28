@@ -130,10 +130,36 @@
                         </MultiBinding>
                     </Button.Visibility>
                 </Button>
-                <ContentControl
-                    Content="{Binding SelectedItem}"
-                    ContentTemplate="{Binding DetailTemplate, ElementName=Root}"
-                    ContentTemplateSelector="{Binding DetailTemplateSelector, ElementName=Root}" />
+                <DockPanel>
+                    <ContentControl
+                        VerticalAlignment="Top"
+                        Content="{Binding SelectedItem}"
+                        ContentTemplate="{Binding DetailTemplate, ElementName=Root}"
+                        ContentTemplateSelector="{Binding DetailTemplateSelector, ElementName=Root}"
+                        DockPanel.Dock="Top" />
+                    <Separator VerticalAlignment="Top" DockPanel.Dock="Top" />
+                    <ScrollViewer
+                        VerticalAlignment="Top"
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Auto">
+                        <ItemsControl
+                            ItemTemplate="{Binding RelatedItemTemplate, ElementName=Root}"
+                            ItemTemplateSelector="{Binding RelatedItemTemplateSelector, ElementName=Root}"
+                            ItemsSource="{Binding RelatedItemsSource, ElementName=Root}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="2" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemContainerStyle>
+                                <Style TargetType="{x:Type ContentPresenter}">
+                                    <Setter Property="Margin" Value="0,0,5,0" />
+                                    <Setter Property="Height" Value="30" />
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
             </DockPanel>
         </Grid>
     </controls:BusyDecorator>

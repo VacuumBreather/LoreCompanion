@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Collections;
+using System.Windows;
 using System.Windows.Controls;
 using LoreCompanion.Utilities;
 using LoreCompanion.ViewModels;
@@ -43,6 +44,24 @@ namespace LoreCompanion.Views
             typeof(MasterDetailControl),
             new PropertyMetadata(EditMode.ReadOnly, OnEditModeChanged));
 
+        public static readonly DependencyProperty RelatedItemsSourceProperty = DependencyProperty.Register(
+            nameof(RelatedItemsSource),
+            typeof(IEnumerable),
+            typeof(MasterDetailControl),
+            new PropertyMetadata(default(IEnumerable)));
+
+        public static readonly DependencyProperty RelatedItemTemplateProperty = DependencyProperty.Register(
+            nameof(RelatedItemTemplate),
+            typeof(DataTemplate),
+            typeof(MasterDetailControl),
+            new PropertyMetadata(default(DataTemplate)));
+
+        public static readonly DependencyProperty RelatedItemTemplateSelectorProperty = DependencyProperty.Register(
+            nameof(RelatedItemTemplateSelector),
+            typeof(DataTemplateSelector),
+            typeof(MasterDetailControl),
+            new PropertyMetadata(default(DataTemplateSelector)));
+
         public MasterDetailControl()
         {
             InitializeComponent();
@@ -84,6 +103,24 @@ namespace LoreCompanion.Views
         {
             get => (DataTemplateSelector?)GetValue(DetailTemplateSelectorProperty);
             set => SetValue(DetailTemplateSelectorProperty, value);
+        }
+
+        public IEnumerable RelatedItemsSource
+        {
+            get => (IEnumerable)GetValue(RelatedItemsSourceProperty);
+            set => SetValue(RelatedItemsSourceProperty, value);
+        }
+
+        public DataTemplate RelatedItemTemplate
+        {
+            get => (DataTemplate)GetValue(RelatedItemTemplateProperty);
+            set => SetValue(RelatedItemTemplateProperty, value);
+        }
+
+        public DataTemplateSelector RelatedItemTemplateSelector
+        {
+            get => (DataTemplateSelector)GetValue(RelatedItemTemplateSelectorProperty);
+            set => SetValue(RelatedItemTemplateSelectorProperty, value);
         }
 
         private DataTemplate? DetailTemplate

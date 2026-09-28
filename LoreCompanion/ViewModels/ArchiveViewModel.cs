@@ -27,7 +27,9 @@ namespace LoreCompanion.ViewModels
         private bool _databaseRefreshNeeded = true;
         private int _busyCount;
         private Task? _loadingTask;
+        private Task? _loadingRelatedTask;
         private CancellationTokenSource? _loadingCts;
+        private CancellationTokenSource? _loadingRelatedCts;
 
         public ArchiveViewModel(
             IDbContextFactory<LoreDbContext> dbContextFactory,
@@ -52,11 +54,19 @@ namespace LoreCompanion.ViewModels
         public EntityBase? SelectedItem
         {
             get;
-            set => Set(ref field, value);
+            set
+            {
+                if (Set(ref field, value))
+                {
+                    _ = LoadRelatedItemsAsync();
+                }
+            }
         }
 
         [UsedImplicitly]
         public ListCollectionView ItemsView { get; }
+
+        public BindableCollection<EntityBase> RelatedItems { get; } = [];
 
         [UsedImplicitly]
         public string SearchText
@@ -125,6 +135,7 @@ namespace LoreCompanion.ViewModels
             {
                 await _loadingCts.CancelAsync();
                 _loadingCts.Dispose();
+                _loadingCts = null;
             }
 
             _loadingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -142,6 +153,13 @@ namespace LoreCompanion.ViewModels
                 await _loadingCts.CancelAsync();
                 _loadingCts.Dispose();
                 _loadingCts = null;
+            }
+
+            if (_loadingRelatedCts is not null)
+            {
+                await _loadingRelatedCts.CancelAsync();
+                _loadingRelatedCts.Dispose();
+                _loadingRelatedCts = null;
             }
 
             _subscription?.Dispose();
@@ -185,6 +203,19 @@ namespace LoreCompanion.ViewModels
                     {
                         // Log and ignore cancellation to ensure cleanup proceeds
                         Logger.Debug(e, "Loading task cancelled during deactivation");
+                    }
+                }
+
+                if (_loadingRelatedTask is not null)
+                {
+                    try
+                    {
+                        await _loadingRelatedTask;
+                    }
+                    catch (OperationCanceledException e)
+                    {
+                        // Log and ignore cancellation to ensure cleanup proceeds
+                        Logger.Debug(e, "Loading related items task cancelled during deactivation");
                     }
                 }
             }
@@ -231,6 +262,104 @@ namespace LoreCompanion.ViewModels
             {
                 yield return dialog;
             }
+        }
+
+        private async Task LoadRelatedItemsAsync()
+        {
+            if (_loadingRelatedCts is not null)
+            {
+                await _loadingRelatedCts.CancelAsync();
+                _loadingRelatedCts.Dispose();
+                _loadingRelatedCts = null;
+            }
+
+            Execute.OnUIThread(() => { RelatedItems.Clear(); });
+
+            if (SelectedItem is null or Item or Dialog)
+            {
+                return;
+            }
+
+            _loadingRelatedCts = new CancellationTokenSource();
+
+            _loadingRelatedTask = Task.Run(
+                () => LoadRelatedItemsInternalAsync(_loadingRelatedCts.Token),
+                _loadingRelatedCts.Token);
+        }
+
+        private async Task LoadRelatedItemsInternalAsync(CancellationToken cancellationToken)
+        {
+            await Task.Yield();
+            var lockAcquired = false;
+
+            try
+            {
+                Logger.Debug("Loading related items...");
+
+                await DatabaseLock.WaitAsync(cancellationToken);
+                lockAcquired = true;
+
+                var relatedItems = await GetRelatedItemsAsync(cancellationToken);
+
+                Execute.OnUIThread(() => { RelatedItems.AddRange(relatedItems); });
+
+                Logger.Debug("Related items loaded");
+            }
+            catch (OperationCanceledException e)
+            {
+                Logger.Debug(e, "Loading related items task cancelled");
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Error loading related items");
+
+                _ = _notificationService.ShowNotificationAsync(
+                    "Database error",
+                    $"Could not load related items.\n{e.Message}",
+                    NotificationType.Error,
+                    cancellationToken: CancellationToken.None);
+            }
+            finally
+            {
+                if (lockAcquired)
+                {
+                    DatabaseLock.Release();
+                }
+            }
+        }
+
+        private async Task<IEnumerable<EntityBase>> GetRelatedItemsAsync(CancellationToken cancellationToken)
+        {
+            Logger.Debug("Loading related characters and items...");
+
+            await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            if (SelectedItem is Location)
+            {
+                var characters = await context.Characters.Where(c => c.LocationId == SelectedItem!.Id)
+                                              .OrderBy(c => c.Name)
+                                              .AsNoTracking()
+                                              .ToListAsync(cancellationToken);
+
+                var items = await context.Items.Where(it => it.LocationId == SelectedItem!.Id)
+                                         .OrderBy(it => it.Type)
+                                         .ThenBy(it => it.Name)
+                                         .AsNoTracking()
+                                         .ToListAsync(cancellationToken);
+
+                return characters.Cast<EntityBase>().Concat(items);
+            }
+
+            if (SelectedItem is Character)
+            {
+                return await context.Dialogs.Where(d => d.CharacterId == SelectedItem!.Id)
+                                    .OrderBy(d => d.Episode!.Number)
+                                    .ThenBy(d => d.Timestamp)
+                                    .AsNoTracking()
+                                    .ToListAsync(cancellationToken);
+            }
+
+            return [];
         }
 
         private ActionDisposable SetBusy()

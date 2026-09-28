@@ -60,5 +60,30 @@ namespace LoreCompanion.ViewModels
                 return false;
             }
         }
+
+        protected override async Task<IEnumerable<EntityBase>> GetRelatedItemsAsync(CancellationToken cancellationToken)
+        {
+            Logger.Debug("Loading related characters and items...");
+
+            await using var context = await DbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            var locations = await context.Locations.Where(d => d.EpisodeId == SelectedItem!.Id)
+                                         .OrderBy(d => d.Name)
+                                         .AsNoTracking()
+                                         .ToListAsync(cancellationToken);
+
+            var characters = await context.Characters.Where(c => c.EpisodeId == SelectedItem!.Id)
+                                          .OrderBy(c => c.Name)
+                                          .AsNoTracking()
+                                          .ToListAsync(cancellationToken);
+
+            var items = await context.Items.Where(it => it.EpisodeId == SelectedItem!.Id)
+                                     .OrderBy(it => it.Type)
+                                     .ThenBy(it => it.Name)
+                                     .AsNoTracking()
+                                     .ToListAsync(cancellationToken);
+
+            return locations.Cast<EntityBase>().Concat(characters).Concat(items);
+        }
     }
 }

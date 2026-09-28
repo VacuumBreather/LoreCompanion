@@ -156,6 +156,28 @@
         </DockPanel>
     </DataTemplate>
 
+    <!--  DataTemplate.Location.Related  -->
+    <DataTemplate x:Key="DataTemplate.Location.Related" DataType="{x:Type models:Location}">
+        <DockPanel>
+            <iconPacks:PackIconRPGAwesome
+                Width="20"
+                Height="20"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                DockPanel.Dock="Left"
+                Foreground="{StaticResource Brush.Foreground.Primary}"
+                Kind="Tower" />
+            <TextBlock
+                Margin="10,0,0,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                DockPanel.Dock="Left"
+                Style="{StaticResource Style.TextBlock.Body.Small}"
+                Text="{Binding Name}"
+                TextTrimming="CharacterEllipsis" />
+        </DockPanel>
+    </DataTemplate>
+
     <!--  DataTemplate.Location.Detail.ReadOnly  -->
     <DataTemplate x:Key="DataTemplate.Location.Detail.ReadOnly" DataType="{x:Type models:Location}">
         <DockPanel cm:Bind.ModelWithoutContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
@@ -305,6 +327,28 @@
                         Text="{Binding Location.Name, FallbackValue='Unknown'}" />
                 </DockPanel>
             </DockPanel>
+        </DockPanel>
+    </DataTemplate>
+
+    <!--  DataTemplate.Item.Related  -->
+    <DataTemplate x:Key="DataTemplate.Item.Related" DataType="{x:Type models:Item}">
+        <DockPanel>
+            <iconPacks:PackIconRPGAwesome
+                Width="20"
+                Height="20"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                DockPanel.Dock="Left"
+                Foreground="{StaticResource Brush.Foreground.Primary}"
+                Kind="{Binding Type, Converter={StaticResource Converter.ItemTypeToIcon}}" />
+            <TextBlock
+                Margin="10,0,0,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                DockPanel.Dock="Left"
+                Style="{StaticResource Style.TextBlock.Body.Small}"
+                Text="{Binding Name}"
+                TextTrimming="CharacterEllipsis" />
         </DockPanel>
     </DataTemplate>
 
@@ -519,6 +563,28 @@
         </DockPanel>
     </DataTemplate>
 
+    <!--  DataTemplate.Character.Related  -->
+    <DataTemplate x:Key="DataTemplate.Character.Related" DataType="{x:Type models:Character}">
+        <DockPanel>
+            <iconPacks:PackIconMaterialDesign
+                Width="20"
+                Height="20"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                DockPanel.Dock="Left"
+                Foreground="{StaticResource Brush.Foreground.Primary}"
+                Kind="Person" />
+            <TextBlock
+                Margin="10,0,0,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                DockPanel.Dock="Left"
+                Style="{StaticResource Style.TextBlock.Body.Small}"
+                Text="{Binding Name}"
+                TextTrimming="CharacterEllipsis" />
+        </DockPanel>
+    </DataTemplate>
+
     <!--  DataTemplate.Character.Detail.ReadOnly  -->
     <DataTemplate x:Key="DataTemplate.Character.Detail.ReadOnly" DataType="{x:Type models:Character}">
         <!--  ReadOnly Template  -->
@@ -703,6 +769,41 @@
                         TextTrimming="WordEllipsis" />
                 </DockPanel>
             </DockPanel>
+        </DockPanel>
+    </DataTemplate>
+
+    <!--  DataTemplate.Dialog.Related  -->
+    <DataTemplate x:Key="DataTemplate.Dialog.Related" DataType="{x:Type models:Dialog}">
+        <DockPanel>
+            <iconPacks:PackIconMaterialDesign
+                Width="20"
+                Height="20"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                DockPanel.Dock="Left"
+                Foreground="{StaticResource Brush.Foreground.Primary}"
+                Kind="Chat" />
+            <TextBlock
+                Margin="10,0,0,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                DockPanel.Dock="Left"
+                Style="{StaticResource Style.TextBlock.Body.Small}"
+                Text="{Binding Context}"
+                TextTrimming="CharacterEllipsis" />
+            <TextBlock
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                DockPanel.Dock="Left"
+                Style="{StaticResource Style.TextBlock.Body.Small}"
+                Text=" • " />
+            <TextBlock
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                DockPanel.Dock="Left"
+                Style="{StaticResource Style.TextBlock.Body.Quote.Small}"
+                Text="{Binding Content}"
+                TextTrimming="WordEllipsis" />
         </DockPanel>
     </DataTemplate>
 
